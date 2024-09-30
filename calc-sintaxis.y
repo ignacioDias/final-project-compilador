@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 %}
-%token INT
+%token INTV
 %token TRET
 %token TDECL
 %token TVOID
@@ -29,9 +29,9 @@
 %token TELSE
 %token TTYPE
 
-%left '+' '-' '||'
-%left '*' '/' '%' '&&'
-%right '=' 
+%left TMAS TMENOS TOR
+%left TMULT TDIV TMOD TAND
+%right TIGUAL
 
 %%
 
@@ -122,7 +122,7 @@ cond_op: TAND
         ;
 
 literal: BOOLV
-        | INT
+        | INTV
         ;
 
 id: TID

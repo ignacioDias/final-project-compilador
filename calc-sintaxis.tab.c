@@ -484,7 +484,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   233
+#define YYLAST   244
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  34
@@ -543,14 +543,14 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_int8 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,    34,    34,    35,    36,    37,    40,    41,    45,    48,
-      49,    52,    53,    56,    57,    60,    63,    64,    65,    66,
-      69,    70,    73,    74,    75,    76,    77,    78,    79,    80,
-      81,    84,    86,    87,    90,    91,    92,    93,    94,    95,
-      96,    99,   100,   101,   104,   105,   106,   107,   108,   111,
-     112,   113,   116,   117,   120,   121,   124,   126,   127
+       0,    38,    38,    39,    40,    41,    44,    45,    49,    52,
+      53,    56,    57,    60,    61,    64,    67,    68,    69,    70,
+      73,    74,    77,    78,    79,    80,    81,    82,    83,    84,
+      85,    88,    90,    91,    94,    95,    96,    97,    98,    99,
+     100,   103,   104,   105,   108,   109,   110,   111,   112,   115,
+     116,   117,   120,   121,   124,   125,   128,   130,   131
 };
 #endif
 
@@ -600,7 +600,7 @@ static const yytype_int16 yypact[] =
      -22,   -13,    12,   -70,   -70,    11,   -70,   -70,    -3,   -70,
       15,   -70,    17,   -70,   -70,    16,   -70,   -70,    17,   -70,
       35,   -70,     7,    27,    11,   -70,   -70,    27,    27,    27,
-     -70,   180,   -70,    14,    85,   -70,    17,   213,   213,   143,
+     -70,   180,   -70,    14,    85,   -70,    17,   224,   213,   143,
      -70,   -70,   -70,   -70,   -70,   -70,   -70,   -70,   -70,   -70,
      -70,    27,   -70,   -70,   -70,    27,    33,    11,   -70,   -70,
      213,     1,   213,     4,    75,   -70,   -70,   -70,   132,   -70,
@@ -672,7 +672,8 @@ static const yytype_int8 yytable[] =
       49,    40,    41,    42,    43,    44,    45,    46,    47,    48,
       50,    49,    40,    41,    42,    43,    44,    45,    46,    47,
       48,    93,    49,    40,    41,    42,    43,    44,    45,    46,
-      47,    48,   100,    49
+      47,    48,   100,    49,    40,    41,    42,     0,     0,    45,
+      46,    47,     0,     0,    49
 };
 
 static const yytype_int8 yycheck[] =
@@ -700,7 +701,8 @@ static const yytype_int8 yycheck[] =
       20,    10,    11,    12,    13,    14,    15,    16,    17,    18,
       30,    20,    10,    11,    12,    13,    14,    15,    16,    17,
       18,    30,    20,    10,    11,    12,    13,    14,    15,    16,
-      17,    18,    30,    20
+      17,    18,    30,    20,    10,    11,    12,    -1,    -1,    15,
+      16,    17,    -1,    -1,    20
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
@@ -1203,7 +1205,7 @@ yyreduce:
   switch (yyn)
     {
 
-#line 1207 "calc-sintaxis.tab.c"
+#line 1209 "calc-sintaxis.tab.c"
 
       default: break;
     }

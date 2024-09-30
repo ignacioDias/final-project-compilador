@@ -26,8 +26,8 @@ wh while
 %%
 
 {digito}+                     { 
-                                printf("INT : %d\n",atoi(yytext)); 
-                                return INT;}
+                                printf("INT value : %d\n",atoi(yytext)); 
+                                return INTV;}
 
 {ret} 						    { 
                                 printf("Retorno : %s\n",yytext); 

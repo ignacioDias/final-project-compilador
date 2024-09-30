@@ -1,0 +1,1403 @@
+Terminals unused in grammar
+
+    TDECL
+    TMAIN
+
+
+State 33 conflicts: 1 shift/reduce
+State 37 conflicts: 2 shift/reduce
+State 38 conflicts: 10 shift/reduce
+State 60 conflicts: 10 shift/reduce
+State 62 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: program '{' vars methods '}'
+    2        | program '{' methods '}'
+    3        | program '{' vars '}'
+    4        | '{' '}'
+
+    5 vars: vars var_decl
+    6     | var_decl
+
+    7 var_decl: type id '=' expr ';'
+
+    8 methods: methods method_decl
+    9        | method_decl
+
+   10 method_decl: type id '(' params ')' block
+   11            | type id '(' params ')' EXTERN ';'
+
+   12 params: params ',' param
+   13       | param
+
+   14 param: type id
+
+   15 block: '{' vars statements '}'
+   16      | '{' vars '}'
+   17      | '{' statements '}'
+   18      | '{' '}'
+
+   19 statements: statements single_statement
+   20           | single_statement
+
+   21 single_statement: id '=' expr ';'
+   22                 | method_call
+   23                 | TIF '(' expr ')' THEN block
+   24                 | TIF '(' expr ')' THEN block TELSE block
+   25                 | TWHILE '(' expr ')' block
+   26                 | TRET ';'
+   27                 | TRET expr ';'
+   28                 | ';'
+   29                 | block
+
+   30 method_call: id '(' exprs ')'
+
+   31 exprs: exprs expr ','
+   32      | expr
+
+   33 expr: id
+   34     | method_call
+   35     | literal
+   36     | expr bin_op expr
+   37     | TMENOS expr
+   38     | TNEG expr
+   39     | '(' expr ')'
+
+   40 bin_op: arit_op
+   41       | rel_op
+   42       | cond_op
+
+   43 arit_op: TMAS
+   44        | TMENOS
+   45        | TMULT
+   46        | TDIV
+   47        | TMOD
+
+   48 rel_op: TMENOR
+   49       | TMAYOR
+   50       | TIGUAL
+
+   51 cond_op: TAND
+   52        | TOR
+
+   53 literal: BOOLV
+   54        | INT
+
+   55 id: TID
+
+   56 type: TTYPE
+   57     | TVOID
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' (40) 10 11 23 24 25 30 39
+    ')' (41) 10 11 23 24 25 30 39
+    ',' (44) 12 31
+    ';' (59) 7 11 21 26 27 28
+    '=' (61) 7 21
+    '{' (123) 1 2 3 4 15 16 17 18
+    '}' (125) 1 2 3 4 15 16 17 18
+    error (256)
+    INT (258) 54
+    TRET (259) 26 27
+    TDECL (260)
+    TVOID (261) 57
+    TMAIN (262)
+    BOOLV (263) 53
+    TID (264) 55
+    TMENOR (265) 48
+    TMAYOR (266) 49
+    TIGUAL (267) 50
+    TMENOS (268) 37 44
+    TMAS (269) 43
+    TMULT (270) 45
+    TDIV (271) 46
+    TMOD (272) 47
+    TOR (273) 52
+    TNEG (274) 38
+    TAND (275) 51
+    EXTERN (276) 11
+    TWHILE (277) 25
+    TIF (278) 23 24
+    THEN (279) 23 24
+    TELSE (280) 24
+    TTYPE (281) 56
+
+
+Nonterminals, with rules where they appear
+
+    $accept (34)
+        on left: 0
+    program (35)
+        on left: 1 2 3 4
+        on right: 0 1 2 3
+    vars (36)
+        on left: 5 6
+        on right: 1 3 5 15 16
+    var_decl (37)
+        on left: 7
+        on right: 5 6
+    methods (38)
+        on left: 8 9
+        on right: 1 2 8
+    method_decl (39)
+        on left: 10 11
+        on right: 8 9
+    params (40)
+        on left: 12 13
+        on right: 10 11 12
+    param (41)
+        on left: 14
+        on right: 12 13
+    block (42)
+        on left: 15 16 17 18
+        on right: 10 23 24 25 29
+    statements (43)
+        on left: 19 20
+        on right: 15 17 19
+    single_statement (44)
+        on left: 21 22 23 24 25 26 27 28 29
+        on right: 19 20
+    method_call (45)
+        on left: 30
+        on right: 22 34
+    exprs (46)
+        on left: 31 32
+        on right: 30 31
+    expr (47)
+        on left: 33 34 35 36 37 38 39
+        on right: 7 21 23 24 25 27 31 32 36 37 38 39
+    bin_op (48)
+        on left: 40 41 42
+        on right: 36
+    arit_op (49)
+        on left: 43 44 45 46 47
+        on right: 40
+    rel_op (50)
+        on left: 48 49 50
+        on right: 41
+    cond_op (51)
+        on left: 51 52
+        on right: 42
+    literal (52)
+        on left: 53 54
+        on right: 35
+    id (53)
+        on left: 55
+        on right: 7 10 11 14 21 30 33
+    type (54)
+        on left: 56 57
+        on right: 7 10 11 14
+
+
+State 0
+
+    0 $accept: • program $end
+
+    '{'  shift, and go to state 1
+
+    program  go to state 2
+
+
+State 1
+
+    4 program: '{' • '}'
+
+    '}'  shift, and go to state 3
+
+
+State 2
+
+    0 $accept: program • $end
+    1 program: program • '{' vars methods '}'
+    2        | program • '{' methods '}'
+    3        | program • '{' vars '}'
+
+    $end  shift, and go to state 4
+    '{'   shift, and go to state 5
+
+
+State 3
+
+    4 program: '{' '}' •
+
+    $default  reduce using rule 4 (program)
+
+
+State 4
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 5
+
+    1 program: program '{' • vars methods '}'
+    2        | program '{' • methods '}'
+    3        | program '{' • vars '}'
+
+    TVOID  shift, and go to state 6
+    TTYPE  shift, and go to state 7
+
+    vars         go to state 8
+    var_decl     go to state 9
+    methods      go to state 10
+    method_decl  go to state 11
+    type         go to state 12
+
+
+State 6
+
+   57 type: TVOID •
+
+    $default  reduce using rule 57 (type)
+
+
+State 7
+
+   56 type: TTYPE •
+
+    $default  reduce using rule 56 (type)
+
+
+State 8
+
+    1 program: program '{' vars • methods '}'
+    3        | program '{' vars • '}'
+    5 vars: vars • var_decl
+
+    TVOID  shift, and go to state 6
+    TTYPE  shift, and go to state 7
+    '}'    shift, and go to state 13
+
+    var_decl     go to state 14
+    methods      go to state 15
+    method_decl  go to state 11
+    type         go to state 12
+
+
+State 9
+
+    6 vars: var_decl •
+
+    $default  reduce using rule 6 (vars)
+
+
+State 10
+
+    2 program: program '{' methods • '}'
+    8 methods: methods • method_decl
+
+    TVOID  shift, and go to state 6
+    TTYPE  shift, and go to state 7
+    '}'    shift, and go to state 16
+
+    method_decl  go to state 17
+    type         go to state 18
+
+
+State 11
+
+    9 methods: method_decl •
+
+    $default  reduce using rule 9 (methods)
+
+
+State 12
+
+    7 var_decl: type • id '=' expr ';'
+   10 method_decl: type • id '(' params ')' block
+   11            | type • id '(' params ')' EXTERN ';'
+
+    TID  shift, and go to state 19
+
+    id  go to state 20
+
+
+State 13
+
+    3 program: program '{' vars '}' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 14
+
+    5 vars: vars var_decl •
+
+    $default  reduce using rule 5 (vars)
+
+
+State 15
+
+    1 program: program '{' vars methods • '}'
+    8 methods: methods • method_decl
+
+    TVOID  shift, and go to state 6
+    TTYPE  shift, and go to state 7
+    '}'    shift, and go to state 21
+
+    method_decl  go to state 17
+    type         go to state 18
+
+
+State 16
+
+    2 program: program '{' methods '}' •
+
+    $default  reduce using rule 2 (program)
+
+
+State 17
+
+    8 methods: methods method_decl •
+
+    $default  reduce using rule 8 (methods)
+
+
+State 18
+
+   10 method_decl: type • id '(' params ')' block
+   11            | type • id '(' params ')' EXTERN ';'
+
+    TID  shift, and go to state 19
+
+    id  go to state 22
+
+
+State 19
+
+   55 id: TID •
+
+    $default  reduce using rule 55 (id)
+
+
+State 20
+
+    7 var_decl: type id • '=' expr ';'
+   10 method_decl: type id • '(' params ')' block
+   11            | type id • '(' params ')' EXTERN ';'
+
+    '='  shift, and go to state 23
+    '('  shift, and go to state 24
+
+
+State 21
+
+    1 program: program '{' vars methods '}' •
+
+    $default  reduce using rule 1 (program)
+
+
+State 22
+
+   10 method_decl: type id • '(' params ')' block
+   11            | type id • '(' params ')' EXTERN ';'
+
+    '('  shift, and go to state 24
+
+
+State 23
+
+    7 var_decl: type id '=' • expr ';'
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 31
+    literal      go to state 32
+    id           go to state 33
+
+
+State 24
+
+   10 method_decl: type id '(' • params ')' block
+   11            | type id '(' • params ')' EXTERN ';'
+
+    TVOID  shift, and go to state 6
+    TTYPE  shift, and go to state 7
+
+    params  go to state 34
+    param   go to state 35
+    type    go to state 36
+
+
+State 25
+
+   54 literal: INT •
+
+    $default  reduce using rule 54 (literal)
+
+
+State 26
+
+   53 literal: BOOLV •
+
+    $default  reduce using rule 53 (literal)
+
+
+State 27
+
+   37 expr: TMENOS • expr
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 37
+    literal      go to state 32
+    id           go to state 33
+
+
+State 28
+
+   38 expr: TNEG • expr
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 38
+    literal      go to state 32
+    id           go to state 33
+
+
+State 29
+
+   39 expr: '(' • expr ')'
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 39
+    literal      go to state 32
+    id           go to state 33
+
+
+State 30
+
+   34 expr: method_call •
+
+    $default  reduce using rule 34 (expr)
+
+
+State 31
+
+    7 var_decl: type id '=' expr • ';'
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ';'     shift, and go to state 50
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 32
+
+   35 expr: literal •
+
+    $default  reduce using rule 35 (expr)
+
+
+State 33
+
+   30 method_call: id • '(' exprs ')'
+   33 expr: id •
+
+    '('  shift, and go to state 55
+
+    '('       [reduce using rule 33 (expr)]
+    $default  reduce using rule 33 (expr)
+
+
+State 34
+
+   10 method_decl: type id '(' params • ')' block
+   11            | type id '(' params • ')' EXTERN ';'
+   12 params: params • ',' param
+
+    ')'  shift, and go to state 56
+    ','  shift, and go to state 57
+
+
+State 35
+
+   13 params: param •
+
+    $default  reduce using rule 13 (params)
+
+
+State 36
+
+   14 param: type • id
+
+    TID  shift, and go to state 19
+
+    id  go to state 58
+
+
+State 37
+
+   36 expr: expr • bin_op expr
+   37     | TMENOS expr •
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TAND    shift, and go to state 49
+
+    TMENOR    [reduce using rule 37 (expr)]
+    TMAYOR    [reduce using rule 37 (expr)]
+    $default  reduce using rule 37 (expr)
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 38
+
+   36 expr: expr • bin_op expr
+   38     | TNEG expr •
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+
+    TMENOR    [reduce using rule 38 (expr)]
+    TMAYOR    [reduce using rule 38 (expr)]
+    TIGUAL    [reduce using rule 38 (expr)]
+    TMENOS    [reduce using rule 38 (expr)]
+    TMAS      [reduce using rule 38 (expr)]
+    TMULT     [reduce using rule 38 (expr)]
+    TDIV      [reduce using rule 38 (expr)]
+    TMOD      [reduce using rule 38 (expr)]
+    TOR       [reduce using rule 38 (expr)]
+    TAND      [reduce using rule 38 (expr)]
+    $default  reduce using rule 38 (expr)
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 39
+
+   36 expr: expr • bin_op expr
+   39     | '(' expr • ')'
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ')'     shift, and go to state 59
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 40
+
+   48 rel_op: TMENOR •
+
+    $default  reduce using rule 48 (rel_op)
+
+
+State 41
+
+   49 rel_op: TMAYOR •
+
+    $default  reduce using rule 49 (rel_op)
+
+
+State 42
+
+   50 rel_op: TIGUAL •
+
+    $default  reduce using rule 50 (rel_op)
+
+
+State 43
+
+   44 arit_op: TMENOS •
+
+    $default  reduce using rule 44 (arit_op)
+
+
+State 44
+
+   43 arit_op: TMAS •
+
+    $default  reduce using rule 43 (arit_op)
+
+
+State 45
+
+   45 arit_op: TMULT •
+
+    $default  reduce using rule 45 (arit_op)
+
+
+State 46
+
+   46 arit_op: TDIV •
+
+    $default  reduce using rule 46 (arit_op)
+
+
+State 47
+
+   47 arit_op: TMOD •
+
+    $default  reduce using rule 47 (arit_op)
+
+
+State 48
+
+   52 cond_op: TOR •
+
+    $default  reduce using rule 52 (cond_op)
+
+
+State 49
+
+   51 cond_op: TAND •
+
+    $default  reduce using rule 51 (cond_op)
+
+
+State 50
+
+    7 var_decl: type id '=' expr ';' •
+
+    $default  reduce using rule 7 (var_decl)
+
+
+State 51
+
+   36 expr: expr bin_op • expr
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 60
+    literal      go to state 32
+    id           go to state 33
+
+
+State 52
+
+   40 bin_op: arit_op •
+
+    $default  reduce using rule 40 (bin_op)
+
+
+State 53
+
+   41 bin_op: rel_op •
+
+    $default  reduce using rule 41 (bin_op)
+
+
+State 54
+
+   42 bin_op: cond_op •
+
+    $default  reduce using rule 42 (bin_op)
+
+
+State 55
+
+   30 method_call: id '(' • exprs ')'
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    exprs        go to state 61
+    expr         go to state 62
+    literal      go to state 32
+    id           go to state 33
+
+
+State 56
+
+   10 method_decl: type id '(' params ')' • block
+   11            | type id '(' params ')' • EXTERN ';'
+
+    EXTERN  shift, and go to state 63
+    '{'     shift, and go to state 64
+
+    block  go to state 65
+
+
+State 57
+
+   12 params: params ',' • param
+
+    TVOID  shift, and go to state 6
+    TTYPE  shift, and go to state 7
+
+    param  go to state 66
+    type   go to state 36
+
+
+State 58
+
+   14 param: type id •
+
+    $default  reduce using rule 14 (param)
+
+
+State 59
+
+   39 expr: '(' expr ')' •
+
+    $default  reduce using rule 39 (expr)
+
+
+State 60
+
+   36 expr: expr • bin_op expr
+   36     | expr bin_op expr •
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+
+    TMENOR    [reduce using rule 36 (expr)]
+    TMAYOR    [reduce using rule 36 (expr)]
+    TIGUAL    [reduce using rule 36 (expr)]
+    TMENOS    [reduce using rule 36 (expr)]
+    TMAS      [reduce using rule 36 (expr)]
+    TMULT     [reduce using rule 36 (expr)]
+    TDIV      [reduce using rule 36 (expr)]
+    TMOD      [reduce using rule 36 (expr)]
+    TOR       [reduce using rule 36 (expr)]
+    TAND      [reduce using rule 36 (expr)]
+    $default  reduce using rule 36 (expr)
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 61
+
+   30 method_call: id '(' exprs • ')'
+   31 exprs: exprs • expr ','
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+    ')'     shift, and go to state 67
+
+    method_call  go to state 30
+    expr         go to state 68
+    literal      go to state 32
+    id           go to state 33
+
+
+State 62
+
+   32 exprs: expr •
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+
+    TMENOS    [reduce using rule 32 (exprs)]
+    $default  reduce using rule 32 (exprs)
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 63
+
+   11 method_decl: type id '(' params ')' EXTERN • ';'
+
+    ';'  shift, and go to state 69
+
+
+State 64
+
+   15 block: '{' • vars statements '}'
+   16      | '{' • vars '}'
+   17      | '{' • statements '}'
+   18      | '{' • '}'
+
+    TRET    shift, and go to state 70
+    TVOID   shift, and go to state 6
+    TID     shift, and go to state 19
+    TWHILE  shift, and go to state 71
+    TIF     shift, and go to state 72
+    TTYPE   shift, and go to state 7
+    '{'     shift, and go to state 64
+    '}'     shift, and go to state 73
+    ';'     shift, and go to state 74
+
+    vars              go to state 75
+    var_decl          go to state 9
+    block             go to state 76
+    statements        go to state 77
+    single_statement  go to state 78
+    method_call       go to state 79
+    id                go to state 80
+    type              go to state 81
+
+
+State 65
+
+   10 method_decl: type id '(' params ')' block •
+
+    $default  reduce using rule 10 (method_decl)
+
+
+State 66
+
+   12 params: params ',' param •
+
+    $default  reduce using rule 12 (params)
+
+
+State 67
+
+   30 method_call: id '(' exprs ')' •
+
+    $default  reduce using rule 30 (method_call)
+
+
+State 68
+
+   31 exprs: exprs expr • ','
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ','     shift, and go to state 82
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 69
+
+   11 method_decl: type id '(' params ')' EXTERN ';' •
+
+    $default  reduce using rule 11 (method_decl)
+
+
+State 70
+
+   26 single_statement: TRET • ';'
+   27                 | TRET • expr ';'
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    ';'     shift, and go to state 83
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 84
+    literal      go to state 32
+    id           go to state 33
+
+
+State 71
+
+   25 single_statement: TWHILE • '(' expr ')' block
+
+    '('  shift, and go to state 85
+
+
+State 72
+
+   23 single_statement: TIF • '(' expr ')' THEN block
+   24                 | TIF • '(' expr ')' THEN block TELSE block
+
+    '('  shift, and go to state 86
+
+
+State 73
+
+   18 block: '{' '}' •
+
+    $default  reduce using rule 18 (block)
+
+
+State 74
+
+   28 single_statement: ';' •
+
+    $default  reduce using rule 28 (single_statement)
+
+
+State 75
+
+    5 vars: vars • var_decl
+   15 block: '{' vars • statements '}'
+   16      | '{' vars • '}'
+
+    TRET    shift, and go to state 70
+    TVOID   shift, and go to state 6
+    TID     shift, and go to state 19
+    TWHILE  shift, and go to state 71
+    TIF     shift, and go to state 72
+    TTYPE   shift, and go to state 7
+    '{'     shift, and go to state 64
+    '}'     shift, and go to state 87
+    ';'     shift, and go to state 74
+
+    var_decl          go to state 14
+    block             go to state 76
+    statements        go to state 88
+    single_statement  go to state 78
+    method_call       go to state 79
+    id                go to state 80
+    type              go to state 81
+
+
+State 76
+
+   29 single_statement: block •
+
+    $default  reduce using rule 29 (single_statement)
+
+
+State 77
+
+   17 block: '{' statements • '}'
+   19 statements: statements • single_statement
+
+    TRET    shift, and go to state 70
+    TID     shift, and go to state 19
+    TWHILE  shift, and go to state 71
+    TIF     shift, and go to state 72
+    '{'     shift, and go to state 64
+    '}'     shift, and go to state 89
+    ';'     shift, and go to state 74
+
+    block             go to state 76
+    single_statement  go to state 90
+    method_call       go to state 79
+    id                go to state 80
+
+
+State 78
+
+   20 statements: single_statement •
+
+    $default  reduce using rule 20 (statements)
+
+
+State 79
+
+   22 single_statement: method_call •
+
+    $default  reduce using rule 22 (single_statement)
+
+
+State 80
+
+   21 single_statement: id • '=' expr ';'
+   30 method_call: id • '(' exprs ')'
+
+    '='  shift, and go to state 91
+    '('  shift, and go to state 55
+
+
+State 81
+
+    7 var_decl: type • id '=' expr ';'
+
+    TID  shift, and go to state 19
+
+    id  go to state 92
+
+
+State 82
+
+   31 exprs: exprs expr ',' •
+
+    $default  reduce using rule 31 (exprs)
+
+
+State 83
+
+   26 single_statement: TRET ';' •
+
+    $default  reduce using rule 26 (single_statement)
+
+
+State 84
+
+   27 single_statement: TRET expr • ';'
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ';'     shift, and go to state 93
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 85
+
+   25 single_statement: TWHILE '(' • expr ')' block
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 94
+    literal      go to state 32
+    id           go to state 33
+
+
+State 86
+
+   23 single_statement: TIF '(' • expr ')' THEN block
+   24                 | TIF '(' • expr ')' THEN block TELSE block
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 95
+    literal      go to state 32
+    id           go to state 33
+
+
+State 87
+
+   16 block: '{' vars '}' •
+
+    $default  reduce using rule 16 (block)
+
+
+State 88
+
+   15 block: '{' vars statements • '}'
+   19 statements: statements • single_statement
+
+    TRET    shift, and go to state 70
+    TID     shift, and go to state 19
+    TWHILE  shift, and go to state 71
+    TIF     shift, and go to state 72
+    '{'     shift, and go to state 64
+    '}'     shift, and go to state 96
+    ';'     shift, and go to state 74
+
+    block             go to state 76
+    single_statement  go to state 90
+    method_call       go to state 79
+    id                go to state 80
+
+
+State 89
+
+   17 block: '{' statements '}' •
+
+    $default  reduce using rule 17 (block)
+
+
+State 90
+
+   19 statements: statements single_statement •
+
+    $default  reduce using rule 19 (statements)
+
+
+State 91
+
+   21 single_statement: id '=' • expr ';'
+
+    INT     shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 97
+    literal      go to state 32
+    id           go to state 33
+
+
+State 92
+
+    7 var_decl: type id • '=' expr ';'
+
+    '='  shift, and go to state 23
+
+
+State 93
+
+   27 single_statement: TRET expr ';' •
+
+    $default  reduce using rule 27 (single_statement)
+
+
+State 94
+
+   25 single_statement: TWHILE '(' expr • ')' block
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ')'     shift, and go to state 98
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 95
+
+   23 single_statement: TIF '(' expr • ')' THEN block
+   24                 | TIF '(' expr • ')' THEN block TELSE block
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ')'     shift, and go to state 99
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 96
+
+   15 block: '{' vars statements '}' •
+
+    $default  reduce using rule 15 (block)
+
+
+State 97
+
+   21 single_statement: id '=' expr • ';'
+   36 expr: expr • bin_op expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+    TMOD    shift, and go to state 47
+    TOR     shift, and go to state 48
+    TAND    shift, and go to state 49
+    ';'     shift, and go to state 100
+
+    bin_op   go to state 51
+    arit_op  go to state 52
+    rel_op   go to state 53
+    cond_op  go to state 54
+
+
+State 98
+
+   25 single_statement: TWHILE '(' expr ')' • block
+
+    '{'  shift, and go to state 64
+
+    block  go to state 101
+
+
+State 99
+
+   23 single_statement: TIF '(' expr ')' • THEN block
+   24                 | TIF '(' expr ')' • THEN block TELSE block
+
+    THEN  shift, and go to state 102
+
+
+State 100
+
+   21 single_statement: id '=' expr ';' •
+
+    $default  reduce using rule 21 (single_statement)
+
+
+State 101
+
+   25 single_statement: TWHILE '(' expr ')' block •
+
+    $default  reduce using rule 25 (single_statement)
+
+
+State 102
+
+   23 single_statement: TIF '(' expr ')' THEN • block
+   24                 | TIF '(' expr ')' THEN • block TELSE block
+
+    '{'  shift, and go to state 64
+
+    block  go to state 103
+
+
+State 103
+
+   23 single_statement: TIF '(' expr ')' THEN block •
+   24                 | TIF '(' expr ')' THEN block • TELSE block
+
+    TELSE  shift, and go to state 104
+
+    $default  reduce using rule 23 (single_statement)
+
+
+State 104
+
+   24 single_statement: TIF '(' expr ')' THEN block TELSE • block
+
+    '{'  shift, and go to state 64
+
+    block  go to state 105
+
+
+State 105
+
+   24 single_statement: TIF '(' expr ')' THEN block TELSE block •
+
+    $default  reduce using rule 24 (single_statement)
