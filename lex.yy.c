@@ -511,10 +511,8 @@ char *yytext;
 #include <string.h>
 #include <stdio.h>
 
-#include "calc-sintaxis.tab.h" 
-#include "tree.h"
-#line 517 "lex.yy.c"
-#line 518 "lex.yy.c"
+#line 515 "lex.yy.c"
+#line 516 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -731,10 +729,10 @@ YY_DECL
 		}
 
 	{
-#line 24 "cacl-lexico.l"
+#line 22 "cacl-lexico.l"
 
 
-#line 738 "lex.yy.c"
+#line 736 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -803,148 +801,148 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 26 "cacl-lexico.l"
+#line 24 "cacl-lexico.l"
 { 
                                 printf("INT : %d\n",atoi(yytext)); 
                                 return INT;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "cacl-lexico.l"
+#line 28 "cacl-lexico.l"
 { 
                                 printf("Retorno : %s\n",yytext); 
                                 return TRET;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 34 "cacl-lexico.l"
+#line 32 "cacl-lexico.l"
 { 
                                 printf("Decl : %s\n",yytext); 
                                 return TDECL;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 38 "cacl-lexico.l"
+#line 36 "cacl-lexico.l"
 {
                                 printf("Void : %s\n",yytext); 
                                 return TVOID;}		
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 42 "cacl-lexico.l"
+#line 40 "cacl-lexico.l"
 { 
                                 printf("MAIN : %s\n",yytext); 
                                 return TMAIN;}				
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 46 "cacl-lexico.l"
+#line 44 "cacl-lexico.l"
 {
                                     printf("BOOL: %s\n",yytext);
                                     return BOOLV;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 50 "cacl-lexico.l"
+#line 48 "cacl-lexico.l"
 { 
                                 printf("ID : %s\n",yytext);
                                 return TID;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 54 "cacl-lexico.l"
+#line 52 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TMENOR;}    
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 57 "cacl-lexico.l"
+#line 55 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TMAYOR;}    
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 60 "cacl-lexico.l"
+#line 58 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TIGUAL;}  
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 63 "cacl-lexico.l"
+#line 61 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TMENOS;}    
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 66 "cacl-lexico.l"
+#line 64 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TMAS;}    
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 69 "cacl-lexico.l"
+#line 67 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TMULT;}    
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 72 "cacl-lexico.l"
+#line 70 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TDIV;}    
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 75 "cacl-lexico.l"
+#line 73 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TMOD;}    
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 78 "cacl-lexico.l"
+#line 76 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TOR;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 81 "cacl-lexico.l"
+#line 79 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TNEG;}    
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 85 "cacl-lexico.l"
+#line 83 "cacl-lexico.l"
 {  
                                 printf("%s\n",yytext);
                                 return TAND;}    
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 91 "cacl-lexico.l"
+#line 89 "cacl-lexico.l"
 {  printf("%s\n",yytext);
                                   return *yytext;}
 	YY_BREAK
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 96 "cacl-lexico.l"
+#line 94 "cacl-lexico.l"
 ; /* ignore all the rest */
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 98 "cacl-lexico.l"
+#line 96 "cacl-lexico.l"
 ECHO;
 	YY_BREAK
-#line 948 "lex.yy.c"
+#line 946 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1961,7 +1959,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 98 "cacl-lexico.l"
+#line 96 "cacl-lexico.l"
 
 
 void yyerror(){

@@ -22,13 +22,23 @@
 %token TOR
 %token TNEG
 %token TAND
+%token EXTERN
+%token TWHILE
+%token TIF
+%token THEN
+%token TELSE
+%token TTYPE
+
+%left '+' '-' '||'
+%left '*' '/' '%' '&&'
+%right '=' 
 
 %%
 
 program: program '{' vars methods '}'
        |  program '{' methods '}'
        | program '{' vars '}'
-       | program '{' '}'
+       | '{' '}'
        ;
 
 vars: vars var_decl 
@@ -44,10 +54,10 @@ methods: methods method_decl
         ;
 
 method_decl: type id '(' params ')' block
-            | type id '(' params ')' extern ';'
+            | type id '(' params ')' EXTERN ';'
             ;
 
-params: param ', ' params
+params: params ',' param
         | param
         ;
 
@@ -66,18 +76,18 @@ statements: statements single_statement
 
 single_statement: id '=' expr ';'
                 | method_call
-                | IF '(' expr ')' THEN block
-                | IF '(' expr ')' THEN block ELSE block
-                | WHILE '(' expr ')' block
-                | RETURN ';'
-                | RETURN expr ';'
+                | TIF '(' expr ')' THEN block
+                | TIF '(' expr ')' THEN block TELSE block
+                | TWHILE '(' expr ')' block
+                | TRET ';'
+                | TRET expr ';'
                 | ';'
                 | block
                 ;
 
 method_call: id '('exprs')'
     ;
-exprs: exprs expr ', '
+exprs: exprs expr ','
     | expr
     ;
 

@@ -3,9 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "calc-sintaxis.tab.h"
 
-#include "calc-sintaxis.tab.h" 
-#include "tree.h"
 %}
 
 %option noyywrap
@@ -19,8 +18,11 @@ fal false
 ret return
 voidT void
 main "main()"
-
-
+extern extern
+ifC if
+then then
+els else
+wh while
 %%
 
 {digito}+                     { 
@@ -31,9 +33,23 @@ main "main()"
                                 printf("Retorno : %s\n",yytext); 
                                 return TRET;}
 
+{ifC} 						    { 
+                                printf("Retorno : %s\n",yytext); 
+                                return TIF;}
+
+{then} 						    { 
+                                printf("Retorno : %s\n",yytext); 
+                                return THEN;}
+
+{els} 						    { 
+                                printf("Retorno : %s\n",yytext); 
+                                return TELSE;}
+{wh} 						    { 
+                                printf("Retorno : %s\n",yytext); 
+                                return TWHILE;}
 {type} 						{ 
                                 printf("Decl : %s\n",yytext); 
-                                return TDECL;}
+                                return TTYPE;}
 
 {voidT} 						{
                                 printf("Void : %s\n",yytext); 
@@ -86,7 +102,10 @@ main "main()"
                                 printf("%s\n",yytext);
                                 return TAND;}    
                                                                                                                               
-
+{extern}                    {
+                                printf("%s\n",yytext);
+                                return EXTERN;
+                                }
 
 [+*;()={}]                   {  printf("%s\n",yytext);
                                   return *yytext;}
