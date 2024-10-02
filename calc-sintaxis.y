@@ -4,32 +4,54 @@
 #include <stdio.h>
 
 %}
+%code requires {#include "tree.h"}
+-- %code requires {#include "symbols_table.h"}
 
-%token INTV
-%token TRET
-%token TDECL
-%token TVOID
-%token TMAIN
-%token TR
-%token FAL
-%token TID
-%token TMENOR
-%token TMAYOR
-%token TIGUAL
-%token TMENOS
-%token TMAS
-%token TMULT
-%token TDIV
-%token TMOD
-%token TOR
-%token TNEG
-%token TAND
-%token EXTERN
-%token TWHILE
-%token TIF
-%token THEN
-%token TELSE
-%token TTYPE
+%union{int i; int b; Tree *tree; char *s; TData *data}
+
+%token<data> INTV
+%token<data> TRET
+%token<data> TDECL
+%token<data> TVOID
+%token<data> TMAIN
+%token<data> TR
+%token<data> FAL
+%token<data> TID
+%token<data> TMENOR
+%token<data> TMAYOR
+%token<data> TIGUAL
+%token<data> TMENOS
+%token<data> TMAS
+%token<data> TMULT
+%token<data> TDIV
+%token<data> TMOD
+%token<data> TOR
+%token<data> TNEG
+%token<data> TAND
+%token<data> EXTERN
+%token<data> TWHILE
+%token<data> TIF
+%token<data> THEN
+%token<data> TELSE
+%token<data> TTYPE
+
+%type<tree> program
+%type<tree> vars
+%type<tree> var_decl
+%type<tree> methods
+%type<tree> method_decl
+%type<tree> params
+%type<tree> param
+%type<tree> block
+%type<tree> statements
+%type<tree> single_statement
+%type<tree> method_call
+%type<tree> exprs
+%type<tree> expr
+%type<tree> literal
+%type<tree> boolValue
+%type<tree> id
+%type<tree> type
 
 %left TOR
 %left TAND
