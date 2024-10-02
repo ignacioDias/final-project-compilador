@@ -59,26 +59,27 @@ extern int yydebug;
     TDECL = 260,                   /* TDECL  */
     TVOID = 261,                   /* TVOID  */
     TMAIN = 262,                   /* TMAIN  */
-    BOOLV = 263,                   /* BOOLV  */
-    TID = 264,                     /* TID  */
-    TMENOR = 265,                  /* TMENOR  */
-    TMAYOR = 266,                  /* TMAYOR  */
-    TIGUAL = 267,                  /* TIGUAL  */
-    TMENOS = 268,                  /* TMENOS  */
-    TMAS = 269,                    /* TMAS  */
-    TMULT = 270,                   /* TMULT  */
-    TDIV = 271,                    /* TDIV  */
-    TMOD = 272,                    /* TMOD  */
-    TOR = 273,                     /* TOR  */
-    TNEG = 274,                    /* TNEG  */
-    TAND = 275,                    /* TAND  */
-    EXTERN = 276,                  /* EXTERN  */
-    TWHILE = 277,                  /* TWHILE  */
-    TIF = 278,                     /* TIF  */
-    THEN = 279,                    /* THEN  */
-    TELSE = 280,                   /* TELSE  */
-    TTYPE = 281,                   /* TTYPE  */
-    UMINUS = 282                   /* UMINUS  */
+    TR = 263,                      /* TR  */
+    FAL = 264,                     /* FAL  */
+    TID = 265,                     /* TID  */
+    TMENOR = 266,                  /* TMENOR  */
+    TMAYOR = 267,                  /* TMAYOR  */
+    TIGUAL = 268,                  /* TIGUAL  */
+    TMENOS = 269,                  /* TMENOS  */
+    TMAS = 270,                    /* TMAS  */
+    TMULT = 271,                   /* TMULT  */
+    TDIV = 272,                    /* TDIV  */
+    TMOD = 273,                    /* TMOD  */
+    TOR = 274,                     /* TOR  */
+    TNEG = 275,                    /* TNEG  */
+    TAND = 276,                    /* TAND  */
+    EXTERN = 277,                  /* EXTERN  */
+    TWHILE = 278,                  /* TWHILE  */
+    TIF = 279,                     /* TIF  */
+    THEN = 280,                    /* THEN  */
+    TELSE = 281,                   /* TELSE  */
+    TTYPE = 282,                   /* TTYPE  */
+    UMINUS = 283                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

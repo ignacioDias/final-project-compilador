@@ -59,10 +59,11 @@ wh while
                                 printf("MAIN : %s\n",yytext); 
                                 return TMAIN;}				
 
-{tr}
+{tr}                        {   printf("TRUE: %s\n", yytext);
+                                return TR;}
 {fal}						{
-                                    printf("BOOL: %s\n",yytext);
-                                    return BOOLV;}
+                                    printf("FALSE: %s\n",yytext);
+                                    return FAL;}
 {extern}                    {
                                 printf("%s\n",yytext);
                                 return EXTERN;

@@ -10,7 +10,8 @@
 %token TDECL
 %token TVOID
 %token TMAIN
-%token BOOLV
+%token TR
+%token FAL
 %token TID
 %token TMENOR
 %token TMAYOR
@@ -113,10 +114,12 @@ expr: id
     | '(' expr ')'
     ;
 
-literal: BOOLV
+literal: boolValue
         | INTV
         ;
-
+boolValue: TR
+         | FAL
+         ;
 id: TID
     ;
 type: TTYPE
