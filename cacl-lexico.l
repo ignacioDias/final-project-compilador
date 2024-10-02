@@ -78,7 +78,6 @@ wh while
                                 yylval.data = info;
                                 printf("Void : %s\n",yytext); 
                                 return TBOOL;}	                                	
-
 {main} 						{ 
                                 TData *info = newData(T_MAIN, NO_TYPE, -1, yytext);
                                 yylval.data = info;

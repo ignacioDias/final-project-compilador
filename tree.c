@@ -7,7 +7,7 @@
 #define MAX_QUEUE_SIZE 100
 
 // Función para crear un nuevo nodo
-TData * newData(Token token, Type type, int value, char* name) {
+TData* newData(Token token, Type type, int value, char* name) {
     TData *newData = (TData*)malloc(sizeof(TData)); 
     newData->token = token;
     newData->type = type;
@@ -17,7 +17,7 @@ TData * newData(Token token, Type type, int value, char* name) {
     return newData;
 }
 
-Tree * newTree(TData *data, Tree *leftChild, Tree *rightChild) {
+Tree* newTree(TData *data, Tree *leftChild, Tree *rightChild) {
     Tree *tree = (Tree*)malloc(sizeof(Tree));
     tree->info = data;
     tree->hi = leftChild;
@@ -148,7 +148,7 @@ void enqueue (Queue * q, Tree * item) {
   q->items[q->rear] = item;
 }
 
-Tree *dequeue (Queue * q) {
+Tree* dequeue (Queue * q) {
     if (q->front == q->rear) {
         printf ("Queue Underflow\n");
         exit (EXIT_FAILURE);
