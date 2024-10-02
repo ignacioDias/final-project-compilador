@@ -79,7 +79,7 @@ statements: statements single_statement
           ;
 
 single_statement: id '=' expr ';'
-                | method_call
+                | method_call ';'
                 | TIF '(' expr ')' THEN block
                 | TIF '(' expr ')' THEN block TELSE block
                 | TWHILE '(' expr ')' block
@@ -105,6 +105,7 @@ expr: id
     | expr TAND expr
     | expr TOR expr
     | expr TMENOR expr
+    | expr TMOD expr
     | expr TMAYOR expr
     | expr TIGUAL expr
     | TMENOS expr %prec UMINUS

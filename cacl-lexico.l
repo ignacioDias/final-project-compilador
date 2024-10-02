@@ -59,10 +59,14 @@ wh while
                                 printf("MAIN : %s\n",yytext); 
                                 return TMAIN;}				
 
-{tr}|{fal}						{
+{tr}
+{fal}						{
                                     printf("BOOL: %s\n",yytext);
                                     return BOOLV;}
-
+{extern}                    {
+                                printf("%s\n",yytext);
+                                return EXTERN;
+                                }
 {letra}({letra}|{digito}|"_")*    { 
                                 printf("ID : %s\n",yytext);
                                 return TID;}
@@ -102,10 +106,6 @@ wh while
                                 printf("%s\n",yytext);
                                 return TAND;}    
                                                                                                                               
-{extern}                    {
-                                printf("%s\n",yytext);
-                                return EXTERN;
-                                }
 
 [+*;()={}]                   {  printf("%s\n",yytext);
                                   return *yytext;}
