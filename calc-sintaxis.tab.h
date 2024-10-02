@@ -54,7 +54,7 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    INT = 258,                     /* INT  */
+    INTV = 258,                    /* INTV  */
     TRET = 259,                    /* TRET  */
     TDECL = 260,                   /* TDECL  */
     TVOID = 261,                   /* TVOID  */
@@ -77,7 +77,8 @@ extern int yydebug;
     TIF = 278,                     /* TIF  */
     THEN = 279,                    /* THEN  */
     TELSE = 280,                   /* TELSE  */
-    TTYPE = 281                    /* TTYPE  */
+    TTYPE = 281,                   /* TTYPE  */
+    UMINUS = 282                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 %}
+
 %token INTV
 %token TRET
 %token TDECL
@@ -29,9 +30,12 @@
 %token TELSE
 %token TTYPE
 
-%left TMAS TMENOS TOR
-%left TMULT TDIV TMOD TAND
-%right TIGUAL
+%left TOR
+%left TAND
+%nonassoc TIGUAL TMAYOR TMENOR
+%left TMAS TMENOS 
+%left TMULT TDIV TMOD
+%left UMINUS
 
 %%
 
@@ -87,39 +91,26 @@ single_statement: id '=' expr ';'
 
 method_call: id '('exprs')'
     ;
-exprs: exprs expr ','
+exprs: exprs ',' expr
     | expr
     ;
 
 expr: id
     | method_call
     | literal
-    | expr bin_op expr
-    | TMENOS expr
-    | TNEG expr
+    | expr TMAS expr
+    | expr TMENOS expr
+    | expr TDIV expr
+    | expr TMULT expr
+    | expr TAND expr
+    | expr TOR expr
+    | expr TMENOR expr
+    | expr TMAYOR expr
+    | expr TIGUAL expr
+    | TMENOS expr %prec UMINUS
+    | TNEG expr %prec UMINUS
     | '(' expr ')'
     ;
-
-bin_op: arit_op
-        | rel_op
-        | cond_op
-        ;
-
-arit_op: TMAS
-        | TMENOS
-        | TMULT
-        | TDIV
-        | TMOD
-        ;
-    
-rel_op: TMENOR
-        | TMAYOR
-        | TIGUAL
-        ;
-
-cond_op: TAND
-        | TOR
-        ;
 
 literal: BOOLV
         | INTV

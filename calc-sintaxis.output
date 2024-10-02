@@ -2,13 +2,11 @@ Terminals unused in grammar
 
     TDECL
     TMAIN
+    TMOD
 
 
 State 33 conflicts: 1 shift/reduce
-State 37 conflicts: 2 shift/reduce
-State 38 conflicts: 10 shift/reduce
-State 60 conflicts: 10 shift/reduce
-State 62 conflicts: 1 shift/reduce
+State 65 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -62,137 +60,117 @@ Grammar
    33 expr: id
    34     | method_call
    35     | literal
-   36     | expr bin_op expr
-   37     | TMENOS expr
-   38     | TNEG expr
-   39     | '(' expr ')'
+   36     | expr TMAS expr
+   37     | expr TMENOS expr
+   38     | expr TDIV expr
+   39     | expr TMULT expr
+   40     | expr TAND expr
+   41     | expr TOR expr
+   42     | expr TMENOR expr
+   43     | expr TMAYOR expr
+   44     | expr TIGUAL expr
+   45     | TMENOS expr
+   46     | TNEG expr
+   47     | '(' expr ')'
 
-   40 bin_op: arit_op
-   41       | rel_op
-   42       | cond_op
+   48 literal: BOOLV
+   49        | INTV
 
-   43 arit_op: TMAS
-   44        | TMENOS
-   45        | TMULT
-   46        | TDIV
-   47        | TMOD
+   50 id: TID
 
-   48 rel_op: TMENOR
-   49       | TMAYOR
-   50       | TIGUAL
-
-   51 cond_op: TAND
-   52        | TOR
-
-   53 literal: BOOLV
-   54        | INT
-
-   55 id: TID
-
-   56 type: TTYPE
-   57     | TVOID
+   51 type: TTYPE
+   52     | TVOID
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    '(' (40) 10 11 23 24 25 30 39
-    ')' (41) 10 11 23 24 25 30 39
+    '(' (40) 10 11 23 24 25 30 47
+    ')' (41) 10 11 23 24 25 30 47
     ',' (44) 12 31
     ';' (59) 7 11 21 26 27 28
     '=' (61) 7 21
     '{' (123) 1 2 3 4 15 16 17 18
     '}' (125) 1 2 3 4 15 16 17 18
     error (256)
-    INT (258) 54
+    INTV (258) 49
     TRET (259) 26 27
     TDECL (260)
-    TVOID (261) 57
+    TVOID (261) 52
     TMAIN (262)
-    BOOLV (263) 53
-    TID (264) 55
-    TMENOR (265) 48
-    TMAYOR (266) 49
-    TIGUAL (267) 50
-    TMENOS (268) 37 44
-    TMAS (269) 43
-    TMULT (270) 45
-    TDIV (271) 46
-    TMOD (272) 47
-    TOR (273) 52
-    TNEG (274) 38
-    TAND (275) 51
+    BOOLV (263) 48
+    TID (264) 50
+    TMENOR (265) 42
+    TMAYOR (266) 43
+    TIGUAL (267) 44
+    TMENOS (268) 37 45
+    TMAS (269) 36
+    TMULT (270) 39
+    TDIV (271) 38
+    TMOD (272)
+    TOR (273) 41
+    TNEG (274) 46
+    TAND (275) 40
     EXTERN (276) 11
     TWHILE (277) 25
     TIF (278) 23 24
     THEN (279) 23 24
     TELSE (280) 24
-    TTYPE (281) 56
+    TTYPE (281) 51
+    UMINUS (282)
 
 
 Nonterminals, with rules where they appear
 
-    $accept (34)
+    $accept (35)
         on left: 0
-    program (35)
+    program (36)
         on left: 1 2 3 4
         on right: 0 1 2 3
-    vars (36)
+    vars (37)
         on left: 5 6
         on right: 1 3 5 15 16
-    var_decl (37)
+    var_decl (38)
         on left: 7
         on right: 5 6
-    methods (38)
+    methods (39)
         on left: 8 9
         on right: 1 2 8
-    method_decl (39)
+    method_decl (40)
         on left: 10 11
         on right: 8 9
-    params (40)
+    params (41)
         on left: 12 13
         on right: 10 11 12
-    param (41)
+    param (42)
         on left: 14
         on right: 12 13
-    block (42)
+    block (43)
         on left: 15 16 17 18
         on right: 10 23 24 25 29
-    statements (43)
+    statements (44)
         on left: 19 20
         on right: 15 17 19
-    single_statement (44)
+    single_statement (45)
         on left: 21 22 23 24 25 26 27 28 29
         on right: 19 20
-    method_call (45)
+    method_call (46)
         on left: 30
         on right: 22 34
-    exprs (46)
+    exprs (47)
         on left: 31 32
         on right: 30 31
-    expr (47)
-        on left: 33 34 35 36 37 38 39
-        on right: 7 21 23 24 25 27 31 32 36 37 38 39
-    bin_op (48)
-        on left: 40 41 42
-        on right: 36
-    arit_op (49)
-        on left: 43 44 45 46 47
-        on right: 40
-    rel_op (50)
-        on left: 48 49 50
-        on right: 41
-    cond_op (51)
-        on left: 51 52
-        on right: 42
-    literal (52)
-        on left: 53 54
+    expr (48)
+        on left: 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+        on right: 7 21 23 24 25 27 31 32 36 37 38 39 40 41 42 43 44 45 46 47
+    literal (49)
+        on left: 48 49
         on right: 35
-    id (53)
-        on left: 55
+    id (50)
+        on left: 50
         on right: 7 10 11 14 21 30 33
-    type (54)
-        on left: 56 57
+    type (51)
+        on left: 51 52
         on right: 7 10 11 14
 
 
@@ -255,16 +233,16 @@ State 5
 
 State 6
 
-   57 type: TVOID •
+   52 type: TVOID •
 
-    $default  reduce using rule 57 (type)
+    $default  reduce using rule 52 (type)
 
 
 State 7
 
-   56 type: TTYPE •
+   51 type: TTYPE •
 
-    $default  reduce using rule 56 (type)
+    $default  reduce using rule 51 (type)
 
 
 State 8
@@ -374,9 +352,9 @@ State 18
 
 State 19
 
-   55 id: TID •
+   50 id: TID •
 
-    $default  reduce using rule 55 (id)
+    $default  reduce using rule 50 (id)
 
 
 State 20
@@ -408,7 +386,7 @@ State 23
 
     7 var_decl: type id '=' • expr ';'
 
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -436,23 +414,23 @@ State 24
 
 State 25
 
-   54 literal: INT •
+   49 literal: INTV •
 
-    $default  reduce using rule 54 (literal)
+    $default  reduce using rule 49 (literal)
 
 
 State 26
 
-   53 literal: BOOLV •
+   48 literal: BOOLV •
 
-    $default  reduce using rule 53 (literal)
+    $default  reduce using rule 48 (literal)
 
 
 State 27
 
-   37 expr: TMENOS • expr
+   45 expr: TMENOS • expr
 
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -467,9 +445,9 @@ State 27
 
 State 28
 
-   38 expr: TNEG • expr
+   46 expr: TNEG • expr
 
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -484,9 +462,9 @@ State 28
 
 State 29
 
-   39 expr: '(' • expr ')'
+   47 expr: '(' • expr ')'
 
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -509,7 +487,15 @@ State 30
 State 31
 
     7 var_decl: type id '=' expr • ';'
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -518,15 +504,9 @@ State 31
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ';'     shift, and go to state 50
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ';'     shift, and go to state 49
 
 
 State 32
@@ -541,7 +521,7 @@ State 33
    30 method_call: id • '(' exprs ')'
    33 expr: id •
 
-    '('  shift, and go to state 55
+    '('  shift, and go to state 50
 
     '('       [reduce using rule 33 (expr)]
     $default  reduce using rule 33 (expr)
@@ -553,8 +533,8 @@ State 34
    11            | type id '(' params • ')' EXTERN ';'
    12 params: params • ',' param
 
-    ')'  shift, and go to state 56
-    ','  shift, and go to state 57
+    ')'  shift, and go to state 51
+    ','  shift, and go to state 52
 
 
 State 35
@@ -570,70 +550,53 @@ State 36
 
     TID  shift, and go to state 19
 
-    id  go to state 58
+    id  go to state 53
 
 
 State 37
 
-   36 expr: expr • bin_op expr
-   37     | TMENOS expr •
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+   45     | TMENOS expr •
 
-    TMENOR  shift, and go to state 40
-    TMAYOR  shift, and go to state 41
-    TIGUAL  shift, and go to state 42
-    TMULT   shift, and go to state 45
-    TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TAND    shift, and go to state 49
-
-    TMENOR    [reduce using rule 37 (expr)]
-    TMAYOR    [reduce using rule 37 (expr)]
-    $default  reduce using rule 37 (expr)
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    $default  reduce using rule 45 (expr)
 
 
 State 38
 
-   36 expr: expr • bin_op expr
-   38     | TNEG expr •
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+   46     | TNEG expr •
 
-    TMENOR  shift, and go to state 40
-    TMAYOR  shift, and go to state 41
-    TIGUAL  shift, and go to state 42
-    TMENOS  shift, and go to state 43
-    TMAS    shift, and go to state 44
-    TMULT   shift, and go to state 45
-    TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-
-    TMENOR    [reduce using rule 38 (expr)]
-    TMAYOR    [reduce using rule 38 (expr)]
-    TIGUAL    [reduce using rule 38 (expr)]
-    TMENOS    [reduce using rule 38 (expr)]
-    TMAS      [reduce using rule 38 (expr)]
-    TMULT     [reduce using rule 38 (expr)]
-    TDIV      [reduce using rule 38 (expr)]
-    TMOD      [reduce using rule 38 (expr)]
-    TOR       [reduce using rule 38 (expr)]
-    TAND      [reduce using rule 38 (expr)]
-    $default  reduce using rule 38 (expr)
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    $default  reduce using rule 46 (expr)
 
 
 State 39
 
-   36 expr: expr • bin_op expr
-   39     | '(' expr • ')'
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+   47     | '(' expr • ')'
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -642,99 +605,101 @@ State 39
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ')'     shift, and go to state 59
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ')'     shift, and go to state 54
 
 
 State 40
 
-   48 rel_op: TMENOR •
+   42 expr: expr TMENOR • expr
 
-    $default  reduce using rule 48 (rel_op)
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 55
+    literal      go to state 32
+    id           go to state 33
 
 
 State 41
 
-   49 rel_op: TMAYOR •
+   43 expr: expr TMAYOR • expr
 
-    $default  reduce using rule 49 (rel_op)
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 56
+    literal      go to state 32
+    id           go to state 33
 
 
 State 42
 
-   50 rel_op: TIGUAL •
+   44 expr: expr TIGUAL • expr
 
-    $default  reduce using rule 50 (rel_op)
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 57
+    literal      go to state 32
+    id           go to state 33
 
 
 State 43
 
-   44 arit_op: TMENOS •
+   37 expr: expr TMENOS • expr
 
-    $default  reduce using rule 44 (arit_op)
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 58
+    literal      go to state 32
+    id           go to state 33
 
 
 State 44
 
-   43 arit_op: TMAS •
+   36 expr: expr TMAS • expr
 
-    $default  reduce using rule 43 (arit_op)
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 59
+    literal      go to state 32
+    id           go to state 33
 
 
 State 45
 
-   45 arit_op: TMULT •
+   39 expr: expr TMULT • expr
 
-    $default  reduce using rule 45 (arit_op)
-
-
-State 46
-
-   46 arit_op: TDIV •
-
-    $default  reduce using rule 46 (arit_op)
-
-
-State 47
-
-   47 arit_op: TMOD •
-
-    $default  reduce using rule 47 (arit_op)
-
-
-State 48
-
-   52 cond_op: TOR •
-
-    $default  reduce using rule 52 (cond_op)
-
-
-State 49
-
-   51 cond_op: TAND •
-
-    $default  reduce using rule 51 (cond_op)
-
-
-State 50
-
-    7 var_decl: type id '=' expr ';' •
-
-    $default  reduce using rule 7 (var_decl)
-
-
-State 51
-
-   36 expr: expr bin_op • expr
-
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -747,32 +712,11 @@ State 51
     id           go to state 33
 
 
-State 52
+State 46
 
-   40 bin_op: arit_op •
+   38 expr: expr TDIV • expr
 
-    $default  reduce using rule 40 (bin_op)
-
-
-State 53
-
-   41 bin_op: rel_op •
-
-    $default  reduce using rule 41 (bin_op)
-
-
-State 54
-
-   42 bin_op: cond_op •
-
-    $default  reduce using rule 42 (bin_op)
-
-
-State 55
-
-   30 method_call: id '(' • exprs ')'
-
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -780,52 +724,263 @@ State 55
     '('     shift, and go to state 29
 
     method_call  go to state 30
-    exprs        go to state 61
+    expr         go to state 61
+    literal      go to state 32
+    id           go to state 33
+
+
+State 47
+
+   41 expr: expr TOR • expr
+
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
     expr         go to state 62
     literal      go to state 32
     id           go to state 33
 
 
-State 56
+State 48
+
+   40 expr: expr TAND • expr
+
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 63
+    literal      go to state 32
+    id           go to state 33
+
+
+State 49
+
+    7 var_decl: type id '=' expr ';' •
+
+    $default  reduce using rule 7 (var_decl)
+
+
+State 50
+
+   30 method_call: id '(' • exprs ')'
+
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    exprs        go to state 64
+    expr         go to state 65
+    literal      go to state 32
+    id           go to state 33
+
+
+State 51
 
    10 method_decl: type id '(' params ')' • block
    11            | type id '(' params ')' • EXTERN ';'
 
-    EXTERN  shift, and go to state 63
-    '{'     shift, and go to state 64
+    EXTERN  shift, and go to state 66
+    '{'     shift, and go to state 67
 
-    block  go to state 65
+    block  go to state 68
 
 
-State 57
+State 52
 
    12 params: params ',' • param
 
     TVOID  shift, and go to state 6
     TTYPE  shift, and go to state 7
 
-    param  go to state 66
+    param  go to state 69
     type   go to state 36
 
 
-State 58
+State 53
 
    14 param: type id •
 
     $default  reduce using rule 14 (param)
 
 
+State 54
+
+   47 expr: '(' expr ')' •
+
+    $default  reduce using rule 47 (expr)
+
+
+State 55
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   42     | expr TMENOR expr •
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+
+    TMENOR  error (nonassociative)
+    TMAYOR  error (nonassociative)
+    TIGUAL  error (nonassociative)
+
+    $default  reduce using rule 42 (expr)
+
+
+State 56
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   43     | expr TMAYOR expr •
+   44     | expr • TIGUAL expr
+
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+
+    TMENOR  error (nonassociative)
+    TMAYOR  error (nonassociative)
+    TIGUAL  error (nonassociative)
+
+    $default  reduce using rule 43 (expr)
+
+
+State 57
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+   44     | expr TIGUAL expr •
+
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+
+    TMENOR  error (nonassociative)
+    TMAYOR  error (nonassociative)
+    TIGUAL  error (nonassociative)
+
+    $default  reduce using rule 44 (expr)
+
+
+State 58
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   37     | expr TMENOS expr •
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+
+    TMULT  shift, and go to state 45
+    TDIV   shift, and go to state 46
+
+    $default  reduce using rule 37 (expr)
+
+
 State 59
 
-   39 expr: '(' expr ')' •
+   36 expr: expr • TMAS expr
+   36     | expr TMAS expr •
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
-    $default  reduce using rule 39 (expr)
+    TMULT  shift, and go to state 45
+    TDIV   shift, and go to state 46
+
+    $default  reduce using rule 36 (expr)
 
 
 State 60
 
-   36 expr: expr • bin_op expr
-   36     | expr bin_op expr •
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   39     | expr TMULT expr •
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+
+    $default  reduce using rule 39 (expr)
+
+
+State 61
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   38     | expr TDIV expr •
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+
+    $default  reduce using rule 38 (expr)
+
+
+State 62
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   41     | expr TOR expr •
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -834,51 +989,66 @@ State 60
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
+    TAND    shift, and go to state 48
 
-    TMENOR    [reduce using rule 36 (expr)]
-    TMAYOR    [reduce using rule 36 (expr)]
-    TIGUAL    [reduce using rule 36 (expr)]
-    TMENOS    [reduce using rule 36 (expr)]
-    TMAS      [reduce using rule 36 (expr)]
-    TMULT     [reduce using rule 36 (expr)]
-    TDIV      [reduce using rule 36 (expr)]
-    TMOD      [reduce using rule 36 (expr)]
-    TOR       [reduce using rule 36 (expr)]
-    TAND      [reduce using rule 36 (expr)]
-    $default  reduce using rule 36 (expr)
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    $default  reduce using rule 41 (expr)
 
 
-State 61
+State 63
+
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   40     | expr TAND expr •
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
+
+    TMENOR  shift, and go to state 40
+    TMAYOR  shift, and go to state 41
+    TIGUAL  shift, and go to state 42
+    TMENOS  shift, and go to state 43
+    TMAS    shift, and go to state 44
+    TMULT   shift, and go to state 45
+    TDIV    shift, and go to state 46
+
+    $default  reduce using rule 40 (expr)
+
+
+State 64
 
    30 method_call: id '(' exprs • ')'
    31 exprs: exprs • expr ','
 
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
     TNEG    shift, and go to state 28
     '('     shift, and go to state 29
-    ')'     shift, and go to state 67
+    ')'     shift, and go to state 70
 
     method_call  go to state 30
-    expr         go to state 68
+    expr         go to state 71
     literal      go to state 32
     id           go to state 33
 
 
-State 62
+State 65
 
    32 exprs: expr •
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -887,78 +1057,80 @@ State 62
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
 
     TMENOS    [reduce using rule 32 (exprs)]
     $default  reduce using rule 32 (exprs)
 
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
 
-
-State 63
+State 66
 
    11 method_decl: type id '(' params ')' EXTERN • ';'
 
-    ';'  shift, and go to state 69
+    ';'  shift, and go to state 72
 
 
-State 64
+State 67
 
    15 block: '{' • vars statements '}'
    16      | '{' • vars '}'
    17      | '{' • statements '}'
    18      | '{' • '}'
 
-    TRET    shift, and go to state 70
+    TRET    shift, and go to state 73
     TVOID   shift, and go to state 6
     TID     shift, and go to state 19
-    TWHILE  shift, and go to state 71
-    TIF     shift, and go to state 72
+    TWHILE  shift, and go to state 74
+    TIF     shift, and go to state 75
     TTYPE   shift, and go to state 7
-    '{'     shift, and go to state 64
-    '}'     shift, and go to state 73
-    ';'     shift, and go to state 74
+    '{'     shift, and go to state 67
+    '}'     shift, and go to state 76
+    ';'     shift, and go to state 77
 
-    vars              go to state 75
+    vars              go to state 78
     var_decl          go to state 9
-    block             go to state 76
-    statements        go to state 77
-    single_statement  go to state 78
-    method_call       go to state 79
-    id                go to state 80
-    type              go to state 81
+    block             go to state 79
+    statements        go to state 80
+    single_statement  go to state 81
+    method_call       go to state 82
+    id                go to state 83
+    type              go to state 84
 
 
-State 65
+State 68
 
    10 method_decl: type id '(' params ')' block •
 
     $default  reduce using rule 10 (method_decl)
 
 
-State 66
+State 69
 
    12 params: params ',' param •
 
     $default  reduce using rule 12 (params)
 
 
-State 67
+State 70
 
    30 method_call: id '(' exprs ')' •
 
     $default  reduce using rule 30 (method_call)
 
 
-State 68
+State 71
 
    31 exprs: exprs expr • ','
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -967,173 +1139,175 @@ State 68
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ','     shift, and go to state 82
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ','     shift, and go to state 85
 
 
-State 69
+State 72
 
    11 method_decl: type id '(' params ')' EXTERN ';' •
 
     $default  reduce using rule 11 (method_decl)
 
 
-State 70
+State 73
 
    26 single_statement: TRET • ';'
    27                 | TRET • expr ';'
 
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
     TNEG    shift, and go to state 28
-    ';'     shift, and go to state 83
+    ';'     shift, and go to state 86
     '('     shift, and go to state 29
 
     method_call  go to state 30
-    expr         go to state 84
+    expr         go to state 87
     literal      go to state 32
     id           go to state 33
 
 
-State 71
+State 74
 
    25 single_statement: TWHILE • '(' expr ')' block
 
-    '('  shift, and go to state 85
+    '('  shift, and go to state 88
 
 
-State 72
+State 75
 
    23 single_statement: TIF • '(' expr ')' THEN block
    24                 | TIF • '(' expr ')' THEN block TELSE block
 
-    '('  shift, and go to state 86
+    '('  shift, and go to state 89
 
 
-State 73
+State 76
 
    18 block: '{' '}' •
 
     $default  reduce using rule 18 (block)
 
 
-State 74
+State 77
 
    28 single_statement: ';' •
 
     $default  reduce using rule 28 (single_statement)
 
 
-State 75
+State 78
 
     5 vars: vars • var_decl
    15 block: '{' vars • statements '}'
    16      | '{' vars • '}'
 
-    TRET    shift, and go to state 70
+    TRET    shift, and go to state 73
     TVOID   shift, and go to state 6
     TID     shift, and go to state 19
-    TWHILE  shift, and go to state 71
-    TIF     shift, and go to state 72
+    TWHILE  shift, and go to state 74
+    TIF     shift, and go to state 75
     TTYPE   shift, and go to state 7
-    '{'     shift, and go to state 64
-    '}'     shift, and go to state 87
-    ';'     shift, and go to state 74
+    '{'     shift, and go to state 67
+    '}'     shift, and go to state 90
+    ';'     shift, and go to state 77
 
     var_decl          go to state 14
-    block             go to state 76
-    statements        go to state 88
-    single_statement  go to state 78
-    method_call       go to state 79
-    id                go to state 80
-    type              go to state 81
+    block             go to state 79
+    statements        go to state 91
+    single_statement  go to state 81
+    method_call       go to state 82
+    id                go to state 83
+    type              go to state 84
 
 
-State 76
+State 79
 
    29 single_statement: block •
 
     $default  reduce using rule 29 (single_statement)
 
 
-State 77
+State 80
 
    17 block: '{' statements • '}'
    19 statements: statements • single_statement
 
-    TRET    shift, and go to state 70
+    TRET    shift, and go to state 73
     TID     shift, and go to state 19
-    TWHILE  shift, and go to state 71
-    TIF     shift, and go to state 72
-    '{'     shift, and go to state 64
-    '}'     shift, and go to state 89
-    ';'     shift, and go to state 74
+    TWHILE  shift, and go to state 74
+    TIF     shift, and go to state 75
+    '{'     shift, and go to state 67
+    '}'     shift, and go to state 92
+    ';'     shift, and go to state 77
 
-    block             go to state 76
-    single_statement  go to state 90
-    method_call       go to state 79
-    id                go to state 80
+    block             go to state 79
+    single_statement  go to state 93
+    method_call       go to state 82
+    id                go to state 83
 
 
-State 78
+State 81
 
    20 statements: single_statement •
 
     $default  reduce using rule 20 (statements)
 
 
-State 79
+State 82
 
    22 single_statement: method_call •
 
     $default  reduce using rule 22 (single_statement)
 
 
-State 80
+State 83
 
    21 single_statement: id • '=' expr ';'
    30 method_call: id • '(' exprs ')'
 
-    '='  shift, and go to state 91
-    '('  shift, and go to state 55
+    '='  shift, and go to state 94
+    '('  shift, and go to state 50
 
 
-State 81
+State 84
 
     7 var_decl: type • id '=' expr ';'
 
     TID  shift, and go to state 19
 
-    id  go to state 92
+    id  go to state 95
 
 
-State 82
+State 85
 
    31 exprs: exprs expr ',' •
 
     $default  reduce using rule 31 (exprs)
 
 
-State 83
+State 86
 
    26 single_statement: TRET ';' •
 
     $default  reduce using rule 26 (single_statement)
 
 
-State 84
+State 87
 
    27 single_statement: TRET expr • ';'
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -1142,97 +1316,16 @@ State 84
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ';'     shift, and go to state 93
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
-
-
-State 85
-
-   25 single_statement: TWHILE '(' • expr ')' block
-
-    INT     shift, and go to state 25
-    BOOLV   shift, and go to state 26
-    TID     shift, and go to state 19
-    TMENOS  shift, and go to state 27
-    TNEG    shift, and go to state 28
-    '('     shift, and go to state 29
-
-    method_call  go to state 30
-    expr         go to state 94
-    literal      go to state 32
-    id           go to state 33
-
-
-State 86
-
-   23 single_statement: TIF '(' • expr ')' THEN block
-   24                 | TIF '(' • expr ')' THEN block TELSE block
-
-    INT     shift, and go to state 25
-    BOOLV   shift, and go to state 26
-    TID     shift, and go to state 19
-    TMENOS  shift, and go to state 27
-    TNEG    shift, and go to state 28
-    '('     shift, and go to state 29
-
-    method_call  go to state 30
-    expr         go to state 95
-    literal      go to state 32
-    id           go to state 33
-
-
-State 87
-
-   16 block: '{' vars '}' •
-
-    $default  reduce using rule 16 (block)
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ';'     shift, and go to state 96
 
 
 State 88
 
-   15 block: '{' vars statements • '}'
-   19 statements: statements • single_statement
+   25 single_statement: TWHILE '(' • expr ')' block
 
-    TRET    shift, and go to state 70
-    TID     shift, and go to state 19
-    TWHILE  shift, and go to state 71
-    TIF     shift, and go to state 72
-    '{'     shift, and go to state 64
-    '}'     shift, and go to state 96
-    ';'     shift, and go to state 74
-
-    block             go to state 76
-    single_statement  go to state 90
-    method_call       go to state 79
-    id                go to state 80
-
-
-State 89
-
-   17 block: '{' statements '}' •
-
-    $default  reduce using rule 17 (block)
-
-
-State 90
-
-   19 statements: statements single_statement •
-
-    $default  reduce using rule 19 (statements)
-
-
-State 91
-
-   21 single_statement: id '=' • expr ';'
-
-    INT     shift, and go to state 25
+    INTV    shift, and go to state 25
     BOOLV   shift, and go to state 26
     TID     shift, and go to state 19
     TMENOS  shift, and go to state 27
@@ -1245,24 +1338,107 @@ State 91
     id           go to state 33
 
 
+State 89
+
+   23 single_statement: TIF '(' • expr ')' THEN block
+   24                 | TIF '(' • expr ')' THEN block TELSE block
+
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 98
+    literal      go to state 32
+    id           go to state 33
+
+
+State 90
+
+   16 block: '{' vars '}' •
+
+    $default  reduce using rule 16 (block)
+
+
+State 91
+
+   15 block: '{' vars statements • '}'
+   19 statements: statements • single_statement
+
+    TRET    shift, and go to state 73
+    TID     shift, and go to state 19
+    TWHILE  shift, and go to state 74
+    TIF     shift, and go to state 75
+    '{'     shift, and go to state 67
+    '}'     shift, and go to state 99
+    ';'     shift, and go to state 77
+
+    block             go to state 79
+    single_statement  go to state 93
+    method_call       go to state 82
+    id                go to state 83
+
+
 State 92
+
+   17 block: '{' statements '}' •
+
+    $default  reduce using rule 17 (block)
+
+
+State 93
+
+   19 statements: statements single_statement •
+
+    $default  reduce using rule 19 (statements)
+
+
+State 94
+
+   21 single_statement: id '=' • expr ';'
+
+    INTV    shift, and go to state 25
+    BOOLV   shift, and go to state 26
+    TID     shift, and go to state 19
+    TMENOS  shift, and go to state 27
+    TNEG    shift, and go to state 28
+    '('     shift, and go to state 29
+
+    method_call  go to state 30
+    expr         go to state 100
+    literal      go to state 32
+    id           go to state 33
+
+
+State 95
 
     7 var_decl: type id • '=' expr ';'
 
     '='  shift, and go to state 23
 
 
-State 93
+State 96
 
    27 single_statement: TRET expr ';' •
 
     $default  reduce using rule 27 (single_statement)
 
 
-State 94
+State 97
 
    25 single_statement: TWHILE '(' expr • ')' block
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -1271,22 +1447,24 @@ State 94
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ')'     shift, and go to state 98
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ')'     shift, and go to state 101
 
 
-State 95
+State 98
 
    23 single_statement: TIF '(' expr • ')' THEN block
    24                 | TIF '(' expr • ')' THEN block TELSE block
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -1295,28 +1473,30 @@ State 95
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ')'     shift, and go to state 99
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ')'     shift, and go to state 102
 
 
-State 96
+State 99
 
    15 block: '{' vars statements '}' •
 
     $default  reduce using rule 15 (block)
 
 
-State 97
+State 100
 
    21 single_statement: id '=' expr • ';'
-   36 expr: expr • bin_op expr
+   36 expr: expr • TMAS expr
+   37     | expr • TMENOS expr
+   38     | expr • TDIV expr
+   39     | expr • TMULT expr
+   40     | expr • TAND expr
+   41     | expr • TOR expr
+   42     | expr • TMENOR expr
+   43     | expr • TMAYOR expr
+   44     | expr • TIGUAL expr
 
     TMENOR  shift, and go to state 40
     TMAYOR  shift, and go to state 41
@@ -1325,78 +1505,72 @@ State 97
     TMAS    shift, and go to state 44
     TMULT   shift, and go to state 45
     TDIV    shift, and go to state 46
-    TMOD    shift, and go to state 47
-    TOR     shift, and go to state 48
-    TAND    shift, and go to state 49
-    ';'     shift, and go to state 100
-
-    bin_op   go to state 51
-    arit_op  go to state 52
-    rel_op   go to state 53
-    cond_op  go to state 54
+    TOR     shift, and go to state 47
+    TAND    shift, and go to state 48
+    ';'     shift, and go to state 103
 
 
-State 98
+State 101
 
    25 single_statement: TWHILE '(' expr ')' • block
 
-    '{'  shift, and go to state 64
+    '{'  shift, and go to state 67
 
-    block  go to state 101
+    block  go to state 104
 
 
-State 99
+State 102
 
    23 single_statement: TIF '(' expr ')' • THEN block
    24                 | TIF '(' expr ')' • THEN block TELSE block
 
-    THEN  shift, and go to state 102
+    THEN  shift, and go to state 105
 
 
-State 100
+State 103
 
    21 single_statement: id '=' expr ';' •
 
     $default  reduce using rule 21 (single_statement)
 
 
-State 101
+State 104
 
    25 single_statement: TWHILE '(' expr ')' block •
 
     $default  reduce using rule 25 (single_statement)
 
 
-State 102
+State 105
 
    23 single_statement: TIF '(' expr ')' THEN • block
    24                 | TIF '(' expr ')' THEN • block TELSE block
 
-    '{'  shift, and go to state 64
+    '{'  shift, and go to state 67
 
-    block  go to state 103
+    block  go to state 106
 
 
-State 103
+State 106
 
    23 single_statement: TIF '(' expr ')' THEN block •
    24                 | TIF '(' expr ')' THEN block • TELSE block
 
-    TELSE  shift, and go to state 104
+    TELSE  shift, and go to state 107
 
     $default  reduce using rule 23 (single_statement)
 
 
-State 104
+State 107
 
    24 single_statement: TIF '(' expr ')' THEN block TELSE • block
 
-    '{'  shift, and go to state 64
+    '{'  shift, and go to state 67
 
-    block  go to state 105
+    block  go to state 108
 
 
-State 105
+State 108
 
    24 single_statement: TIF '(' expr ')' THEN block TELSE block •
 
