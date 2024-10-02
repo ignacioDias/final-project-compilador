@@ -5,7 +5,6 @@
 
 %}
 %code requires {#include "tree.h"}
--- %code requires {#include "symbols_table.h"}
 
 %union{int i; int b; Tree *tree; char *s; TData *data}
 
@@ -33,7 +32,8 @@
 %token<data> TIF
 %token<data> THEN
 %token<data> TELSE
-%token<data> TTYPE
+%token<data> TINT
+%token<data> TBOOL
 
 %type<tree> program
 %type<tree> vars
@@ -51,7 +51,7 @@
 %type<tree> literal
 %type<tree> boolValue
 %type<tree> id
-%type<tree> type
+%type<tree> ttype
 
 %left TOR
 %left TAND
@@ -73,22 +73,22 @@ vars: vars var_decl
     ;
 
 var_decl:
-    type id '=' expr ';'
+    ttype id '=' expr ';'
     ;
 
 methods: methods method_decl 
         | method_decl
         ;
 
-method_decl: type id '(' params ')' block
-            | type id '(' params ')' EXTERN ';'
+method_decl: ttype id '(' params ')' block
+            | ttype id '(' params ')' EXTERN ';'
             ;
 
 params: params ',' param
         | param
         ;
 
-param: type id
+param: ttype id
 ;
 
 block: '{' vars statements '}'
@@ -144,6 +144,7 @@ boolValue: TR
          ;
 id: TID
     ;
-type: TTYPE
+ttype: TINT
+    | TBOOL
     | TVOID
     ;

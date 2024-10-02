@@ -44,6 +44,11 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 7 "calc-sintaxis.y"
+#include "tree.h"
+
+#line 52 "calc-sintaxis.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -78,15 +83,24 @@ extern int yydebug;
     TIF = 279,                     /* TIF  */
     THEN = 280,                    /* THEN  */
     TELSE = 281,                   /* TELSE  */
-    TTYPE = 282,                   /* TTYPE  */
-    UMINUS = 283                   /* UMINUS  */
+    TINT = 282,                    /* TINT  */
+    TBOOL = 283,                   /* TBOOL  */
+    UMINUS = 284                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 9 "calc-sintaxis.y"
+int i; int b; Tree *tree; char *s; TData *data
+
+#line 101 "calc-sintaxis.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

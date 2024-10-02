@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "calc-sintaxis.tab.h"
 #include "tree.h"
 #define MAX_QUEUE_SIZE 100
 
@@ -89,8 +90,10 @@ void auxiliarPrintInfo(Tree *tree, int level, bool isLast[]) {
         printf("THEN");
     } else if (tree->info->token == TELSE) {
         printf("ELSE");
-    } else if (tree->info->token == TTYPE) {
-        printf("TYPE");
+    } else if (tree->info->token == TBOOL) {
+        printf("BOOL");
+    } else if (tree->info->token == TINT) {
+        printf("INT");
     } else if (tree->info->token == UMINUS) {
         printf("UMINUS");
     }

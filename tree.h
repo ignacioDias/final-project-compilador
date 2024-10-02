@@ -6,33 +6,34 @@
 
 // Enumeración para operadores
 typedef enum Token {
-    YYUNDEF = 257,                 /* "invalid token"  */
-    INTV = 258,                    /* INTV  */
-    TRET = 259,                    /* TRET  */
-    TDECL = 260,                   /* TDECL  */
-    TVOID = 261,                   /* TVOID  */
-    TMAIN = 262,                   /* TMAIN  */
-    TR = 263,                      /* TR  */
-    FAL = 264,                     /* FAL  */
-    TID = 265,                     /* TID  */
-    TMENOR = 266,                  /* TMENOR  */
-    TMAYOR = 267,                  /* TMAYOR  */
-    TIGUAL = 268,                  /* TIGUAL  */
-    TMENOS = 269,                  /* TMENOS  */
-    TMAS = 270,                    /* TMAS  */
-    TMULT = 271,                   /* TMULT  */
-    TDIV = 272,                    /* TDIV  */
-    TMOD = 273,                    /* TMOD  */
-    TOR = 274,                     /* TOR  */
-    TNEG = 275,                    /* TNEG  */
-    TAND = 276,                    /* TAND  */
-    EXTERN = 277,                  /* EXTERN  */
-    TWHILE = 278,                  /* TWHILE  */
-    TIF = 279,                     /* TIF  */
-    THEN = 280,                    /* THEN  */
-    TELSE = 281,                   /* TELSE  */
-    TTYPE = 282,                   /* TTYPE  */
-    UMINUS = 283    
+    T_YYUNDEF = 257,                 /* "invalid token"  */
+    T_INTV = 258,                    /* INTV  */
+    T_RET = 259,                    /* TRET  */
+    T_DECL = 260,                   /* TDECL  */
+    T_VOID = 261,                   /* TVOID  */
+    T_MAIN = 262,                   /* TMAIN  */
+    T_TRUE = 263,                      /* TR  */
+    T_FAL = 264,                     /* FAL  */
+    T_ID = 265,                     /* TID  */
+    T_MENOR = 266,                  /* TMENOR  */
+    T_MAYOR = 267,                  /* TMAYOR  */
+    T_IGUAL = 268,                  /* TIGUAL  */
+    T_MENOS = 269,                  /* TMENOS  */
+    T_MAS = 270,                    /* TMAS  */
+    T_MULT = 271,                   /* TMULT  */
+    T_DIV = 272,                    /* TDIV  */
+    T_MOD = 273,                    /* TMOD  */
+    T_OR = 274,                     /* TOR  */
+    T_NEG = 275,                    /* TNEG  */
+    T_AND = 276,                    /* TAND  */
+    T_EXTERN = 277,                  /* EXTERN  */
+    T_WHILE = 278,                  /* TWHILE  */
+    T_IF = 279,                     /* TIF  */
+    T_THEN = 280,                    /* THEN  */
+    T_ELSE = 281,                   /* TELSE  */
+    T_INT = 282,                   /* TINT  */
+    T_BOOL = 283,                   /* TBOOL  */
+    T_UMINUS = 284    
 } Token;
 
 typedef enum Type {

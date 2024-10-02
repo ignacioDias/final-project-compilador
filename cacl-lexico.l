@@ -13,11 +13,12 @@
 
 letra [a-zA-Z]      
 digito [0-9]   
-type int|bool
+intT int
+boolT bool
 tr true 
 fal false 
 ret return
-voidT void //TODO: PREGUNTAR
+voidT void 
 main "main()"
 extern extern
 ifC if
@@ -27,153 +28,151 @@ wh while
 %%
 
 {digito}+                     { 
-                                TData *info = newData(INTV, INTEGER,atoi(yytext), yytext);
+                                TData *info = newData(T_INTV, INTEGER,atoi(yytext), yytext);
                                 yylval.data = info;
                                 printf("INT value : %d\n",atoi(yytext)); 
                                 return INTV;}
 
 {ret} 						    { 
-                                TData *info = newData(TRET, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_RET, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("RETURN : %s\n",yytext); 
                                 return TRET;
                                 }
 
 {ifC} 						    { 
-                                TData *info = newData(TIF, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_IF, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("IF: %s\n",yytext); 
                                 return TIF;
                                 }
 
 {then} 						    { 
-                                TData *info = newData(THEN, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_THEN, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("THEN : %s\n",yytext); 
                                 return THEN;}
 
 {els} 						    { 
-                                TData *info = newData(TELSE, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_ELSE, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("ELSE: %s\n",yytext); 
                                 return TELSE;}
 {wh} 						    { 
-                                TData *info = newData(TWHILE, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_WHILE, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("WHILE: %s\n",yytext); 
                                 return TWHILE;}
-{type} 						{ 
-                                Type type = NO_TYPE;
-                                if(strcmp(yytext, "int") == 0) {
-                                    type = INTEGER;
-                                } else if(strcmp(yytext, "bool") == 0) {
-                                    type = BOOL;
-                                } else if(strcmp(yytext, "void") == 0) {
-                                    type = VOID;
-                                }
-                                TData *info = newData(TTYPE, type, -1, yytext);
-                                yylval.data = info;
-                                printf("Decl : %s\n",yytext); 
-                                return TTYPE;}
 {voidT} 						{
-                                TData *info = newData(TVOID, VOID, -1, yytext);
+                                TData *info = newData(T_VOID, VOID, -1, yytext);
                                 yylval.data = info;
                                 printf("Void : %s\n",yytext); 
-                                return TVOID;}		
+                                return TVOID;}	
+{intT} 						{
+                                TData *info = newData(T_INT, 1, -1, yytext);
+                                yylval.data = info;
+                                printf("Void : %s\n",yytext); 
+                                return TINT;}	
+{boolT} 						{
+                                TData *info = newData(T_BOOL, BOOL, -1, yytext);
+                                yylval.data = info;
+                                printf("Void : %s\n",yytext); 
+                                return TBOOL;}	                                	
 
 {main} 						{ 
-                                TData *info = newData(TMAIN, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MAIN, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("MAIN : %s\n",yytext); 
                                 return TMAIN;}				
 
 {tr}                        {   
-                                TData *info = newData(TR, BOOL, 1, yytext);
+                                TData *info = newData(T_TRUE, BOOL, 1, yytext);
                                 yylval.data = info;
                                 printf("TRUE: %s\n", yytext);
                                 return TR;}
 {fal}						{
-                                TData *info = newData(FAL, BOOL, 0, yytext);
+                                TData *info = newData(T_FAL, BOOL, 0, yytext);
                                 yylval.data = info;
                                 printf("FALSE: %s\n",yytext);
                                 return FAL;}
 {extern}                    {
-                                TData *info = newData(EXTERN, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_EXTERN, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return EXTERN;
                                 }
 {letra}({letra}|{digito}|"_")*    { 
-                                TData *info = newData(TID, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_ID, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("ID : %s\n",yytext);
                                 return TID;}
 
 "<"                       {  
-                                TData *info = newData(TMENOR, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MENOR, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TMENOR;}    
 ">"                       {  
-                                TData *info = newData(TMAYOR, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MAYOR, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TMAYOR;}    
 "=="                       {  
-                                TData *info = newData(TIGUAL, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_IGUAL, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TIGUAL;}  
 "-"                       {  
-                                TData *info = newData(TMENOS, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MENOS, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TMENOS;}    
 "+"                       {  
-                                TData *info = newData(TMAS, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MAS, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TMAS;}    
 "*"                       {  
-                                TData *info = newData(TMULT, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MULT, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TMULT;}    
 "/"                       {  
-                                TData *info = newData(TDIV, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_DIV, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TDIV;}    
 "%"                       {  
-                                TData *info = newData(TMOD, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_MOD, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TMOD;}    
 "||"                       {  
-                                TData *info = newData(TOR, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_OR, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TOR;}
 "!"                       {  
-                                TData *info = newData(TNEG, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_NEG, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TNEG;}    
                                     
 "&&"                       {  
-                                TData *info = newData(TAND, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_AND, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("%s\n",yytext);
                                 return TAND;}    
                                                                                                                               
 
-[;()={}]                   {  printf("%s\n",yytext);
-                                  return *yytext;} //TODO: PREGUNTAR
+[;()={},]                   {       
+                                printf("%s\n",yytext);
+                               return *yytext;} 
 
 
 
-.|\n                          ; /* ignore all the rest *///TODO: PREGUNTAR
-
+" "|\t|\n                          ; /* ignore all the rest */
+.                           {yyerror();}
 %%
 
 void yyerror(){
