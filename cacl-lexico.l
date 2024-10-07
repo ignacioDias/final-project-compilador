@@ -13,7 +13,7 @@
 
 letra [a-zA-Z]      
 digito [0-9]   
-intT int
+intT integer
 boolT bool
 tr true 
 fal false 
@@ -25,6 +25,7 @@ ifC if
 then then
 els else
 wh while
+prog program
 %%
 
 {digito}+                     { 
@@ -77,12 +78,17 @@ wh while
                                 TData *info = newData(T_BOOL, BOOL, -1, yytext);
                                 yylval.data = info;
                                 printf("Void : %s\n",yytext); 
-                                return TBOOL;}	                                	
+                                return TBOOL;}	 
+{prog} 						{
+                                TData *info = newData(T_PROGRAM, NO_TYPE, -1, yytext);
+                                yylval.data = info;
+                                printf("Void : %s\n",yytext); 
+                                return T_PROGRAM;}                               	
 {main} 						{ 
-                                TData *info = newData(T_MAIN, NO_TYPE, -1, yytext);
+                                TData *info = newData(T_ID, NO_TYPE, -1, yytext);
                                 yylval.data = info;
                                 printf("MAIN : %s\n",yytext); 
-                                return TMAIN;}				
+                                return TID;}				
 
 {tr}                        {   
                                 TData *info = newData(T_TRUE, BOOL, 1, yytext);
@@ -163,6 +169,13 @@ wh while
                                 printf("%s\n",yytext);
                                 return TAND;}    
                                                                                                                               
+"="                         {
+                                TData *info = newData(T_ASIGN, NO_TYPE, -1, yytext);
+                                yylval.data = info;
+                                printf("%s\n",yytext);
+                                return T_ASIGN;
+
+                            }
 
 [;()={},]                   {       
                                 printf("%s\n",yytext);

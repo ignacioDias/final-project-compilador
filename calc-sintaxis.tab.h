@@ -45,7 +45,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 7 "calc-sintaxis.y"
+#line 8 "calc-sintaxis.y"
 #include "tree.h"
 
 #line 52 "calc-sintaxis.tab.h"
@@ -85,7 +85,9 @@ extern int yydebug;
     TELSE = 281,                   /* TELSE  */
     TINT = 282,                    /* TINT  */
     TBOOL = 283,                   /* TBOOL  */
-    UMINUS = 284                   /* UMINUS  */
+    TASIGN = 284,                  /* TASIGN  */
+    TPROGRAM = 285,                /* TPROGRAM  */
+    UMINUS = 286                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -94,10 +96,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 9 "calc-sintaxis.y"
+#line 10 "calc-sintaxis.y"
 int i; int b; Tree *tree; char *s; TData *data
 
-#line 101 "calc-sintaxis.tab.h"
+#line 103 "calc-sintaxis.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -1,3 +1,5 @@
-int main(){
-return 1;
+program {
+integer x;
+x = 3;
+x = 3 + y;
 }
