@@ -74,6 +74,10 @@ void auxiliarPrintInfo(Tree *tree, int level, bool isLast[]) {
         printf("DIVITION");
     } else if (tree->info->token == TMOD) {
         printf("MODULE");
+    } else if (tree->info->token == TASIGN) {
+        printf("ASIGN");
+    } else if (tree->info->token == TPROGRAM) {
+        printf("PROGRAM");
     } else if (tree->info->token == TOR) {
         printf("OR");
     } else if (tree->info->token == TNEG) {

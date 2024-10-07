@@ -5,12 +5,11 @@
 #include <stdlib.h>
 
 typedef struct List {
-    TData *info;
+    TData *info; //TODO: HACER LIST<TDATA> con stack
     struct List *next;
 } LSE;
-
 int insert(LSE **list, TData *elem);
-void set(LSE *list, char* name, int val);
+int set(LSE *list, char* name, int val);
 TData* get(LSE *list, char* nom);
 int interpreter(LSE * list, Tree* bt);
 int checkType(LSE* lse, Tree* tree);

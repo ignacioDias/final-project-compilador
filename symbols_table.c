@@ -70,7 +70,7 @@ int evalValue(int a, int b, Token token) {
     }
 }
 
-int interpreter(LSE * list, Tree * bt) { //TODO: TERMINAR
+int interpreter(LSE* list, Tree** bt) { //TODO: TERMINAR
     if(!bt || !list)
         return -1;
     switch(bt->info->token) {
@@ -108,6 +108,13 @@ int interpreter(LSE * list, Tree * bt) { //TODO: TERMINAR
             bt->info->value = interpreter(list, bt->hi);
             printf("value return: %d\n", bt->info->value);
             return bt->info->value;
+        case T_ASIGN:
+            TData* node = get(list, bt->info->name);
+            if(!node) {
+                perror("Declaration error: Var doesn't exist\n");
+                exit(1);
+            }
+
         default:
             return -1;
             break; 
