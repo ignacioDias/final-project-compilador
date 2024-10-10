@@ -169,14 +169,14 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
     }
 }
 
-int evalType(LSE* list, Tree* bt) { //TODO: TERMINAR
+int evalType(LSE* list, Tree* bt) { //TODO: BORRAR LA SYMBOLS_TABLE COMO PARÁMETRO, NO HACE FALTA YA QUE EL CHECKEO DE VARIABLES SERÁ EN OTRO LADO
     if(!bt || !list)
-        return -1;
+        return 0;
     switch(bt->info->token) {
         case T_VOID:
             return bt->info->type == VOID;
         case T_ID:
-            return bt->info->type == NO_TYPE;
+            return bt->info->type == NO_TYPE; //TODO: CAMBIAR, ID DEBERÍA CARGAR EL VALOR CON S_T(?)
             break;
         case T_INTV:
         case T_INT:
@@ -273,16 +273,25 @@ int evalType(LSE* list, Tree* bt) { //TODO: TERMINAR
         case T_IF:
         case T_WHILE:
             return evalType(list, bt->hi) && evalType(list, bt->hd);
+            break;
+        case T_THEN:
+            return evalType(list, bt->hi);
+            break;
+        case T_ELSE:
+            return evalType(list, bt->hi);
+            break;
+        case T_PROGRAM:
+            if(bt->hd)
+                return evalType(list, bt->hi) && evalType(list, bt->hd);
+            return evalType(list, bt->hi);
+            break;
         default:
-            return -1;
+            return 0;
             break; 
     }
 }
 /*
     T_MAIN = 262,             
-    T_THEN = 280,             
-    T_ELSE = 281,             
-    T_PROGRAM = 285,  
 */
 
 

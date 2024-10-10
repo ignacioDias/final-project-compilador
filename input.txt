@@ -1,7 +1,7 @@
 program {
 integer x;
 x = 3;
-if(x>3) THEN {
-x = x + 1;
+if(x > true) then {
+x = 2 + 3;
 }
 }

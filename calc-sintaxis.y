@@ -111,7 +111,7 @@ statements: statements single_statement {TData* data = newData(T_YYUNDEF, NO_TYP
 single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
                 | method_call ';' {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "single_statement"); $$ = newTree(data, $1, NULL);}
                 | TIF '(' expr ')' THEN block  {Tree *tree = newTree($1, $3, newTree($5, $6, NULL)); $$ = tree;}
-                | TIF '(' expr ')' THEN block TELSE block {Tree *tree = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), $6, $8)); $$ = tree;}
+                | TIF '(' expr ')' THEN block TELSE block {Tree *tree = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree($5, $6, NULL), newTree($7, $8, NULL))); $$ = tree;}
                 | TWHILE '(' expr ')' block {Tree *tree = newTree($1, $3, $5); $$ = tree;}
                 | TRET ';' {$$ = newTree($1, NULL, NULL);}
                 | TRET expr ';' {$$ = newTree($1, $2, NULL);}

@@ -1350,13 +1350,13 @@ yyreduce:
 
   case 24: /* single_statement: TIF '(' expr ')' THEN block  */
 #line 113 "calc-sintaxis.y"
-                                               {Tree *tree = newTree((yyvsp[-5].data), (yyvsp[-3].tree), (yyvsp[0].tree));}
+                                               {Tree *tree = newTree((yyvsp[-5].data), (yyvsp[-3].tree), newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL)); (yyval.tree) = tree;}
 #line 1355 "calc-sintaxis.tab.c"
     break;
 
   case 25: /* single_statement: TIF '(' expr ')' THEN block TELSE block  */
 #line 114 "calc-sintaxis.y"
-                                                          {Tree *tree = newTree((yyvsp[-7].data), (yyvsp[-5].tree), newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree))); (yyval.tree) = tree;}
+                                                          {Tree *tree = newTree((yyvsp[-7].data), (yyvsp[-5].tree), newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree((yyvsp[-3].data), (yyvsp[-2].tree), NULL), newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL))); (yyval.tree) = tree;}
 #line 1361 "calc-sintaxis.tab.c"
     break;
 
