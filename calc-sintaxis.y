@@ -3,9 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "tree.h"
+#include "symbols_table.h"
+
+LSE* table;
 
 %}
 %code requires {#include "tree.h"}
+%code requires {#include "symbols_table.h"}
 
 %union{int i; int b; Tree *tree; char *s; TData *data}
 
@@ -65,18 +69,18 @@
 
 %%
 
-program: TPROGRAM '{' vars methods '}'             {Tree *tree = newTree($1, $3, $4); printTree(tree);}
-       |  TPROGRAM '{' methods '}'                  {Tree *tree = newTree($1, $3, NULL); printTree(tree);}
-       | TPROGRAM block                        {Tree *tree = newTree($1, $2, NULL); printTree(tree);}
+program: TPROGRAM '{' vars methods '}'             {Tree *tree = newTree($1, $3, $4); evalType(table, tree); printTree(tree);}
+       |  TPROGRAM '{' methods '}'                  {Tree *tree = newTree($1, $3, NULL); evalType(table, tree); printTree(tree);}
+       | TPROGRAM block                        {Tree *tree = newTree($1, $2, NULL); evalType(table, tree); printTree(tree);}
        ;
 
-vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, ""); Tree *tree = newTree(data, $1, $2); $$ = tree;}
+vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "vars"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
     | var_decl  {$$ = $1;}
     ;
 
 var_decl:
-    ttype id TASIGN expr ';' {Tree *leftChild = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "var declaration"), $1, $2); Tree *tree = newTree($3, leftChild, $4); $$ = tree;}
-    |ttype id ';' {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "var declaration"), $1, $2);}
+    ttype id TASIGN expr ';' {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); Tree *tree = newTree($3, leftChild, $4); $$ = tree;}
+    |ttype id ';' {$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);}
     ;
 
 methods: methods method_decl  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "methods"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
@@ -106,8 +110,8 @@ statements: statements single_statement {TData* data = newData(T_YYUNDEF, NO_TYP
 
 single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
                 | method_call ';' {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "single_statement"); $$ = newTree(data, $1, NULL);}
-                | TIF '(' expr ')' THEN block  {Tree *tree = newTree($1, $3, $6); printTree(tree);}
-                | TIF '(' expr ')' THEN block TELSE block {Tree *tree = newTree($1, $3, newTree($7, $6, $8)); $$ = tree;}
+                | TIF '(' expr ')' THEN block  {Tree *tree = newTree($1, $3, newTree($5, $6, NULL)); $$ = tree;}
+                | TIF '(' expr ')' THEN block TELSE block {Tree *tree = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), $6, $8)); $$ = tree;}
                 | TWHILE '(' expr ')' block {Tree *tree = newTree($1, $3, $5); $$ = tree;}
                 | TRET ';' {$$ = newTree($1, NULL, NULL);}
                 | TRET expr ';' {$$ = newTree($1, $2, NULL);}

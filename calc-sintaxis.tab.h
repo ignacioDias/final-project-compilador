@@ -45,10 +45,12 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 8 "calc-sintaxis.y"
+#line 11 "calc-sintaxis.y"
 #include "tree.h"
+#line 12 "calc-sintaxis.y"
+#include "symbols_table.h"
 
-#line 52 "calc-sintaxis.tab.h"
+#line 54 "calc-sintaxis.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -96,10 +98,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 10 "calc-sintaxis.y"
+#line 14 "calc-sintaxis.y"
 int i; int b; Tree *tree; char *s; TData *data
 
-#line 103 "calc-sintaxis.tab.h"
+#line 105 "calc-sintaxis.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
