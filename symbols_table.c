@@ -169,14 +169,15 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
     }
 }
 
-int evalType(LSE* list, Tree* bt) { //TODO: BORRAR LA SYMBOLS_TABLE COMO PARÁMETRO, NO HACE FALTA YA QUE EL CHECKEO DE VARIABLES SERÁ EN OTRO LADO
+int evalType(LSE* list, Tree* bt) {
     if(!bt || !list)
         return 0;
     switch(bt->info->token) {
         case T_VOID:
             return bt->info->type == VOID;
         case T_ID:
-            return bt->info->type == NO_TYPE; //TODO: CAMBIAR, ID DEBERÍA CARGAR EL VALOR CON S_T(?)
+            bt->info->type = get(list, bt->info->name)->type;
+            return bt->info->type == NO_TYPE;
             break;
         case T_INTV:
         case T_INT:
@@ -258,11 +259,6 @@ int evalType(LSE* list, Tree* bt) { //TODO: BORRAR LA SYMBOLS_TABLE COMO PARÁME
             }
             break;
         case T_DECL:
-            if(bt->hd->info->type != NO_TYPE) {
-                perror("Declaration error: ID wrong type\n");
-                exit(1);
-                break;
-            }
             if(evalType(list, bt->hi) && evalType(list, bt->hd)) {
                 bt->info->type = bt->hi->info->type;
                 return 1;
