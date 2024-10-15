@@ -6,34 +6,33 @@
 
 Type curretFunctionType = NO_TYPE;
 
-int insert(LSE **list, TData* elem) {
-    if(get(*list, elem->name))
-        return -1;
-    if(*list == NULL) {
-        *list = (LSE*)malloc(sizeof(LSE));
-        (*list)->info = elem;
-    } else {
-        LSE *aux = (LSE*)malloc(sizeof(LSE));
-        aux->info = elem;
-        aux->next = *list;
-        *list = aux;
+int insertElem(LSE **list, TData* elem) {
+    if(getNode(*list, elem->name))
+        return 0;
+    LSE *aux = *list;
+    while(aux->next) {
+        aux = aux->next;
     }
+    LSE* node = (LSE*)malloc(sizeof(LSE));
+    node->info = elem;
+    aux->next = node;
+    node->next = NULL; 
     return 1;
 }
 
-int set(LSE *list, char* name, int val) {
-    TData* elem = get(list, name);
+int insertLevel(SymbolsTable **symbolsTable, LSE *level) {
+    SymbolsTable* node = (SymbolsTable*)malloc(sizeof(SymbolsTable));
+    node->info = level;
+    node->next = *symbolsTable; 
+    *symbolsTable = node; 
+    return 1;
+}
+int setValueToNode(LSE *list, char* name, int val) {
+    TData* elem = getNode(list, name);
     if(elem != NULL){
-        LSE * l = list;
-        while(l->next != NULL) {
-            if(strcmp((l->info)->name, name) == 0) {
-                (l->info)->value = val;
-                return 1;
-            }
-            l = l->next;
-        }
-        return 0;
+        
     }    
+    return 0;
 }
 
 int evalValue(int a, int b, Token token) {
@@ -143,17 +142,17 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
             printf("value return: %d\n", bt->info->value);
             return bt->info->value;
         case T_ASIGN:
-            TData* node = get(list, bt->info->name);
+            TData* node = getNode(list, bt->info->name);
             int value = interpreter(list, bt->hd);
-            if(!node || !evalType(node->type, value)) {
-                perror("Asign error: Var asign error\n");
-                exit(1);
-            }
+            // if(!node || !evalType(node->type, value)) {
+            //     perror("Asign error: Var asign error\n");
+            //     exit(1);
+            // }
             bt->info->value = value;
             return value;
             break;
         case T_DECL:
-            if(get(list, bt->info->name)) {
+            if(getNode(list, bt->info->name)) {
                 perror("Declaration error: Var already exists\n");
                 exit(1);
             } else {
@@ -169,15 +168,14 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
     }
 }
 
-int evalType(LSE* list, Tree* bt) {
+int evalType(SymbolsTable* list, Tree* bt) {
     if(!bt || !list)
         return 0;
     switch(bt->info->token) {
         case T_VOID:
             return bt->info->type == VOID;
         case T_ID:
-            bt->info->type = get(list, bt->info->name)->type;
-            return bt->info->type == NO_TYPE;
+            return 1;
             break;
         case T_INTV:
         case T_INT:
@@ -286,25 +284,51 @@ int evalType(LSE* list, Tree* bt) {
             break; 
     }
 }
-/*
-    T_MAIN = 262,             
-*/
 
-
-TData* get(LSE *list, char* nom) {
+TData* getNode(LSE *list, char* nom) {
     LSE *aux = list;
     while(aux != NULL) {
         if(strcmp(nom, (aux->info)->name) == 0)
             break;
         aux = aux->next;
     }
-    return aux;
+    return aux->info;
 }
 
-void showTable(LSE *list) {
+void showLevel(LSE *list) {
     LSE* aux = list;
     while(aux != NULL) {
         printf("\nType: %d, var: %s\n", aux->info->type, aux->info->name);
         aux = aux->next;
     }
+}
+void showTable(SymbolsTable *symbolsTable) {
+    SymbolsTable *aux = symbolsTable;
+    while(aux) {
+        showLevel(aux->info);
+        printf("------------------------------\n");
+    }
+}
+
+int removeLevel(SymbolsTable **symbolsTable) {
+    (*symbolsTable) = (*symbolsTable)->next;    
+    return 0;
+}
+
+int removeNode(LSE **list, TData *node) {
+    LSE *aux = *list;
+    LSE *aux2 = aux;
+    if(aux->info == node) {
+        *list = (*list)->next;
+        return 1;
+    }
+    while(aux) {
+        if(aux->info == node) {
+            aux2->next = aux->next; 
+            return 1;
+        }
+        aux2 = aux;
+        aux = aux->next;
+    }
+    return 0;
 }

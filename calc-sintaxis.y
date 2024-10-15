@@ -5,7 +5,7 @@
 #include "tree.h"
 #include "symbols_table.h"
 
-LSE* table;
+SymbolsTable* table;
 
 %}
 %code requires {#include "tree.h"}
@@ -50,6 +50,7 @@ LSE* table;
 %type<tree> params
 %type<tree> param
 %type<tree> block
+%type<tree> block1
 %type<tree> statements
 %type<tree> single_statement
 %type<tree> method_call
@@ -71,7 +72,6 @@ LSE* table;
 
 program: TPROGRAM '{' vars methods '}'             {Tree *tree = newTree($1, $3, $4); evalType(table, tree); printTree(tree);}
        |  TPROGRAM '{' methods '}'                  {Tree *tree = newTree($1, $3, NULL); evalType(table, tree); printTree(tree);}
-       | TPROGRAM block                        {Tree *tree = newTree($1, $2, NULL); evalType(table, tree); printTree(tree);}
        ;
 
 vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "vars"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
@@ -79,7 +79,7 @@ vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "vars"); Tr
     ;
 
 var_decl:
-    ttype id TASIGN expr ';' {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); Tree *tree = newTree($3, leftChild, $4); $$ = tree;}
+    ttype id TASIGN expr ';' {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); Tree *tree = newTree($3, leftChild, $4); $$ = tree; if(checkVarExists(table, $2) {error("Re-declaration"); exit(1);} else {;})}
     |ttype id ';' {$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);}
     ;
 
@@ -97,8 +97,8 @@ params: params ',' param  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "params
 
 param: ttype id {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "params"), $1, $2);}
 ;
-
-block: '{' vars statements '}'   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, $2, $3); $$ = tree;}
+block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(table, newLevel);} block1 {removeLevel(table); $$ = $2;}
+block1: '{' vars statements '}'   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, $2, $3); $$ = tree;}
      | '{' vars '}' {$$ = $2;}
      | '{' statements '}' {$$ = $2;}
      | '{' '}' {$$ = newTree(NULL, NULL, NULL);}

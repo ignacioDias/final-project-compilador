@@ -8,24 +8,26 @@ typedef struct List {
     TData *info; 
     struct List *next;
 } LSE;
-typedef struct NodeList {
-    struct SymbolsTable *child;
-    struct NodeList *next;   
-} NodeList;
-
-typedef struct Table {
-    LSE* currentLevel;
-    struct NodeList *next;
+typedef struct Stack {
+    LSE *info;
+    struct Stack *next;   
 } SymbolsTable;
 
+int insertElem(LSE **list, TData *elem);
+int insertLevel(SymbolsTable **symbolsTable, LSE *level);
 
-int insert(LSE **list, TData *elem);
-int set(LSE *list, char* name, int val);
-TData* doesExist(SymbolsTable *list, char* nom);
-TData* isInThisEnvironment(LSE *list, char* nom);
+TData *getNode(LSE *level, char* nom);
+
+int removeLevel(SymbolsTable **symbolsTable);
+int removeNode(LSE **list, TData *node);
+
+int setValueToNode(LSE *list, char* name, int val);
+
 int interpreter(LSE * list, Tree* bt);
-int checkType(LSE* lse, Tree* tree);
-int evalType(LSE* list, Tree* bt);
+int evalType(SymbolsTable* list, Tree* bt);
 int evalValue(int a, int b, Token token);
-void showTable(LSE *list);
+
+void showTable(SymbolsTable *symbolsTable);
+void showLevel(LSE *list);
+
 #endif
