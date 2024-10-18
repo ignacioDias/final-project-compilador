@@ -6,17 +6,14 @@
 
 Type curretFunctionType = NO_TYPE;
 
-int insertElem(LSE **list, TData* elem) {
-    if(getNode(*list, elem->name))
+int insertElem(SymbolsTable **symbolsTable, TData* elem) {
+    if(getNode((*symbolsTable)->info, elem->name, elem->type))
         return 0;
-    LSE *aux = *list;
-    while(aux->next) {
-        aux = aux->next;
-    }
+    LSE *aux = (*symbolsTable)->info;
     LSE* node = (LSE*)malloc(sizeof(LSE));
     node->info = elem;
-    aux->next = node;
-    node->next = NULL; 
+    node->next = aux; 
+    *symbolsTable = node;
     return 1;
 }
 
@@ -27,12 +24,12 @@ int insertLevel(SymbolsTable **symbolsTable, LSE *level) {
     *symbolsTable = node; 
     return 1;
 }
-int setValueToNode(LSE *list, char* name, int val) {
-    TData* elem = getNode(list, name);
-    if(elem != NULL){
-        
-    }    
-    return 0;
+int setValueToNode(LSE *list, char* name, Type type, int val) {
+    TData* elem = getNode(list, name, type);
+    if(!elem)
+        return 0;
+    elem->value = val;
+    return 1;
 }
 
 int evalValue(int a, int b, Token token) {
@@ -142,7 +139,7 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
             printf("value return: %d\n", bt->info->value);
             return bt->info->value;
         case T_ASIGN:
-            TData* node = getNode(list, bt->info->name);
+            TData* node = getNode(list, bt->info->name, bt->info->type);
             int value = interpreter(list, bt->hd);
             // if(!node || !evalType(node->type, value)) {
             //     perror("Asign error: Var asign error\n");
@@ -152,7 +149,7 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
             return value;
             break;
         case T_DECL:
-            if(getNode(list, bt->info->name)) {
+            if(getNode(list, bt->info->name, bt->info->type)) {
                 perror("Declaration error: Var already exists\n");
                 exit(1);
             } else {
@@ -285,10 +282,10 @@ int evalType(SymbolsTable* list, Tree* bt) {
     }
 }
 
-TData* getNode(LSE *list, char* nom) {
+TData* getNode(LSE *list, char* nom, Type type) { //TODO: cambiar nom por TDATA, o añadir type
     LSE *aux = list;
     while(aux != NULL) {
-        if(strcmp(nom, (aux->info)->name) == 0)
+        if(type == aux->info->type && strcmp(nom, (aux->info)->name) == 0)
             break;
         aux = aux->next;
     }

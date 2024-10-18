@@ -77,10 +77,10 @@ program: TPROGRAM '{' vars methods '}'             {Tree *tree = newTree($1, $3,
 vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "vars"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
     | var_decl  {$$ = $1;}
     ;
-
+-- newData(Token id, Type type, int val, char* nom); --TODO: HACER ESTO 
 var_decl:
     ttype id TASIGN expr ';' {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); Tree *tree = newTree($3, leftChild, $4); $$ = tree; if(checkVarExists(table, $2) {error("Re-declaration"); exit(1);} else {;})}
-    |ttype id ';' {$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);}
+    |ttype id ';' {if(insertElem(table, newData($2->id, $1->type, -1, $2->name)))$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);}
     ;
 
 methods: methods method_decl  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "methods"); Tree *tree = newTree(data, $1, $2); $$ = tree;}

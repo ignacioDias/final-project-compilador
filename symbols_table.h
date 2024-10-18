@@ -13,15 +13,15 @@ typedef struct Stack {
     struct Stack *next;   
 } SymbolsTable;
 
-int insertElem(LSE **list, TData *elem);
+int insertElem(SymbolsTable **SymbolsTable, TData *elem);
 int insertLevel(SymbolsTable **symbolsTable, LSE *level);
 
-TData *getNode(LSE *level, char* nom);
+TData *getNode(LSE *level, char* nom, int value, Type type);
 
 int removeLevel(SymbolsTable **symbolsTable);
 int removeNode(LSE **list, TData *node);
 
-int setValueToNode(LSE *list, char* name, int val);
+int setValueToNode(LSE *list, char* name, Type type, int val);
 
 int interpreter(LSE * list, Tree* bt);
 int evalType(SymbolsTable* list, Tree* bt);

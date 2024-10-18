@@ -1247,7 +1247,7 @@ yyreduce:
 
   case 7: /* var_decl: ttype id ';'  */
 #line 83 "calc-sintaxis.y"
-                  {(yyval.tree) = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), (yyvsp[-2].tree), (yyvsp[-1].tree));}
+                  {TData *declVar = newData(TDECL, NO_TYPE, -1, "var declaration"); if(insertElem(table, declVar)) (yyval.tree) = newTree(declVar, (yyvsp[-2].tree), (yyvsp[-1].tree)); else {perror("variable already declarated\n"); exit(1);}}
 #line 1252 "calc-sintaxis.tab.c"
     break;
 
