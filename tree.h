@@ -67,10 +67,10 @@ typedef struct Queue {
 
 TData* newData(Token id, Type type, int val, char* nom);
 Tree* newTree(TData *data, Tree *leftChild, Tree *rightChild);
-void enqueue (Queue * q, Tree * item);
-int is_empty (Queue * q);
-Tree* dequeue (Queue * q);
-void printTree (Tree * root);
+void enqueue (Queue *q, Tree *item);
+int is_empty (Queue *q);
+Tree* dequeue (Queue *q);
+void printTree (Tree *root);
 void auxiliarPrintInfo(Tree *tree, int level, bool isLast[]);
 void printBranch(int level, bool isLast[]);
 #endif

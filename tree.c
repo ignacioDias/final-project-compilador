@@ -143,7 +143,7 @@ void printTree(Tree *root) {
     }
 }
 
-void enqueue (Queue * q, Tree * item) {
+void enqueue (Queue *q, Tree *item) {
   if (q->rear == MAX_QUEUE_SIZE - 1) {
       printf ("Queue Overflow\n");
       exit (EXIT_FAILURE);
@@ -152,7 +152,7 @@ void enqueue (Queue * q, Tree * item) {
   q->items[q->rear] = item;
 }
 
-Tree* dequeue (Queue * q) {
+Tree* dequeue (Queue *q) {
     if (q->front == q->rear) {
         printf ("Queue Underflow\n");
         exit (EXIT_FAILURE);
@@ -160,6 +160,6 @@ Tree* dequeue (Queue * q) {
     q->front++;
     return q->items[q->front];
 }
-int is_empty (Queue * q) {
+int is_empty (Queue *q) {
     return q->front == q->rear;
 }

@@ -77,12 +77,10 @@ program: TPROGRAM '{' vars methods '}'             {Tree *tree = newTree($1, $3,
 vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "vars"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
     | var_decl  {$$ = $1;}
     ;
--- newData(Token id, Type type, int val, char* nom); --TODO: HACER ESTO 
 var_decl:
-    ttype id TASIGN expr ';' {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); Tree *tree = newTree($3, leftChild, $4); $$ = tree; if(checkVarExists(table, $2) {error("Re-declaration"); exit(1);} else {;})}
-    |ttype id ';' {if(insertElem(table, newData($2->id, $1->type, -1, $2->name)))$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);}
+    ttype id TASIGN expr ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, $4->info->value, $2->info->name))) {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); $$ = newTree($3, leftChild, $4);} else {perror("Re-declaration"); exit(1);}}
+    |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))){$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);} else {perror("var already exists");exit(1);}}
     ;
-
 methods: methods method_decl  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "methods"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
         | method_decl  {$$ = $1;}
         ;
@@ -97,7 +95,7 @@ params: params ',' param  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "params
 
 param: ttype id {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "params"), $1, $2);}
 ;
-block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(table, newLevel);} block1 {removeLevel(table); $$ = $2;}
+block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);} block1 {removeLevel(table); $$ = $2;}
 block1: '{' vars statements '}'   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, $2, $3); $$ = tree;}
      | '{' vars '}' {$$ = $2;}
      | '{' statements '}' {$$ = $2;}

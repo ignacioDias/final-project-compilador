@@ -149,16 +149,10 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
             return value;
             break;
         case T_DECL:
-            if(getNode(list, bt->info->name, bt->info->type)) {
-                perror("Declaration error: Var already exists\n");
-                exit(1);
-            } else {
-                bt->hi->info->value = interpreter(list, bt->hd);
-                bt->info->value = bt->hi->info->value;
-                return bt->info->value;
-            }
-            break;
-        
+            bt->hi->info->value = interpreter(list, bt->hd);
+            bt->info->value = bt->hi->info->value;
+            return bt->info->value;
+            break;        
         default:
             return -1;
             break; 
@@ -282,8 +276,8 @@ int evalType(SymbolsTable* list, Tree* bt) {
     }
 }
 
-TData* getNode(LSE *list, char* nom, Type type) { //TODO: cambiar nom por TDATA, o añadir type
-    LSE *aux = list;
+TData *getNode(LSE *level, char* nom, Type type) {
+    LSE *aux = level;
     while(aux != NULL) {
         if(type == aux->info->type && strcmp(nom, (aux->info)->name) == 0)
             break;
