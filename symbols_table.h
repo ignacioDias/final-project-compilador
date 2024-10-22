@@ -8,6 +8,14 @@ typedef struct List {
     TData *info; 
     struct List *next;
 } LSE;
+
+typedef struct CheckFunctions {
+    char* name;
+    Type type;
+    Tree *params; 
+    struct CheckFunctions *next;
+} ListFunction
+;
 typedef struct Stack {
     LSE *info;
     struct Stack *next;   
@@ -32,5 +40,8 @@ int evalValue(int a, int b, Token token);
 
 void showTable(SymbolsTable *symbolsTable);
 void showLevel(LSE *list);
+
+int checkFunctionCall(ListFunction *functions, char* name, Tree *params);
+void insertFunction(ListFunction **functions, Type type, char* name, Tree *params);
 
 #endif

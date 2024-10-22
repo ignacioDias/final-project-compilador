@@ -164,7 +164,6 @@ void setTypeFunction(Type type) {
 }
 
 int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
-    printf("entró a la función -------------------------------------\n\n");
     if(!bt || !list)
         return -1;
     switch(bt->info->token) {
@@ -328,6 +327,7 @@ int removeLevel(SymbolsTable **symbolsTable) {
 }
 
 int removeNode(LSE **list, TData *node) {
+
     LSE *aux = *list;
     LSE *aux2 = aux;
     if(aux->info == node) {
@@ -343,4 +343,34 @@ int removeNode(LSE **list, TData *node) {
         aux = aux->next;
     }
     return 0;
+}
+
+int checkFunctionCall(ListFunction *functions, char* name, Tree *params) {
+    ListFunction *aux = functions;
+    while(aux) {
+        if(strcmp(aux->name, name) == 0) {
+            if(params == aux->params)
+                return 1;            
+        }
+    }
+    return 0;
+}
+void insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
+    if(!(*functions) || !functions) {
+        *functions = (ListFunction*)malloc(sizeof(ListFunction));
+        (*functions)->type = type;
+        (*functions)->name = name;
+        (*functions)->params = params;
+    } else {
+        ListFunction *aux = functions;
+        while(aux->next) {
+            aux = aux->next;
+        }
+        ListFunction *newNode = (ListFunction*)malloc(sizeof(ListFunction));
+        newNode->name = name;
+        newNode->type = type;
+        newNode->params = params;
+        newNode->next = *functions;
+        (*functions) = newNode;
+    }
 }
