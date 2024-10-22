@@ -11,7 +11,7 @@ SymbolsTable* table;
 %code requires {#include "tree.h"}
 %code requires {#include "symbols_table.h"}
 
-%union{int i; int b; Tree *tree; char *s; TData *data}
+%union{int i; int b; Tree *tree; char *s; TData *data;}
 
 %token<data> INTV
 %token<data> TRET
@@ -69,24 +69,29 @@ SymbolsTable* table;
 %left UMINUS
 
 %%
-
-program: TPROGRAM '{' vars methods '}'             {Tree *tree = newTree($1, $3, $4); evalType(table, tree); printTree(tree);}
-       |  TPROGRAM '{' methods '}'                  {Tree *tree = newTree($1, $3, NULL); evalType(table, tree); printTree(tree);}
+program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
+program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); if(!evalType(table, $$)) { printf("error type");} printTree($$); showTable(table);}
+       |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType(table, $$); printTree($$);}
        ;
 
-vars: vars var_decl   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "vars"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
+vars: vars var_decl   {TData* data = newData(TDECL, NO_TYPE, -1, "vars"); $$ = newTree(data, $1, $2);}
     | var_decl  {$$ = $1;}
     ;
 var_decl:
-    ttype id TASIGN expr ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, $4->info->value, $2->info->name))) {Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); $$ = newTree($3, leftChild, $4);} else {perror("Re-declaration"); exit(1);}}
+    ttype id TASIGN expr ';' { if(insertElem(&table, newData($2->info->token, $1->info->type, $4->info->value, $2->info->name))) {
+
+                                Tree *leftChild = newTree(newData(TDECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); $$ = newTree($3, leftChild, $4);
+                            } else {
+                                    perror("Re-declaration"); exit(1);}}
     |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))){$$ = newTree(newData(TDECL, NO_TYPE, -1, "var declaration"), $1, $2);} else {perror("var already exists");exit(1);}}
     ;
 methods: methods method_decl  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "methods"); Tree *tree = newTree(data, $1, $2); $$ = tree;}
         | method_decl  {$$ = $1;}
         ;
-
-method_decl: ttype id '(' params ')' block {Tree *tree = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body"), $4, $6); $$ = newTree($2->info, $1, tree); }
-            | ttype id '(' params ')' EXTERN ';' {Tree *tree = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body"), $4, NULL); $$ = newTree($2->info, $1, tree);}
+method_decl: ttype id '(' params ')' block {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) {Tree *tree = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body"), $4, $6); $$ = newTree($2->info, $1, tree); setTypeFunction($1->info->type);} else {perror("wrong function declaration"); exit(1);} }
+            | ttype id '(' params ')' EXTERN ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) {Tree *tree = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body"), $4, NULL); $$ = newTree($2->info, $1, tree); setTypeFunction($1->info->type);} else {perror("wrong function declaration"); exit(1);} }
+            | ttype id '('  ')' EXTERN ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) { Tree *tree = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body"), NULL, NULL); $$ = newTree($2->info, $1, tree); setTypeFunction($1->info->type);} else {perror("wrong function declaration"); exit(1);} }
+            | ttype id '(' ')' block {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) {Tree *tree = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body"), NULL, $5); $$ = newTree($2->info, $1, tree); setTypeFunction($1->info->type); }  else {perror("wrong function declaration"); exit(1);}}
             ;
 
 params: params ',' param  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "params"); Tree *tree = newTree(data, $1, $3); $$ = tree;}
@@ -95,7 +100,7 @@ params: params ',' param  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "params
 
 param: ttype id {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "params"), $1, $2);}
 ;
-block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);} block1 {removeLevel(table); $$ = $2;}
+block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);} block1 {removeLevel(&table); $$ = $2;}
 block1: '{' vars statements '}'   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, $2, $3); $$ = tree;}
      | '{' vars '}' {$$ = $2;}
      | '{' statements '}' {$$ = $2;}
@@ -123,7 +128,7 @@ exprs: exprs ',' expr {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "exprs"); $
     | expr {$$ = $1;}
     ;
 
-expr: id {$$ = $1;}
+expr: id {$$ = $1; if(doesExist(table, $1->info->name) == -1) {perror("no declarated var\n"); exit(1);} else {}}
     | method_call {$$ = $1;}
     | literal {$$ = $1;}
     | expr TMAS expr    {$$ = newTree($2, $1, $3); }

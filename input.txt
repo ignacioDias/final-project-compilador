@@ -1,7 +1,10 @@
 program {
-integer x;
-x = 3;
-if(x > true) then {
-x = 2 + 3;
+integer x = 3;
+integer z = true + true;
+integer main() {
+return true + 3;
+if(true>3) then {
+	return true;
+}
 }
 }

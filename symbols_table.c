@@ -7,13 +7,14 @@
 Type curretFunctionType = NO_TYPE;
 
 int insertElem(SymbolsTable **symbolsTable, TData* elem) {
-    if(getNode((*symbolsTable)->info, elem->name, elem->type))
+    if(getNode((*symbolsTable)->info, elem->name, elem->type)) {
         return 0;
+    }
     LSE *aux = (*symbolsTable)->info;
     LSE* node = (LSE*)malloc(sizeof(LSE));
     node->info = elem;
     node->next = aux; 
-    *symbolsTable = node;
+    (*symbolsTable)->info = node;
     return 1;
 }
 
@@ -158,10 +159,14 @@ int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
             break; 
     }
 }
+void setTypeFunction(Type type) {
+    curretFunctionType = type;
+}
 
-int evalType(SymbolsTable* list, Tree* bt) {
+int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
+    printf("entró a la función -------------------------------------\n\n");
     if(!bt || !list)
-        return 0;
+        return -1;
     switch(bt->info->token) {
         case T_VOID:
             return bt->info->type == VOID;
@@ -229,8 +234,9 @@ int evalType(SymbolsTable* list, Tree* bt) {
             break;
         case T_RET:
             if(bt->hi) {
-                if(evalType(list, bt->hi) && bt->hi->info->type == curretFunctionType != VOID) {
+                if(evalType(list, bt->hi) && bt->hi->info->type == curretFunctionType != VOID && curretFunctionType != NO_TYPE) {
                     bt->info->type = bt->hd->info->type;
+                    curretFunctionType = NO_TYPE;
                     return 1;
                 }
                 perror("Type error: wrong return\n");
@@ -266,8 +272,9 @@ int evalType(SymbolsTable* list, Tree* bt) {
             return evalType(list, bt->hi);
             break;
         case T_PROGRAM:
-            if(bt->hd)
+            if(bt->hd) {
                 return evalType(list, bt->hi) && evalType(list, bt->hd);
+            }
             return evalType(list, bt->hi);
             break;
         default:
@@ -278,17 +285,30 @@ int evalType(SymbolsTable* list, Tree* bt) {
 
 TData *getNode(LSE *level, char* nom, Type type) {
     LSE *aux = level;
-    while(aux != NULL) {
+    while(aux != NULL && aux->info != NULL) {
         if(type == aux->info->type && strcmp(nom, (aux->info)->name) == 0)
             break;
         aux = aux->next;
     }
+    if(!aux) {
+        return NULL;
+    }
     return aux->info;
 }
-
+Type doesExist(SymbolsTable *symbolsTable, char *name) {
+    SymbolsTable *aux = symbolsTable;
+    while(aux && aux->info) {
+        for(int type = 0; type < 4; type++) {
+            if(getNode(aux->info, name, type))
+                return type;
+        }
+        aux = aux->next;
+    }
+    return -1; //not found
+}
 void showLevel(LSE *list) {
     LSE* aux = list;
-    while(aux != NULL) {
+    while(aux != NULL && aux->info != NULL) {
         printf("\nType: %d, var: %s\n", aux->info->type, aux->info->name);
         aux = aux->next;
     }
@@ -298,6 +318,7 @@ void showTable(SymbolsTable *symbolsTable) {
     while(aux) {
         showLevel(aux->info);
         printf("------------------------------\n");
+        aux = aux->next;
     }
 }
 

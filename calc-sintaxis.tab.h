@@ -99,7 +99,7 @@ extern int yydebug;
 union YYSTYPE
 {
 #line 14 "calc-sintaxis.y"
-int i; int b; Tree *tree; char *s; TData *data
+int i; int b; Tree *tree; char *s; TData *data;
 
 #line 105 "calc-sintaxis.tab.h"
 
