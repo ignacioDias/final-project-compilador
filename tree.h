@@ -35,7 +35,8 @@ typedef enum Token {
     T_BOOL = 283,                  /* TBOOL  */
     T_ASIGN = 284,                   /* TASIGN  */
     T_PROGRAM = 285,                /* TPROGRAM */
-    T_UMINUS = 286    
+    T_FUNCTION = 286,
+    T_UMINUS = 287    
 } Token;
 
 typedef enum Type {

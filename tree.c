@@ -40,65 +40,65 @@ void auxiliarPrintInfo(Tree *tree, int level, bool isLast[]) {
         }
     }
     // Mostrar información del nodo
-    if (tree->info->token == YYUNDEF) {
+    if (tree->info->token == T_YYUNDEF) {
         printf("UNDEF");
-    } else if (tree->info->token == INTV) {
+    } else if (tree->info->token == T_INTV) {
         printf("INTEGER");
-    } else if (tree->info->token == TDECL) {
+    } else if (tree->info->token == T_DECL) {
         printf("DECL");
-    } else if (tree->info->token == TRET) {
+    } else if (tree->info->token == T_RET) {
         printf("RETURN");
-    } else if (tree->info->token == TVOID) {
+    } else if (tree->info->token == T_VOID) {
         printf("VOID");
-    } else if (tree->info->token == TMAIN) {
+    } else if (tree->info->token == T_MAIN) {
         printf("MAIN");
-    } else if (tree->info->token == TR) {
+    } else if (tree->info->token == T_TRUE) {
         printf("TRUE");
-    } else if (tree->info->token == FAL) {
+    } else if (tree->info->token == T_FAL) {
         printf("FALSE");
-    } else if (tree->info->token == TID) {
+    } else if (tree->info->token == T_ID) {
         printf("ID");
-    } else if (tree->info->token == TMENOR) {
+    } else if (tree->info->token == T_MENOR) {
         printf("LESS");
-    } else if (tree->info->token == TMAYOR) {
+    } else if (tree->info->token == T_MAYOR) {
         printf("MORE");
-    } else if (tree->info->token == TIGUAL) {
+    } else if (tree->info->token == T_IGUAL) {
         printf("EQUALS");
-    } else if (tree->info->token == TMENOS) {
+    } else if (tree->info->token == T_MENOS) {
         printf("MINUS");
-    } else if (tree->info->token == TMAS) {
+    } else if (tree->info->token == T_MAS) {
         printf("PLUS");
-    } else if (tree->info->token == TMULT) {
+    } else if (tree->info->token == T_MULT) {
         printf("PRODUCT");
-    } else if (tree->info->token == TDIV) {
+    } else if (tree->info->token == T_DIV) {
         printf("DIVITION");
-    } else if (tree->info->token == TMOD) {
+    } else if (tree->info->token == T_MOD) {
         printf("MODULE");
-    } else if (tree->info->token == TASIGN) {
+    } else if (tree->info->token == T_ASIGN) {
         printf("ASIGN");
-    } else if (tree->info->token == TPROGRAM) {
+    } else if (tree->info->token == T_PROGRAM) {
         printf("PROGRAM");
-    } else if (tree->info->token == TOR) {
+    } else if (tree->info->token == T_OR) {
         printf("OR");
-    } else if (tree->info->token == TNEG) {
+    } else if (tree->info->token == T_NEG) {
         printf("NEGATION");
-    } else if (tree->info->token == TAND) {
+    } else if (tree->info->token == T_AND) {
         printf("AND");
-    } else if (tree->info->token == EXTERN) {
+    } else if (tree->info->token == T_EXTERN) {
         printf("EXTERN");
-    } else if (tree->info->token == TWHILE) {
+    } else if (tree->info->token == T_WHILE) {
         printf("WHILE");
-    } else if (tree->info->token == TIF) {
+    } else if (tree->info->token == T_IF) {
         printf("IF");
-    } else if (tree->info->token == THEN) {
+    } else if (tree->info->token == T_THEN) {
         printf("THEN");
-    } else if (tree->info->token == TELSE) {
+    } else if (tree->info->token == T_ELSE) {
         printf("ELSE");
-    } else if (tree->info->token == TBOOL) {
+    } else if (tree->info->token == T_BOOL) {
         printf("BOOL");
-    } else if (tree->info->token == TINT) {
+    } else if (tree->info->token == T_INT) {
         printf("INT");
-    } else if (tree->info->token == UMINUS) {
+    } else if (tree->info->token == T_UMINUS) {
         printf("UMINUS");
     }
     if(tree->info->type == INTEGER){

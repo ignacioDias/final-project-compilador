@@ -187,9 +187,10 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
         case T_MAS:
         case T_DIV: 
             if(bt->hd) {
-                if(evalType(list, bt->hi) && evalType(list, bt->hd) && bt->hd->info->type == INTEGER == bt->hi->info->type) {
+                if(evalType(list, bt->hi) && evalType(list, bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
                     bt->info->type = INTEGER;
                     return 1;
+                    break;
                 }
                 perror("Type error: integer expected\n");
                 exit(1);
@@ -198,16 +199,18 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
                 if(evalType(list, bt->hi) && bt->hi->info->type == INTEGER) {
                     bt->info->type = INTEGER;
                     return 1;
+                    break;
                 }
                 perror("Type error: integer expected\n");
                 exit(1);
                 return 0;
             }
             break;
-
+        case T_FUNCTION:
+        //TODO: HACER EL CASO DE LA FUNCION (ACORDARSE HACER EL MOSTRAR LA T_FUNCION EN EL ARBOL)
         case T_AND: 
         case T_OR: 
-            if(evalType(list, bt->hi) && evalType(list, bt->hd) && bt->hd->info->type == BOOL == bt->hi->info->type) {
+            if(evalType(list, bt->hi) && evalType(list, bt->hd) && (bt->hd->info->type == BOOL) && (bt->hi->info->type == BOOL)) {
                     bt->info->type = BOOL;
                     return 1;
             }
@@ -232,17 +235,21 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             exit(1);
             break;
         case T_RET:
+            printf("entro al tret");
             if(bt->hi) {
-                if(evalType(list, bt->hi) && bt->hi->info->type == curretFunctionType != VOID && curretFunctionType != NO_TYPE) {
-                    bt->info->type = bt->hd->info->type;
+                printf("entro al primer if");
+                if(evalType(list, bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
+                    printf("entro al segundo if");
+                    bt->info->type = bt->hi->info->type;
                     curretFunctionType = NO_TYPE;
                     return 1;
                 }
                 perror("Type error: wrong return\n");
                 exit(1);
             }
-            if(curretFunctionType == VOID)
+            if(curretFunctionType == VOID) {
                 return 1;
+            }
             perror("Type error: return expected\n");
             exit(1);
             break;
@@ -251,6 +258,9 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
                 bt->info->type = bt->hi->info->type;
                 return 1;
             }
+            perror("Type error: same type expected in assignment\n");
+            exit(1);
+            return 0;
             break;
         case T_DECL:
             if(evalType(list, bt->hi) && evalType(list, bt->hd)) {
