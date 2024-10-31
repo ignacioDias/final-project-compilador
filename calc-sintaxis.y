@@ -6,8 +6,6 @@
 #include "symbols_table.h"
 
 SymbolsTable* table;
-ListFunction *functions;
-extern Type curretFunctionType;
 void setTypeFunction(Type type);
 %}
 %code requires {#include "tree.h"}
@@ -71,11 +69,10 @@ void setTypeFunction(Type type);
 %left UMINUS
 
 %%
-program1: {functions = (ListFunction*)malloc(sizeof(ListFunction)); table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
-program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType(table, $$);  printTree($$); showTable(table);}
-       |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType(table, $$); printTree($$); showTable(table);}
+program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
+program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table);}
+       |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table);}
        ;
-
 vars: vars var_decl   {TData* data = newData(TDECL, NO_TYPE, -1, "vars"); $$ = newTree(data, $1, $2);}
     | var_decl  {$$ = $1;}
     ;
@@ -90,12 +87,11 @@ var_decl:
 methods: methods method_decl  {Tree *tree = newTree(newData(T_FUNCTION, NO_TYPE, -1, "methods"), $1, $2); $$ = tree;}
         | method_decl  {$$ = $1;}
         ;
-method_decl: ttype id '(' params ')' block {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, "function declaration"), $1, $2); Tree *tree1 = newTree(newData(T_FUNCTION, $1->info->type, -1, "params and block"), $4, $6); $$ = newTree(newData(T_FUNCTION, $1->info->type, -1, "function"), tree, tree1); setTypeFunction($1->info->type); insertFunction(&functions, $1->info->type, $2->info->name, $4);} else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '(' params ')' EXTERN ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, "function declaration"), $1, $2); Tree *tree1 = newTree(newData(T_FUNCTION, $1->info->type, -1, "params and extern"), $4, $6); $$ = newTree(newData(T_FUNCTION, $1->info->type, -1, "function"), tree, tree1); setTypeFunction($1->info->type);} else {perror("wrong function declaration\n"); exit(1);insertFunction(&functions, $1->info->type, $2->info->name, $4);} }
-            | ttype id '('  ')' EXTERN ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) { Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, "function declaration"), $1, $2); $$ = newTree(newData(T_FUNCTION, $1->info->type, -1, "function"), tree, $5); setTypeFunction($1->info->type);} else {perror("wrong function declaration\n"); exit(1);insertFunction(&functions, $1->info->type, $2->info->name, NULL);} }
-            | ttype id '(' ')' block {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))) {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, "function declaration"), $1, $2); $$ = newTree(newData(T_FUNCTION, $1->info->type, -1, "function"), tree, $5); setTypeFunction($1->info->type); insertFunction(&functions, $1->info->type, $2->info->name, NULL);}  else {perror("wrong function declaration\n"); exit(1);}}
+method_decl: ttype id '(' params ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, $6); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+            | ttype id '(' params ')' EXTERN ';' { Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, NULL); if(insertElem(&table, tree->info)){ $$ = tree;} else {perror("wrong function declaration\n"); exit(1);} }
+            | ttype id '('  ')' EXTERN ';' {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, NULL); if(insertElem(&table, tree->info) && $1->info->type != NO_TYPE){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+            | ttype id '(' ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, $5); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
             ;
-
 params: params ',' param  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "params"); Tree *tree = newTree(data, $1, $3); $$ = tree;}
         | param {$$ = $1;}
         ;
@@ -114,7 +110,7 @@ statements: statements single_statement {TData* data = newData(T_YYUNDEF, NO_TYP
           ;
 
 single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
-                | method_call ';' {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "single_statement"); $$ = newTree(data, $1, NULL); }
+                | method_call ';' {$$ = $1;}
                 | TIF '(' expr ')' THEN block  {Tree *tree = newTree($1, $3, newTree($5, $6, NULL)); $$ = tree;}
                 | TIF '(' expr ')' THEN block TELSE block {Tree *tree = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree($5, $6, NULL), newTree($7, $8, NULL))); $$ = tree;}
                 | TWHILE '(' expr ')' block {Tree *tree = newTree($1, $3, $5); $$ = tree;}
@@ -123,8 +119,8 @@ single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
                 | ';' {$$ = NULL;}
                 | block {$$ = $1;}
                 ;
-method_call: id '('exprs')' {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "method_call"); $$ = newTree(data, $1, $3); if(!checkFunctionCall(functions, $1->info->name, $3)) {perror("wrong call of function\n"); exit(1);}}
-            | id '(' ')' {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "method_call"); $$ = newTree(data, $1, NULL); if(!checkFunctionCall(functions, $1->info->name, NULL)) {perror("wrong call of function\n"); exit(1);}}
+method_call: id '('exprs')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, $3, NULL); }
+            | id '(' ')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, NULL, NULL);}
     ;
 exprs: exprs ',' expr {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "exprs"); $$ = newTree(data, $1, $3);}
     | expr {$$ = $1;}

@@ -14,8 +14,8 @@ typedef struct CheckFunctions {
     Type type;
     Tree *params; 
     struct CheckFunctions *next;
-} ListFunction
-;
+} ListFunction;
+
 typedef struct Stack {
     LSE *info;
     struct Stack *next;   
@@ -34,8 +34,7 @@ int setValueToNode(LSE *list, char* name, Type type, int val);
 
 void setTypeFunction(Type type);
 
-int interpreter(LSE * list, Tree* bt);
-int evalType(SymbolsTable* list, Tree* bt);
+int evalType(Tree* bt);
 int evalValue(int a, int b, Token token);
 
 void showTable(SymbolsTable *symbolsTable);

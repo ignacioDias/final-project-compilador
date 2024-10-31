@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 Type curretFunctionType = NO_TYPE;
+ListFunction *functions;
 
 int insertElem(SymbolsTable **symbolsTable, TData* elem) {
     if(getNode((*symbolsTable)->info, elem->name, elem->type)) {
@@ -33,140 +34,11 @@ int setValueToNode(LSE *list, char* name, Type type, int val) {
     return 1;
 }
 
-int evalValue(int a, int b, Token token) {
-    switch(token) {
-        case T_OR: 
-        case T_MAS:
-            return a + b;
-            break;
-        case T_MENOS:
-            return a - b;
-            break;
-        case T_MOD:
-            return a % b;
-            break;
-        case T_AND:
-        case T_MULT:
-            return a * b;
-            break;
-        case T_DIV:
-            if(b == 0) {
-                perror("Arithmetic error: can't div by 0\n");
-                exit(1);
-            }
-            return a / b;
-        case T_MENOR:
-            return a < b;
-            break;
-        case T_MAYOR:
-            return a > b;
-            break;
-        case T_IGUAL:
-            return a == b;
-            break;
-        case T_TRUE:
-            return 1;
-            break;
-        case T_FAL:
-            return 0;
-            break;
-        case T_INTV:
-            return a;
-            break;
-        case T_NEG:
-            return !a;
-            break;
-        default:
-                perror("Error: no operator\n");
-                exit(1);
-                break;
-    }
-}
 
-int interpreter(LSE* list, Tree* bt) { //TODO: TERMINAR
-    if(!bt || !list)
-        return -1;
-    switch(bt->info->token) {
-        case T_INTV:
-        case T_TRUE:
-        case T_FAL:
-            return bt->info->value;
-            break;
-        case T_MENOS: 
-            if(bt->hd)
-                bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_MENOS);
-            else
-                bt->info->value = evalValue(0, interpreter(list, bt->hi), T_MENOS);
-            return bt->info->value;
-            break;
-        case T_NEG:
-            bt->info->value = evalValue(interpreter(list, bt->hi), 0, T_NEG);
-            return bt->info->value;
-            break;
-        case T_MULT:
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_MULT);
-            return bt->info->value;
-            break;
-        case T_MAS:
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_MAS);
-            return bt->info->value;
-            break;
-        case T_DIV: 
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_DIV);
-            return bt->info->value;
-            break;
-        case T_MAYOR: 
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_MAYOR);
-            return bt->info->value;
-            break;
-        case T_MENOR: 
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_MENOR);
-            return bt->info->value;
-            break;
-        case T_IGUAL: 
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_IGUAL);
-            return bt->info->value;
-            break;
-        case T_AND: 
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_AND);
-            return bt->info->value;
-            break;
-        case T_OR: 
-            bt->info->value = evalValue(interpreter(list, bt->hi), interpreter(list, bt->hd), T_OR);
-            return bt->info->value;
-            break;
-        case T_RET:
-            bt->info->value = interpreter(list, bt->hi);
-            printf("value return: %d\n", bt->info->value);
-            return bt->info->value;
-        case T_ASIGN:
-            TData* node = getNode(list, bt->info->name, bt->info->type);
-            int value = interpreter(list, bt->hd);
-            // if(!node || !evalType(node->type, value)) {
-            //     perror("Asign error: Var asign error\n");
-            //     exit(1);
-            // }
-            bt->info->value = value;
-            return value;
-            break;
-        case T_DECL:
-            bt->hi->info->value = interpreter(list, bt->hd);
-            bt->info->value = bt->hi->info->value;
-            return bt->info->value;
-            break;        
-        default:
-            return -1;
-            break; 
-    }
-}
-void setTypeFunction(Type type) {
-    curretFunctionType = type;
-}
-
-int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
+int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
     printf("CURRENT TYPE %d\n", curretFunctionType);
-    if(!bt || !list)
-        return -1;
+    if(!bt)
+        return 1;
     switch(bt->info->token) {
         case T_VOID:
             return bt->info->type == VOID;
@@ -188,7 +60,7 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
         case T_MAS:
         case T_DIV: 
             if(bt->hd) {
-                if(evalType(list, bt->hi) && evalType(list, bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
+                if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
                     bt->info->type = INTEGER;
                     return 1;
                     break;
@@ -197,7 +69,7 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
                 exit(1);
                 return 0;
             } else {
-                if(evalType(list, bt->hi) && bt->hi->info->type == INTEGER) {
+                if(evalType(bt->hi) && bt->hi->info->type == INTEGER) {
                     bt->info->type = INTEGER;
                     return 1;
                     break;
@@ -208,11 +80,22 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             }
             break;
         case T_FUNCTION:
-            return evalType(list, bt->hi) && evalType(list, bt->hd);
+            curretFunctionType = bt->info->type;
+            insertFunction(&functions, bt->info->type, bt->info->name, bt->hi);
+            if(bt->hd && bt->hi) 
+                return evalType(bt->hi) && evalType(bt->hd);
+            if(bt->hd)
+                return evalType(bt->hd);
+            if(bt->hi)
+                return evalType(bt->hi);
+            curretFunctionType = NO_TYPE;
+            return bt->info->type == VOID;
+        case T_METHODCALL:
+            return checkFunctionCall(functions, bt->info->name, bt->hi) && evalType(bt->hi);
             break;
         case T_AND: 
         case T_OR: 
-            if(evalType(list, bt->hi) && evalType(list, bt->hd) && (bt->hd->info->type == BOOL) && (bt->hi->info->type == BOOL)) {
+            if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == BOOL) && (bt->hi->info->type == BOOL)) {
                     bt->info->type = BOOL;
                     return 1;
             }
@@ -221,7 +104,7 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             return 0;
             break;
         case T_NEG:
-            if(evalType(list, bt->hi) && bt->hi->info->type == BOOL) {
+            if(evalType(bt->hi) && bt->hi->info->type == BOOL) {
                     bt->info->type = BOOL;
                     return 1;
                 }
@@ -231,16 +114,17 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
         case T_MAYOR: 
         case T_MENOR: 
         case T_IGUAL: 
-            if(evalType(list, bt->hi) && evalType(list, bt->hd) && bt->hd->info->type == bt->hi->info->type)
+            if(evalType(bt->hi) && evalType(bt->hd) && bt->hd->info->type == bt->hi->info->type)
                 return 1;
             perror("Type error: same type expected in comparator\n");
             exit(1);
+            return 0;
             break;
         case T_RET:
             printf("entró al tret");
             if(bt->hi) {
                 printf("entro al primer if");
-                if(evalType(list, bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
+                if(evalType(bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
                     printf("entro al segundo if");
                     bt->info->type = bt->hi->info->type;
                     curretFunctionType = NO_TYPE;
@@ -248,15 +132,18 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
                 }
                 perror("Type error: wrong return\n");
                 exit(1);
+                return 0;
             }
             if(curretFunctionType == VOID) {
+                curretFunctionType = NO_TYPE;
                 return 1;
             }
             perror("Type error: return expected\n");
             exit(1);
+            return 0;
             break;
         case T_ASIGN:
-            if(evalType(list, bt->hi) && evalType(list, bt->hd) && bt->hi->info->type == bt->hd->info->type) {
+            if(evalType(bt->hi) && evalType(bt->hd) && bt->hi->info->type == bt->hd->info->type) {
                 bt->info->type = bt->hi->info->type;
                 return 1;
             }
@@ -265,28 +152,29 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             return 0;
             break;
         case T_DECL:
-            if(evalType(list, bt->hi) && evalType(list, bt->hd)) {
+            if(evalType(bt->hi) && evalType(bt->hd)) {
                 bt->info->type = bt->hi->info->type;
                 return 1;
             }
             perror("Declaration error: missing something?\n");
             exit(1);
+            return 0;
             break;
         case T_IF:
         case T_WHILE:
-            return evalType(list, bt->hi) && evalType(list, bt->hd);
+            return evalType(bt->hi) && evalType(bt->hd);
             break;
         case T_THEN:
-            return evalType(list, bt->hi);
+            return evalType(bt->hi);
             break;
         case T_ELSE:
-            return evalType(list, bt->hi);
+            return evalType(bt->hi);
             break;
         case T_PROGRAM:
             if(bt->hd) {
-                return evalType(list, bt->hi) && evalType(list, bt->hd);
+                return evalType(bt->hi) && evalType(bt->hd);
             }
-            return evalType(list, bt->hi);
+            return evalType(bt->hi);
             break;
         default:
             return 0;

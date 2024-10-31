@@ -35,8 +35,9 @@ typedef enum Token {
     T_BOOL = 283,                  /* TBOOL  */
     T_ASIGN = 284,                   /* TASIGN  */
     T_PROGRAM = 285,                /* TPROGRAM */
-    T_FUNCTION = 286,
-    T_UMINUS = 287    
+    T_UMINUS = 286,
+    T_FUNCTION = 287,
+    T_METHODCALL = 288
 } Token;
 
 typedef enum Type {
@@ -65,6 +66,7 @@ typedef struct Queue {
   int front;
   int rear;
 } Queue;
+
 
 TData* newData(Token id, Type type, int val, char* nom);
 Tree* newTree(TData *data, Tree *leftChild, Tree *rightChild);
