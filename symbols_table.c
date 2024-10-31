@@ -164,6 +164,7 @@ void setTypeFunction(Type type) {
 }
 
 int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
+    printf("CURRENT TYPE %d\n", curretFunctionType);
     if(!bt || !list)
         return -1;
     switch(bt->info->token) {
@@ -207,7 +208,8 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             }
             break;
         case T_FUNCTION:
-        //TODO: HACER EL CASO DE LA FUNCION (ACORDARSE HACER EL MOSTRAR LA T_FUNCION EN EL ARBOL)
+            return evalType(list, bt->hi) && evalType(list, bt->hd);
+            break;
         case T_AND: 
         case T_OR: 
             if(evalType(list, bt->hi) && evalType(list, bt->hd) && (bt->hd->info->type == BOOL) && (bt->hi->info->type == BOOL)) {
@@ -235,7 +237,7 @@ int evalType(SymbolsTable* list, Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             exit(1);
             break;
         case T_RET:
-            printf("entro al tret");
+            printf("entró al tret");
             if(bt->hi) {
                 printf("entro al primer if");
                 if(evalType(list, bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
@@ -355,32 +357,35 @@ int removeNode(LSE **list, TData *node) {
     return 0;
 }
 
+void insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
+    ListFunction *aux = *functions;
+    while(aux->next) //TODO: A LA CABEZA
+        aux = aux->next;
+    ListFunction *newNode = (ListFunction*)malloc(sizeof(ListFunction));
+    newNode->name = name;
+    newNode->type = type;
+    newNode->params = params;
+    newNode->next = NULL;
+    aux->next = newNode;
+}
+
 int checkFunctionCall(ListFunction *functions, char* name, Tree *params) {
-    ListFunction *aux = functions;
+    ListFunction *aux = functions->next;
     while(aux) {
         if(strcmp(aux->name, name) == 0) {
-            if(params == aux->params)
-                return 1;            
+            if(checkParams(aux->params, params))
+                return 1;
         }
+        aux = aux->next;
     }
     return 0;
 }
-void insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
-    if(!(*functions) || !functions) {
-        *functions = (ListFunction*)malloc(sizeof(ListFunction));
-        (*functions)->type = type;
-        (*functions)->name = name;
-        (*functions)->params = params;
-    } else {
-        ListFunction *aux = functions;
-        while(aux->next) {
-            aux = aux->next;
-        }
-        ListFunction *newNode = (ListFunction*)malloc(sizeof(ListFunction));
-        newNode->name = name;
-        newNode->type = type;
-        newNode->params = params;
-        newNode->next = *functions;
-        (*functions) = newNode;
-    }
+int checkParams(Tree* paramsFunction, Tree* paramsCall) {
+    Tree *aux = paramsFunction;
+    Tree *auxCall = paramsCall;
+    if (!aux && !auxCall)
+        return 1;
+    if(!aux || !auxCall)
+        return 0;
+    return aux->info->type == auxCall->info->type && checkParams(aux->hi, auxCall->hi) && checkParams(aux->hd, auxCall->hd); 
 }

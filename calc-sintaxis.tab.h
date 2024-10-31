@@ -45,9 +45,9 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 11 "calc-sintaxis.y"
+#line 13 "calc-sintaxis.y"
 #include "tree.h"
-#line 12 "calc-sintaxis.y"
+#line 14 "calc-sintaxis.y"
 #include "symbols_table.h"
 
 #line 54 "calc-sintaxis.tab.h"
@@ -98,7 +98,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "calc-sintaxis.y"
+#line 16 "calc-sintaxis.y"
 int i; int b; Tree *tree; char *s; TData *data;
 
 #line 105 "calc-sintaxis.tab.h"

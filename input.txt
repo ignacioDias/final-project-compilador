@@ -2,11 +2,14 @@ program {
 integer x = 10;
 integer z = 6 + 1;
 bool m = true;
+integer suma(integer x) {
+return x + 2;
+}
 integer main() {
 if(5 > 10) then {
 	z = x + 7;
 } else {
-return m;
+return suma(2);
 }
 }
 }
