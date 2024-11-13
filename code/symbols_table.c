@@ -1,5 +1,5 @@
-#include "tree.h"
-#include "symbols_table.h"
+#include "libraries/tree.h"
+#include "libraries/symbols_table.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -36,7 +36,6 @@ int setValueToNode(LSE *list, char* name, Type type, int val) {
 
 
 int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
-    printf("CURRENT TYPE %d\n", curretFunctionType);
     if(!bt)
         return 1;
     switch(bt->info->token) {

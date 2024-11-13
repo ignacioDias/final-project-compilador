@@ -2,8 +2,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "tree.h"
-#include "symbols_table.h"
+#include "libraries/tree.h"
+#include "libraries/symbols_table.h"
 
 SymbolsTable* table;
 void setTypeFunction(Type type);
@@ -73,7 +73,7 @@ program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); LSE* newLevel = 
 program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table);}
        |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table);}
        ;
-vars: vars var_decl   {TData* data = newData(TDECL, NO_TYPE, -1, "vars"); $$ = newTree(data, $1, $2);}
+vars: vars var_decl   {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); $$ = newTree(data, $1, $2);}
     | var_decl  {$$ = $1;}
     ;
 var_decl:

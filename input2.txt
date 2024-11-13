@@ -1,4 +1,0 @@
-program {
-integer x = 10;
-bool m = c;
-}

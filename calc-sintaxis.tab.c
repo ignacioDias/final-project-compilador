@@ -1255,7 +1255,7 @@ yyreduce:
 
   case 6: /* vars: vars var_decl  */
 #line 76 "calc-sintaxis.y"
-                      {TData* data = newData(TDECL, NO_TYPE, -1, "vars"); (yyval.tree) = newTree(data, (yyvsp[-1].tree), (yyvsp[0].tree));}
+                      {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); (yyval.tree) = newTree(data, (yyvsp[-1].tree), (yyvsp[0].tree));}
 #line 1260 "calc-sintaxis.tab.c"
     break;
 

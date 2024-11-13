@@ -14,9 +14,11 @@ typedef enum Operation {
     OR,
     AND,
     NEG,
-    IF,
-    WHILE,
-    ELSE
+    ASIGN,
+    IFF,
+    LABEL,
+    GOTO,
+    RET
 } Operation;
 
 typedef struct {
@@ -33,9 +35,7 @@ typedef struct ListForTriples {
 
 void insertNode(AssemblyList **list, Triple *triple);
 void handleGenerateIf(AssemblyList **list, Triple* cond, AssemblyList *then, AssemblyList *elseBlock);
-void handle(AssemblyList *block);
 void handleGenerateWhile(AssemblyList **list, Triple* cond, AssemblyList *then);
 void handleGenerateBinaryOperation(Triple* ar);
 void handleGenerateFunc(Triple* ar);
-int evalValue(TData* a, TData *b, Operation operation);
 #endif

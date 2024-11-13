@@ -2,7 +2,7 @@ program {
 integer x = 10;
 integer z = 6 + 1;
 bool m = true;
-integer suma(integer x) {
+integer               suma             (integer x) {
 return x + 2;
 }
 integer main() {
