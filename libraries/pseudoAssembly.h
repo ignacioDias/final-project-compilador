@@ -33,9 +33,6 @@ typedef struct ListForTriples {
     struct ListForTriples *next;
 } AssemblyList;
 
-void insertNode(AssemblyList **list, Triple *triple);
-void handleGenerateIf(AssemblyList **list, Triple* cond, AssemblyList *then, AssemblyList *elseBlock);
-void handleGenerateWhile(AssemblyList **list, Triple* cond, AssemblyList *then);
-void handleGenerateBinaryOperation(Triple* ar);
-void handleGenerateFunc(Triple* ar);
+void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* temporary);
+void insertNode(Triple *triple);
 #endif

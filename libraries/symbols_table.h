@@ -43,4 +43,6 @@ void showLevel(LSE *list);
 int checkFunctionCall(ListFunction *functions, char* name, Tree *params);
 void insertFunction(ListFunction **functions, Type type, char* name, Tree *params);
 
+int checkParams(Tree* paramsFunction, Tree* paramsCall);
+
 #endif

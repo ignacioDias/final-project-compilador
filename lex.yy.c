@@ -526,7 +526,7 @@ char *yytext;
 #include <string.h>
 #include <stdio.h>
 #include "calc-sintaxis.tab.h"
-#include "tree.h"
+#include "libraries/tree.h"
 
 #line 532 "lex.yy.c"
 #line 533 "lex.yy.c"

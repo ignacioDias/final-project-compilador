@@ -72,8 +72,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "tree.h"
-#include "symbols_table.h"
+#include "libraries/tree.h"
+#include "libraries/symbols_table.h"
 
 SymbolsTable* table;
 void setTypeFunction(Type type);

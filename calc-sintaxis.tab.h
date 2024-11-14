@@ -46,9 +46,9 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 #line 11 "calc-sintaxis.y"
-#include "tree.h"
+#include "libraries/tree.h"
 #line 12 "calc-sintaxis.y"
-#include "symbols_table.h"
+#include "libraries/symbols_table.h"
 
 #line 54 "calc-sintaxis.tab.h"
 

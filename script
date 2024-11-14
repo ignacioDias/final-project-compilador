@@ -1,5 +1,25 @@
 #!/bin/bash
 
-flex cacl-lexico.l 
-bison -d calc-sintaxis.y
-gcc lex.yy.c calc-sintaxis.tab.c tree.c symbols_table.c pseudoAssembly.c
+# Variables para archivos de entrada y salida
+LEX_FILE="cacl-lexico.l"
+YACC_FILE="calc-sintaxis.y"
+OUTPUT_FILE="parser"
+
+# Archivos adicionales de código fuente
+SRC_FILES="lex.yy.c calc-sintaxis.tab.c code/tree.c code/symbols_table.c code/pseudoAssembly.c"
+HEADER_DIR="libraries"
+
+# Ejecuta Flex
+echo "Generando analizador léxico con Flex..."
+flex "$LEX_FILE" || { echo "Error en Flex"; exit 1; }
+
+# Ejecuta Bison
+echo "Generando analizador sintáctico con Bison..."
+bison -d "$YACC_FILE" || { echo "Error en Bison"; exit 1; }
+
+# Compilación final con GCC
+echo "Compilando con GCC..."
+gcc -o "$OUTPUT_FILE" $SRC_FILES -I"$HEADER_DIR" || { echo "Error en la compilación"; exit 1; }
+
+# Mensaje de éxito
+echo "Compilación completada. Ejecuta ./$OUTPUT_FILE para correr el programa."

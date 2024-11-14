@@ -8,8 +8,8 @@
 SymbolsTable* table;
 void setTypeFunction(Type type);
 %}
-%code requires {#include "tree.h"}
-%code requires {#include "symbols_table.h"}
+%code requires {#include "libraries/tree.h"}
+%code requires {#include "libraries/symbols_table.h"}
 
 %union{int i; int b; Tree *tree; char *s; TData *data;}
 

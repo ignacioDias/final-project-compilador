@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "calc-sintaxis.tab.h"
-#include "libraries/tree.h"
+#include "../calc-sintaxis.tab.h"
+#include "../libraries/tree.h"
 #define MAX_QUEUE_SIZE 100
 
 // Función para crear un nuevo nodo
