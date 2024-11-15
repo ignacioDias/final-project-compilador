@@ -35,51 +35,6 @@ void insertNode(Triple *triple) {
     }
 }
 
-void convert(Operation op, Tree* value1, Tree* value2, Tree* temporary) {
-    Triple* value1Node = value1->info;
-    Triple* value2Node;
-    Triple* resSymbol = temporary->info;
-    Triple* tripleValue2;
-
-    if(value2) {
-        value2Node = value2->info;
-        tripleValue2 = getVar(value2->symbol->varname);
-    }
-
-    switch(op) {
-        case ASIGN:
-            if(tripleValue2){
-                value1Node->value = tripleValue2->value;
-                resSymbol = value1Node;
-            } else {
-                value1Node->value = value2Node->value;
-                resSymbol = value1Node;
-            }
-            createInstallSequence(T_ASIGN, value1Node, value2Node, resSymbol);
-            break;
-        case MENOR:
-        case MAYOR:
-        case IGUAL:
-        case MENOS:
-        case SUMA:
-        case MULT:
-        case DIV:
-        case MOD:
-        case OR:
-        case AND:
-        case NEG:
-        case IFF:
-            handleBinaryOperation(tag, value1Node, value2Node, resSymbol);
-            break;
-        case EWHILE:
-            if (value1Node->value == 1)
-                resSymbol = value2->right->symbol;
-            else
-                resSymbol = NULL;
-            handleBinaryOperation(T_WHILE, value1Node, value2Node, resSymbol);
-            break;
-    }
-}
 
 Triple *getVar(char* name) {
     if(!name || !program) {
@@ -95,5 +50,4 @@ Triple *getVar(char* name) {
     }
     return NULL;
 }
-
 

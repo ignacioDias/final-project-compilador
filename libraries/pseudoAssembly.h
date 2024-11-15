@@ -15,6 +15,7 @@ typedef enum Operation {
     AND,
     NEG,
     ASIGN,
+    WHILE,
     IFF,
     LABEL,
     GOTO,
