@@ -527,9 +527,8 @@ char *yytext;
 #include <stdio.h>
 #include "calc-sintaxis.tab.h"
 #include "libraries/tree.h"
-
+#line 530 "lex.yy.c"
 #line 531 "lex.yy.c"
-#line 532 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -746,10 +745,10 @@ YY_DECL
 		}
 
 	{
-#line 28 "cacl-lexico.l"
+#line 27 "cacl-lexico.l"
 
 
-#line 752 "lex.yy.c"
+#line 751 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -818,7 +817,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 30 "cacl-lexico.l"
+#line 29 "cacl-lexico.l"
 { 
                                 TData *info = newData(T_INTV, INTEGER,atoi(yytext), strdup(yytext));
                                 yylval.data = info;
@@ -827,7 +826,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 36 "cacl-lexico.l"
+#line 35 "cacl-lexico.l"
 { 
                                 TData *info = newData(T_RET, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -837,7 +836,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 43 "cacl-lexico.l"
+#line 42 "cacl-lexico.l"
 { 
                                 TData *info = newData(T_IF, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -847,7 +846,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 50 "cacl-lexico.l"
+#line 49 "cacl-lexico.l"
 { 
                                 TData *info = newData(T_THEN, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -856,7 +855,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 56 "cacl-lexico.l"
+#line 55 "cacl-lexico.l"
 { 
                                 TData *info = newData(T_ELSE, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -865,7 +864,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 61 "cacl-lexico.l"
+#line 60 "cacl-lexico.l"
 { 
                                 TData *info = newData(T_WHILE, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -874,7 +873,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 66 "cacl-lexico.l"
+#line 65 "cacl-lexico.l"
 {
                                 TData *info = newData(T_VOID, VOID, -1, strdup(yytext));
                                 yylval.data = info;
@@ -883,7 +882,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 71 "cacl-lexico.l"
+#line 70 "cacl-lexico.l"
 {
                                 TData *info = newData(T_INT, 1, -1, strdup(yytext));
                                 yylval.data = info;
@@ -892,7 +891,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 76 "cacl-lexico.l"
+#line 75 "cacl-lexico.l"
 {
                                 TData *info = newData(T_BOOL, BOOL, -1, strdup(yytext));
                                 yylval.data = info;
@@ -901,7 +900,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 81 "cacl-lexico.l"
+#line 80 "cacl-lexico.l"
 {
                                 TData *info = newData(T_PROGRAM, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -910,7 +909,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 87 "cacl-lexico.l"
+#line 86 "cacl-lexico.l"
 {   
                                 TData *info = newData(T_TRUE, BOOL, 1, strdup(yytext));
                                 yylval.data = info;
@@ -919,7 +918,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 92 "cacl-lexico.l"
+#line 91 "cacl-lexico.l"
 {
                                 TData *info = newData(T_FAL, BOOL, 0, strdup(yytext));
                                 yylval.data = info;
@@ -928,7 +927,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 97 "cacl-lexico.l"
+#line 96 "cacl-lexico.l"
 {
                                 TData *info = newData(T_EXTERN, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -938,7 +937,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 103 "cacl-lexico.l"
+#line 102 "cacl-lexico.l"
 { 
                                 // yyval.data = (char*)
                                 TData *info = newData(T_ID, NO_TYPE, -1, strdup(yytext));
@@ -948,7 +947,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 110 "cacl-lexico.l"
+#line 109 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_MENOR, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -957,7 +956,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 115 "cacl-lexico.l"
+#line 114 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_MAYOR, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -966,7 +965,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 120 "cacl-lexico.l"
+#line 119 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_IGUAL, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -975,7 +974,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 125 "cacl-lexico.l"
+#line 124 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_MENOS, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -984,7 +983,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 130 "cacl-lexico.l"
+#line 129 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_MAS, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -993,7 +992,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 135 "cacl-lexico.l"
+#line 134 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_MULT, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1002,7 +1001,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 140 "cacl-lexico.l"
+#line 139 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_DIV, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1011,7 +1010,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 145 "cacl-lexico.l"
+#line 144 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_MOD, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1020,7 +1019,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 150 "cacl-lexico.l"
+#line 149 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_OR, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1029,7 +1028,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 155 "cacl-lexico.l"
+#line 154 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_NEG, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1038,7 +1037,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 161 "cacl-lexico.l"
+#line 160 "cacl-lexico.l"
 {  
                                 TData *info = newData(T_AND, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1047,7 +1046,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 167 "cacl-lexico.l"
+#line 166 "cacl-lexico.l"
 {
                                 TData *info = newData(T_ASIGN, NO_TYPE, -1, strdup(yytext));
                                 yylval.data = info;
@@ -1058,7 +1057,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 175 "cacl-lexico.l"
+#line 174 "cacl-lexico.l"
 {       
                                 printf("%s\n",yytext);
                                return *yytext;} 
@@ -1066,20 +1065,20 @@ YY_RULE_SETUP
 case 28:
 /* rule 28 can match eol */
 YY_RULE_SETUP
-#line 181 "cacl-lexico.l"
+#line 180 "cacl-lexico.l"
 ; /* ignore all the rest */
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 182 "cacl-lexico.l"
+#line 181 "cacl-lexico.l"
 {yyerror();}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 183 "cacl-lexico.l"
+#line 182 "cacl-lexico.l"
 ECHO;
 	YY_BREAK
-#line 1082 "lex.yy.c"
+#line 1081 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2096,7 +2095,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 183 "cacl-lexico.l"
+#line 182 "cacl-lexico.l"
 
 
 void yyerror(){

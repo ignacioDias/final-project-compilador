@@ -19,7 +19,7 @@ bison -d "$YACC_FILE" || { echo "Error en Bison"; exit 1; }
 
 # Compilación final con GCC
 echo "Compilando con GCC..."
-gcc -o "$OUTPUT_FILE" $SRC_FILES -I"$HEADER_DIR" || { echo "Error en la compilación"; exit 1; }
+gcc -Wno-implicit-function-declaration -o "$OUTPUT_FILE" $SRC_FILES -I"$HEADER_DIR" || { echo "Error en la compilación"; exit 1; }
 
 # Mensaje de éxito
 echo "Compilación completada. Ejecuta ./$OUTPUT_FILE para correr el programa."

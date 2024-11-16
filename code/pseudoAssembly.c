@@ -8,7 +8,7 @@
 AssemblyList *program;
 
 void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* temporary) {
-    if(!value1 || !value2 || !temporary) {
+    if(!value1 || !temporary) {
         perror("Error: Invalid operands");
         exit(1);
     }
@@ -23,6 +23,7 @@ void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* te
     newTriple->temporary = temporary;
     insertNode(newTriple);
 }
+
 void insertNode(Triple *triple) {
     if(!program) {
         program = (AssemblyList*)malloc(sizeof(AssemblyList));
@@ -35,19 +36,69 @@ void insertNode(Triple *triple) {
     }
 }
 
-
-Triple *getVar(char* name) {
-    if(!name || !program) {
-        perror("Error: getVar");
-        exit(1);
-    }
-    AssemblyList *current = program;
-    while(current) {
-        if(strcmp(current->info->temporary->name, name) == 0) {
-            return current->info;
+void generatePseudoAssembly(Tree *tree) {
+    Token operation = tree->info->token;
+    switch(operation) {
+        case T_RET:
+            handleReturn(tree->info, tree->hd);
+            break;
+        case T_MENOR:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, MENOR, tree->info);
+            break;
+        case T_MAYOR:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, MAYOR, tree->info);
+            break;
+        case T_IGUAL:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, IGUAL, tree->info);
+            break;
+        case T_MENOS:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, MENOS, tree->info);
+            break;
+        case T_MAS:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, SUMA, tree->info);
+            break;
+        case T_MULT:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, MULT, tree->info);
+            break;
+        case T_DIV:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, DIV, tree->info);
+            break;
+        case T_MOD:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, MOD, tree->info);
+            break;
+        case T_OR:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, OR, tree->info);
+            break;
+        case T_NEG:
+            handleBinaryOperation(tree->hi->info, NULL, NEG, tree->info);
+            break;
+        case T_AND:
+            handleBinaryOperation(tree->hi->info, tree->hd->info, MENOR, tree->info);
+            break;
+        case T_WHILE:
+            handleWhile(tree);
+            break;
+        case T_IF:
+            handleIf(tree);
+            break;
+        case T_ASIGN:
+            handleAsign(tree);
+            break;
+        default:
+            generatePseudoAssembly(tree->hi);
+            generatePseudoAssembly(tree->hd);
+            break;
         }
-        current = current->next;
-    }
-    return NULL;
+    }    
+void handleAsign(Tree *tree) {
+    
 }
+void handleIf(Tree *tree) {
 
+}
+void handleWhile(Tree *tree) {
+
+}
+void handleReturn(TData *ret, Tree *tree) {
+
+}

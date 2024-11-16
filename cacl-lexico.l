@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "calc-sintaxis.tab.h"
 #include "libraries/tree.h"
-
 %}
 
 %option noyywrap
