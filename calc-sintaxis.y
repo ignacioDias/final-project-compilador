@@ -2,14 +2,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "libraries/tree.h"
-#include "libraries/symbols_table.h"
+#include "include/tree.h"
+#include "include/symbolsTable.h"
 
 SymbolsTable* table;
 void setTypeFunction(Type type);
 %}
-%code requires {#include "libraries/tree.h"}
-%code requires {#include "libraries/symbols_table.h"}
+%code requires {#include "include/tree.h"}
+%code requires {#include "include/symbolsTable.h"}
 
 %union{int i; int b; Tree *tree; char *s; TData *data;}
 
@@ -79,7 +79,7 @@ vars: vars var_decl   {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); $$ = 
 var_decl:
     ttype id TASIGN expr ';' { if(insertElem(&table, newData($2->info->token, $1->info->type, $4->info->value, $2->info->name))) {
 
-                                Tree *leftChild = newTree(newData(T_DECL, NO_TYPE, -1, "var declaration + asign"), $1, $2); $$ = newTree($3, leftChild, $4);
+                                Tree *leftChild = newTree(newData(T_DECL, $1->info->type, -1, "var declaration + asign"), $1, $2); $$ = newTree($3, leftChild, $4);
                             } else {
                                     perror("Re-declaration"); exit(1);}}
     |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))){$$ = newTree(newData(T_DECL, NO_TYPE, -1, "var declaration"), $1, $2);} else {perror("var already exists");exit(1);}}

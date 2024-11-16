@@ -3,10 +3,10 @@
 # Variables para archivos de entrada y salida
 LEX_FILE="cacl-lexico.l"
 YACC_FILE="calc-sintaxis.y"
-OUTPUT_FILE="parser"
+OUTPUT_FILE="project"
 
 # Archivos adicionales de código fuente
-SRC_FILES="lex.yy.c calc-sintaxis.tab.c code/tree.c code/symbols_table.c code/pseudoAssembly.c"
+SRC_FILES="lex.yy.c calc-sintaxis.tab.c src/tree.c src/symbolsTable.c src/pseudoAssembly.c"
 HEADER_DIR="libraries"
 
 # Ejecuta Flex

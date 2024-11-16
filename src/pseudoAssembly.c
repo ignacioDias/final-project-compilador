@@ -1,6 +1,6 @@
-#include "../libraries/tree.h"
-#include "../libraries/symbols_table.h"
-#include "../libraries/pseudoAssembly.h"
+#include "../include/tree.h"
+#include "../include/symbolsTable.h"
+#include "../include/pseudoAssembly.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,10 +10,6 @@ AssemblyList *program;
 void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* temporary) {
     if(!value1 || !temporary) {
         perror("Error: Invalid operands");
-        exit(1);
-    }
-    if((op == DIV || op == MOD) && value2->value == 0) {
-        perror("Error: Division by zero");
         exit(1);
     }
     Triple *newTriple = (Triple*)malloc(sizeof(Triple));
@@ -35,7 +31,6 @@ void insertNode(Triple *triple) {
         program = newNode;
     }
 }
-
 void generatePseudoAssembly(Tree *tree) {
     Token operation = tree->info->token;
     switch(operation) {
@@ -61,9 +56,17 @@ void generatePseudoAssembly(Tree *tree) {
             handleBinaryOperation(tree->hi->info, tree->hd->info, MULT, tree->info);
             break;
         case T_DIV:
+            if(tree->hd->info->value == 0) {
+                perror("Error: Division by zero");
+                exit(1);
+            }
             handleBinaryOperation(tree->hi->info, tree->hd->info, DIV, tree->info);
             break;
         case T_MOD:
+            if(tree->hd->info->value == 0) {
+                perror("Error: Division by zero");
+                exit(1);
+            }
             handleBinaryOperation(tree->hi->info, tree->hd->info, MOD, tree->info);
             break;
         case T_OR:
@@ -88,8 +91,8 @@ void generatePseudoAssembly(Tree *tree) {
             generatePseudoAssembly(tree->hi);
             generatePseudoAssembly(tree->hd);
             break;
-        }
-    }    
+    }
+}    
 void handleAsign(Tree *tree) {
     
 }

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "calc-sintaxis.tab.h"
-#include "libraries/tree.h"
+#include "include/tree.h"
 %}
 
 %option noyywrap

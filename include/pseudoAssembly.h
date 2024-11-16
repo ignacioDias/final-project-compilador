@@ -38,5 +38,6 @@ void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* te
 void insertNode(Triple *triple);
 void handleWhile(Tree *tree);
 void handleIf(Tree *tree);
+void handleReturn(TData *ret, Tree *tree);
 void handleAsign(Tree *tree);
 #endif

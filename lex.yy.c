@@ -1,5 +1,5 @@
 
-#line 2 "lex.yy.c"
+#line 3 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -526,9 +526,9 @@ char *yytext;
 #include <string.h>
 #include <stdio.h>
 #include "calc-sintaxis.tab.h"
-#include "libraries/tree.h"
-#line 530 "lex.yy.c"
+#include "include/tree.h"
 #line 531 "lex.yy.c"
+#line 532 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -748,7 +748,7 @@ YY_DECL
 #line 27 "cacl-lexico.l"
 
 
-#line 751 "lex.yy.c"
+#line 752 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1078,7 +1078,7 @@ YY_RULE_SETUP
 #line 182 "cacl-lexico.l"
 ECHO;
 	YY_BREAK
-#line 1081 "lex.yy.c"
+#line 1082 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

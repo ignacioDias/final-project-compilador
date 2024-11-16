@@ -1,5 +1,5 @@
-#include "../libraries/tree.h"
-#include "../libraries/symbols_table.h"
+#include "../include/tree.h"
+#include "../include/symbolsTable.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -34,8 +34,7 @@ int setValueToNode(LSE *list, char* name, Type type, int val) {
     return 1;
 }
 
-
-int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
+int evalType(Tree* bt) {
     if(!bt)
         return 1;
     switch(bt->info->token) {
@@ -60,6 +59,7 @@ int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
         case T_DIV: 
             if(bt->hd) {
                 if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
+                    printf("Se metio al if\n");
                     bt->info->type = INTEGER;
                     return 1;
                     break;
@@ -120,11 +120,11 @@ int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             return 0;
             break;
         case T_RET:
-            printf("entró al tret");
+            printf("entró al tret\n");
             if(bt->hi) {
-                printf("entro al primer if");
+                printf("entro al primer if\n");
                 if(evalType(bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
-                    printf("entro al segundo if");
+                    printf("entro al segundo if\n");
                     bt->info->type = bt->hi->info->type;
                     curretFunctionType = NO_TYPE;
                     return 1;
@@ -152,11 +152,13 @@ int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             break;
         case T_DECL:
             if(evalType(bt->hi) && evalType(bt->hd)) {
+                printf("Entro al TDECL\n");
                 bt->info->type = bt->hi->info->type;
                 return 1;
             }
             perror("Declaration error: missing something?\n");
             exit(1);
+            printf("Termino el TDECL\n");
             return 0;
             break;
         case T_IF:
@@ -170,6 +172,7 @@ int evalType(Tree* bt) { //TODO: BORRAR SYMBOLS TABLE
             return evalType(bt->hi);
             break;
         case T_PROGRAM:
+            printf("Entro el TPROGRAM\n");
             if(bt->hd) {
                 return evalType(bt->hi) && evalType(bt->hd);
             }
@@ -245,15 +248,12 @@ int removeNode(LSE **list, TData *node) {
 }
 
 void insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
-    ListFunction *aux = *functions;
-    while(aux->next) //TODO: A LA CABEZA
-        aux = aux->next;
     ListFunction *newNode = (ListFunction*)malloc(sizeof(ListFunction));
     newNode->name = name;
     newNode->type = type;
     newNode->params = params;
-    newNode->next = NULL;
-    aux->next = newNode;
+    newNode->next = *functions;
+    *functions = newNode;
 }
 
 int checkFunctionCall(ListFunction *functions, char* name, Tree *params) {

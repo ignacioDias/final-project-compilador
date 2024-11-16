@@ -3,10 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../calc-sintaxis.tab.h"
-#include "../libraries/tree.h"
+#include "../include/tree.h"
 #define MAX_QUEUE_SIZE 100
 
-// Función para crear un nuevo nodo
 TData* newData(Token token, Type type, int value, char* name) {
     TData *newData = (TData*)malloc(sizeof(TData)); 
     newData->token = token;

@@ -72,8 +72,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "libraries/tree.h"
-#include "libraries/symbols_table.h"
+#include "include/tree.h"
+#include "include/symbolsTable.h"
 
 SymbolsTable* table;
 void setTypeFunction(Type type);
@@ -1269,7 +1269,7 @@ yyreduce:
 #line 80 "calc-sintaxis.y"
                              { if(insertElem(&table, newData((yyvsp[-3].tree)->info->token, (yyvsp[-4].tree)->info->type, (yyvsp[-1].tree)->info->value, (yyvsp[-3].tree)->info->name))) {
 
-                                Tree *leftChild = newTree(newData(T_DECL, NO_TYPE, -1, "var declaration + asign"), (yyvsp[-4].tree), (yyvsp[-3].tree)); (yyval.tree) = newTree((yyvsp[-2].data), leftChild, (yyvsp[-1].tree));
+                                Tree *leftChild = newTree(newData(T_DECL, (yyvsp[-4].tree)->info->type, -1, "var declaration + asign"), (yyvsp[-4].tree), (yyvsp[-3].tree)); (yyval.tree) = newTree((yyvsp[-2].data), leftChild, (yyvsp[-1].tree));
                             } else {
                                     perror("Re-declaration"); exit(1);}}
 #line 1276 "calc-sintaxis.tab.c"
