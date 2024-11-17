@@ -1,0 +1,9 @@
+program{
+     integer main(){
+        if(true) then {
+	  integer x = 7;
+	} else {
+          integer x = 4;
+	}
+    }
+}

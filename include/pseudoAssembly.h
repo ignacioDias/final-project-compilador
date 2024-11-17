@@ -15,10 +15,10 @@ typedef enum Operation {
     AND,
     NEG,
     ASIGN,
-    WHILE,
+    WHILEF,
     IFF,
     LABEL,
-    GOTO,
+    JUMP,
     RET
 } Operation;
 
@@ -34,10 +34,14 @@ typedef struct ListForTriples {
     struct ListForTriples *next;
 } AssemblyList;
 
+int currentLabel = 1;
+
 void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* temporary);
 void insertNode(Triple *triple);
 void handleWhile(Tree *tree);
 void handleIf(Tree *tree);
-void handleReturn(TData *ret, Tree *tree);
-void handleAsign(Tree *tree);
+TData *generateNewLabel();
+char* generateNewIDForLabel();
+void printAssemblyList();
+const char *operationToString(Operation op);
 #endif

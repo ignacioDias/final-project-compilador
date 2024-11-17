@@ -9,6 +9,7 @@ SymbolsTable* table;
 void setTypeFunction(Type type);
 %}
 %code requires {#include "include/tree.h"}
+%code requires {#include "include/pseudoAssembly.h"}
 %code requires {#include "include/symbolsTable.h"}
 
 %union{int i; int b; Tree *tree; char *s; TData *data;}
@@ -112,8 +113,8 @@ statements: statements single_statement {TData* data = newData(T_YYUNDEF, NO_TYP
 single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
                 | method_call ';' {$$ = $1;}
                 | TIF '(' expr ')' THEN block  {Tree *tree = newTree($1, $3, newTree($5, $6, NULL)); $$ = tree;}
-                | TIF '(' expr ')' THEN block TELSE block {Tree *tree = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree($5, $6, NULL), newTree($7, $8, NULL))); $$ = tree;}
-                | TWHILE '(' expr ')' block {Tree *tree = newTree($1, $3, $5); $$ = tree;}
+                | TIF '(' expr ')' THEN block TELSE block {$$ = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree($5, $6, NULL), newTree($7, $8, NULL)));}
+                | TWHILE '(' expr ')' block {$$ = newTree($1, $3, $5);}
                 | TRET expr ';' {$$ = newTree(newData(T_RET, -1, -1, "RET WITH VALUE"), $2, NULL);}
                 | TRET ';' {$$ = newTree(newData(T_RET, -1, -1, "RET WITHOUT VALUE"), NULL, NULL);}
                 | ';' {$$ = NULL;}
