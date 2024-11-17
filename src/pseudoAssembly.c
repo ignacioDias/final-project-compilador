@@ -81,6 +81,12 @@ void generatePseudoAssembly(Tree *tree) {
         case T_IF:
             handleIf(tree);
             break;
+        case FUN_CALL:
+            handleFunctionCall(tree);
+            break;
+        case FUN_DECL:
+            handleFunctionDeclaration(tree);
+            break;
         case T_ASIGN:
             handleBinaryOperation(tree->hd->info, NULL, ASIGN, tree->hi->info);
             break;
@@ -90,6 +96,24 @@ void generatePseudoAssembly(Tree *tree) {
             break;
     }
 }    
+void handleFunctionDeclaration(Tree *tree) {
+    // T_FUNC _ _ NAME
+    handleBinaryOperation(NULL, NULL, FUN_DECL, tree->info); //FUN_DECL _ _ NAME
+    // [T_REQUIRED_PARAM _ _ PARAM]
+    if(tree->hi) {
+        Tree *current = tree->hi;
+        while(current) {
+            handleBinaryOperation(NULL, NULL, T_REQUIRED_PARAM, current->info); //T_REQUIRED_PARAM _ _ PARAM
+            current = current->hi;
+        }
+    }
+    // BODY
+    // RETURN _  _  result
+    // END_FUN _ _ sum
+}
+void handleFunctionCall(Tree *tree) {
+    
+}
 void handleIf(Tree *tree) {
     TData *iffLabel = generateNewLabel();
     TData *elseLabel = generateNewLabel();
@@ -108,7 +132,7 @@ void handleWhile(Tree *tree) {
     TData *firstLabel = generateNewLabel();
     TData *falseWhileLabel = generateNewLabel();
     handleBinaryOperation(NULL, NULL, LABEL, firstLabel); //LABEL USED FOR ITERATING
-    handleBinaryOperation(tree->hi->info, NULL, WHILEF, falseWhileLabel);  //CHECK WHILE CONDITION
+    handleBinaryOperation(tree->hi->info, NULL, WHILEF, falseWhileLabel);  //CHECK WHILE CONDITION, IF FALSE, JUMP TO END
     generatePseudoAssembly(tree->hd); //BODY OF WHILE
     handleBinaryOperation(NULL, NULL, JUMP, firstLabel); //JUMP TO THE FIRST LABEL, ITERATION
     handleBinaryOperation(NULL, NULL, LABEL, falseWhileLabel); //LABEL USED FOR FALSE CONDITION

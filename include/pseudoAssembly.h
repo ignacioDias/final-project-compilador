@@ -19,7 +19,10 @@ typedef enum Operation {
     IFF,
     LABEL,
     JUMP,
-    RET
+    RET,
+    FUN_CALL,
+    FUN_DECL,
+    T_REQUIRED_PARAM
 } Operation;
 
 typedef struct {
@@ -38,6 +41,8 @@ int currentLabel = 1;
 
 void handleBinaryOperation(TData* value1, TData* value2, Operation op, TData* temporary);
 void insertNode(Triple *triple);
+void handleFunctionDeclaration(Tree *tree);
+void handleFunctionCall(Tree *tree);
 void handleWhile(Tree *tree);
 void handleIf(Tree *tree);
 TData *generateNewLabel();
