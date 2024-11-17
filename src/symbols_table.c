@@ -1,5 +1,5 @@
 #include "../include/tree.h"
-#include "../include/symbolsTable.h"
+#include "../include/symbols_table.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

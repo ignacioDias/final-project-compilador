@@ -6,7 +6,7 @@ YACC_FILE="calc-sintaxis.y"
 OUTPUT_FILE="project"
 
 # Archivos adicionales de código fuente
-SRC_FILES="lex.yy.c calc-sintaxis.tab.c src/tree.c src/symbolsTable.c src/pseudoAssembly.c"
+SRC_FILES="lex.yy.c calc-sintaxis.tab.c src/tree.c src/symbols_table.c src/pseudo_assembly.c"
 HEADER_DIR="libraries"
 
 # Ejecuta Flex

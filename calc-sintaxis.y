@@ -3,14 +3,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "include/tree.h"
-#include "include/symbolsTable.h"
+#include "include/symbols_table.h"
+#include "include/pseudo_assembly.h"
 
 SymbolsTable* table;
+AssemblyList *pseudoAssembly;
 void setTypeFunction(Type type);
+
 %}
 %code requires {#include "include/tree.h"}
-%code requires {#include "include/pseudoAssembly.h"}
-%code requires {#include "include/symbolsTable.h"}
+%code requires {#include "include/pseudo_assembly.h"}
+%code requires {#include "include/symbols_table.h"}
 
 %union{int i; int b; Tree *tree; char *s; TData *data;}
 
@@ -70,9 +73,9 @@ void setTypeFunction(Type type);
 %left UMINUS
 
 %%
-program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
-program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table);}
-       |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table);}
+program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
+program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table); generatePseudoAssembly(pseudoAssembly, $$); printAssemblyList(pseudoAssembly);}
+       |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table); generatePseudoAssembly(pseudoAssembly, $$); printAssemblyList(pseudoAssembly);}
        ;
 vars: vars var_decl   {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); $$ = newTree(data, $1, $2);}
     | var_decl  {$$ = $1;}
