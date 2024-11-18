@@ -1,9 +1,14 @@
 program{
-     integer main(){
+  integer x = 2 + 3;
+  bool b = true;
+    integer suma(integer a){
+      return a + b;
+    }
+    integer main(){
         if(true) then {
-	  integer x = 7;
+	       x = 7;
 	} else {
-          integer x = 4;
+        x = suma(3);
 	}
     }
 }
