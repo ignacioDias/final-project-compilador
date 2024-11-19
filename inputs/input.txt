@@ -1,7 +1,11 @@
-program{
-    integer printInteger(integer x) extern;
-
-    void main(){
-        integer x = printInteger(2);
+program {
+    void main() {
+        integer x;
+        x = sum(5, 5);
+    }
+    integer sum(integer x, integer y) {
+        integer result;
+        result = x + y;
+        return result;
     }
 }

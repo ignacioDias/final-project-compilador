@@ -23,7 +23,8 @@ typedef enum Operation {
     FUN_CALL,
     FUN_DECL,
     END_FUNC,
-    REQUIRED_PARAM
+    REQUIRED_PARAM,
+    LOAD_PARAM
 } Operation;
 
 typedef struct {
@@ -40,16 +41,16 @@ typedef struct ListForTriples {
 
 void handleBinaryOperation(AssemblyList **program, TData* value1, TData* value2, Operation op, TData* temporary);
 void insertNode(AssemblyList **program, Triple *triple);
-void generatePseudoAssembly(AssemblyList *program, Tree *tree);
-void handleFunctionDeclaration(AssemblyList *program, Tree *tree);
-void handleParamsDefinition(Tree *tree);
-TData* getReturn(Tree *functionBody);
-void handleFunctionCall(AssemblyList *program, Tree *tree);
-void handleParamsCall(Tree *tree);
-void handleIf(AssemblyList *program, Tree *tree);
-void handleWhile(AssemblyList *program, Tree *tree);
+void generatePseudoAssembly(AssemblyList **program, Tree *tree);
+void handleFunctionDeclaration(AssemblyList **program, Tree *tree);
+void handleParamsDefinition(AssemblyList **program, Tree *tree);
+void handleFunctionCall(AssemblyList **program, Tree *tree);
+void handleParamsCall(AssemblyList **program, Tree *tree);
+void handleIf(AssemblyList **program, Tree *tree);
+void handleWhile(AssemblyList **program, Tree *tree);
 TData *generateNewLabel();
 char* generateNewIDForLabel();
-void printAssemblyList(AssemblyList *program);
+void printAssemblyList(AssemblyList **program);
+void printAssemblyListReverse(AssemblyList *current);
 const char *operationToString(Operation op);
 #endif

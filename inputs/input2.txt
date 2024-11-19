@@ -7,8 +7,8 @@ program{
     integer main(){
         if(true) then {
 	       x = 7;
-	} else {
-        x = suma(3);
-	}
+        } else {
+              x = suma(3);
+        }
     }
 }
