@@ -178,6 +178,11 @@ int evalType(Tree* bt) {
             }
             return evalType(bt->hi);
             break;
+        case T_METHODS:
+        case T_PARAMS:
+        case T_PARAM:
+            return evalType(bt->hi) && evalType(bt->hd);
+            break;
         default:
             return 0;
             break; 

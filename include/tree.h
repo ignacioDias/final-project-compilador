@@ -37,7 +37,11 @@ typedef enum Token {
     T_PROGRAM = 285,                /* TPROGRAM */
     T_UMINUS = 286,
     T_FUNCTION = 287,
-    T_METHODCALL = 288
+    T_METHODCALL = 288,
+    T_METHODS = 289,
+    T_EXPRS = 290,
+    T_PARAMS = 291,
+    T_PARAM = 292
 } Token;
 
 typedef enum Type {

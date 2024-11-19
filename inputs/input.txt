@@ -1,11 +1,15 @@
 program {
+    integer sum(integer x, integer y) {
+        integer result;
+        result = x + y; 
+        return result;
+    }
     void main() {
         integer x;
         x = sum(5, 5);
     }
-    integer sum(integer x, integer y) {
-        integer result;
-        result = x + y;
-        return result;
-    }
 }
+
+
+
+

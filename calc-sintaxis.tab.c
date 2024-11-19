@@ -1286,7 +1286,7 @@ yyreduce:
 
   case 10: /* methods: methods method_decl  */
 #line 91 "calc-sintaxis.y"
-                              {Tree *tree = newTree(newData(T_FUNCTION, NO_TYPE, -1, "methods"), (yyvsp[-1].tree), (yyvsp[0].tree)); (yyval.tree) = tree;}
+                              {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), (yyvsp[-1].tree), (yyvsp[0].tree)); (yyval.tree) = tree;}
 #line 1291 "calc-sintaxis.tab.c"
     break;
 
@@ -1322,7 +1322,7 @@ yyreduce:
 
   case 16: /* params: params ',' param  */
 #line 99 "calc-sintaxis.y"
-                          {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "params"); Tree *tree = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree)); (yyval.tree) = tree; }
+                          {TData* data = newData(T_PARAMS, NO_TYPE, -1, "params"); Tree *tree = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree)); (yyval.tree) = tree; }
 #line 1327 "calc-sintaxis.tab.c"
     break;
 
@@ -1334,7 +1334,7 @@ yyreduce:
 
   case 18: /* param: ttype id  */
 #line 103 "calc-sintaxis.y"
-                {if(insertElem(&parameters, newData((yyvsp[-1].tree)->info->token, (yyvsp[-1].tree)->info->type,-1 ,(yyvsp[0].tree)->info->name))) {(yyval.tree) = newTree(newData(T_YYUNDEF, NO_TYPE, -1, "params"), (yyvsp[-1].tree), (yyvsp[0].tree));} else {printf("The parameter does already exist");}}
+                {if(insertElem(&parameters, newData(T_PARAM, (yyvsp[-1].tree)->info->type,-1 ,(yyvsp[0].tree)->info->name))) {(yyval.tree) = newTree(newData(T_YYUNDEF, NO_TYPE, -1, (yyvsp[0].tree)->info->name), (yyvsp[-1].tree), (yyvsp[0].tree));} else {printf("The parameter does already exist");}}
 #line 1339 "calc-sintaxis.tab.c"
     break;
 
@@ -1454,7 +1454,7 @@ yyreduce:
 
   case 38: /* exprs: exprs ',' expr  */
 #line 129 "calc-sintaxis.y"
-                      {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "exprs"); (yyval.tree) = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree));}
+                      {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); (yyval.tree) = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1459 "calc-sintaxis.tab.c"
     break;
 
@@ -1538,7 +1538,7 @@ yyreduce:
 
   case 52: /* expr: id  */
 #line 146 "calc-sintaxis.y"
-         {(yyval.tree) = (yyvsp[0].tree); if((doesExist(table, (yyvsp[0].tree)->info->name) == -1) && (doesExist(parameters, (yyvsp[0].tree)->info->name) == -1)) {perror("no declarated var\n"); exit(1);} else {}}
+         {(yyval.tree) = (yyvsp[0].tree); if((doesExist(table, (yyvsp[0].tree)->info->name) == -1) && (doesExist(parameters, (yyvsp[0].tree)->info->name) == -1)) {perror("no declarated var\n"); exit(1);}}
 #line 1543 "calc-sintaxis.tab.c"
     break;
 

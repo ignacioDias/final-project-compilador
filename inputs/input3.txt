@@ -1,5 +1,5 @@
 program {
-    void main(){
+    void main() {
         integer x = 2;
     }
 }
