@@ -59,7 +59,6 @@ int evalType(Tree* bt) {
         case T_DIV: 
             if(bt->hd) {
                 if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
-                    printf("Se metio al if\n");
                     bt->info->type = INTEGER;
                     return 1;
                     break;
@@ -120,11 +119,8 @@ int evalType(Tree* bt) {
             return 0;
             break;
         case T_RET:
-            printf("entró al tret\n");
             if(bt->hi) {
-                printf("entro al primer if\n");
                 if(evalType(bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
-                    printf("entro al segundo if\n");
                     bt->info->type = bt->hi->info->type;
                     curretFunctionType = NO_TYPE;
                     return 1;
@@ -152,13 +148,11 @@ int evalType(Tree* bt) {
             break;
         case T_DECL:
             if(evalType(bt->hi) && evalType(bt->hd)) {
-                printf("Entro al TDECL\n");
                 bt->info->type = bt->hi->info->type;
                 return 1;
             }
             perror("Declaration error: missing something?\n");
             exit(1);
-            printf("Termino el TDECL\n");
             return 0;
             break;
         case T_IF:
@@ -172,7 +166,6 @@ int evalType(Tree* bt) {
             return evalType(bt->hi);
             break;
         case T_PROGRAM:
-            printf("Entro el TPROGRAM\n");
             if(bt->hd) {
                 return evalType(bt->hi) && evalType(bt->hd);
             }
