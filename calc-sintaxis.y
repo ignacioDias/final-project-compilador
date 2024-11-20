@@ -83,10 +83,10 @@ vars: vars var_decl   {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); $$ = 
 var_decl:
     ttype id TASIGN expr ';' { if(insertElem(&table, newData($2->info->token, $1->info->type, $4->info->value, $2->info->name))) {
 
-                                Tree *leftChild = newTree(newData(T_DECL, $1->info->type, -1, "var declaration + asign"), $1, $2); $$ = newTree($3, leftChild, $4);
+                                Tree *leftChild = newTree(newData(T_DECL, $1->info->type, -1, $2->info->name), $1, $2); $$ = newTree($3, leftChild, $4);
                             } else {
                                     perror("Re-declaration"); exit(1);}}
-    |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))){$$ = newTree(newData(T_DECL, NO_TYPE, -1, "var declaration"), $1, $2);} else {perror("var already exists");exit(1);}}
+    |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))){$$ = newTree(newData(T_DECL, NO_TYPE, -1, $2->info->name), $1, $2);} else {perror("var already exists");exit(1);}}
     ;
 methods: methods method_decl  {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), $1, $2); $$ = tree;}
         | method_decl  {$$ = $1;}

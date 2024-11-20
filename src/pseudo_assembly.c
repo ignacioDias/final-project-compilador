@@ -31,9 +31,10 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
         return;
     switch(tree->info->token) {
         case T_RET:
-            if(tree->hi)
+            if(tree->hi) {
+                generatePseudoAssembly(program, tree->hi);
                 handleBinaryOperation(program, NULL, NULL, RET, tree->hi->info); // RETURN _  _  RET_VALUE
-            else
+            } else
                 handleBinaryOperation(program, NULL, NULL, RET, NULL); // RETURN _  _  _ // return;
             break;
         case T_MENOR:
@@ -49,7 +50,6 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOS, tree->info);
             break;
         case T_MAS:
-            printf("entréEEEEEEEEEEE\n");
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, SUMA, tree->info);
             break;
         case T_MULT:
@@ -89,6 +89,8 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             handleFunctionCall(program, tree);
             break;
         case T_ASIGN:
+            generatePseudoAssembly(program, tree->hi);
+            generatePseudoAssembly(program, tree->hd);
             handleBinaryOperation(program, tree->hd->info, NULL, ASIGN, tree->hi->info);
             break;
         default:
@@ -107,8 +109,8 @@ void handleParamsDefinition(AssemblyList **program, Tree *tree) {
     if(!tree)
         return;
     if(tree->info->token == T_PARAMS) {
-        handleParamsCall(program, tree->hi);
-        handleParamsCall(program, tree->hd);
+        handleParamsDefinition(program, tree->hi);
+        handleParamsDefinition(program, tree->hd);
     } else {
         handleBinaryOperation(program, NULL, NULL, REQUIRED_PARAM, tree->info);
     }
@@ -117,7 +119,7 @@ void handleFunctionCall(AssemblyList **program, Tree *tree) {
     if(tree->hi)
         handleParamsCall(program, tree->hi);
     //T_CALL NAME _ CALLED_FUNC
-    handleBinaryOperation(program, tree->info, NULL, FUN_CALL, newData(T_FUNCTION, NO_TYPE, -1, "NAME_FUNCTION"));
+    handleBinaryOperation(program, tree->info, NULL, FUN_CALL, newData(T_FUNCTION, NO_TYPE, -1, tree->info->name));
 }
 void handleParamsCall(AssemblyList **program, Tree *tree) {
     if(!tree)

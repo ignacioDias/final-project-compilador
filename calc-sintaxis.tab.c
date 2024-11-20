@@ -1272,7 +1272,7 @@ yyreduce:
 #line 84 "calc-sintaxis.y"
                              { if(insertElem(&table, newData((yyvsp[-3].tree)->info->token, (yyvsp[-4].tree)->info->type, (yyvsp[-1].tree)->info->value, (yyvsp[-3].tree)->info->name))) {
 
-                                Tree *leftChild = newTree(newData(T_DECL, (yyvsp[-4].tree)->info->type, -1, "var declaration + asign"), (yyvsp[-4].tree), (yyvsp[-3].tree)); (yyval.tree) = newTree((yyvsp[-2].data), leftChild, (yyvsp[-1].tree));
+                                Tree *leftChild = newTree(newData(T_DECL, (yyvsp[-4].tree)->info->type, -1, (yyvsp[-3].tree)->info->name), (yyvsp[-4].tree), (yyvsp[-3].tree)); (yyval.tree) = newTree((yyvsp[-2].data), leftChild, (yyvsp[-1].tree));
                             } else {
                                     perror("Re-declaration"); exit(1);}}
 #line 1279 "calc-sintaxis.tab.c"
@@ -1280,7 +1280,7 @@ yyreduce:
 
   case 9: /* var_decl: ttype id ';'  */
 #line 89 "calc-sintaxis.y"
-                  {if(insertElem(&table, newData((yyvsp[-1].tree)->info->token, (yyvsp[-2].tree)->info->type, -1, (yyvsp[-1].tree)->info->name))){(yyval.tree) = newTree(newData(T_DECL, NO_TYPE, -1, "var declaration"), (yyvsp[-2].tree), (yyvsp[-1].tree));} else {perror("var already exists");exit(1);}}
+                  {if(insertElem(&table, newData((yyvsp[-1].tree)->info->token, (yyvsp[-2].tree)->info->type, -1, (yyvsp[-1].tree)->info->name))){(yyval.tree) = newTree(newData(T_DECL, NO_TYPE, -1, (yyvsp[-1].tree)->info->name), (yyvsp[-2].tree), (yyvsp[-1].tree));} else {perror("var already exists");exit(1);}}
 #line 1285 "calc-sintaxis.tab.c"
     break;
 
