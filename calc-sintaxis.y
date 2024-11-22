@@ -92,8 +92,8 @@ methods: methods method_decl  {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, 
         | method_decl  {$$ = $1;}
         ;
 method_decl: ttype id '(' params ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, $6); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '(' params ')' EXTERN ';' { Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, NULL); if(insertElem(&table, tree->info)){ $$ = tree;} else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '('  ')' EXTERN ';' {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, NULL); if(insertElem(&table, tree->info) && $1->info->type != NO_TYPE){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+            | ttype id '(' params ')' EXTERN ';' { Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, newTree($6, NULL, NULL)); if(insertElem(&table, tree->info)){ $$ = tree;} else {perror("wrong function declaration\n"); exit(1);} }
+            | ttype id '('  ')' EXTERN ';' {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, newTree($5, NULL, NULL)); if(insertElem(&table, tree->info) && $1->info->type != NO_TYPE){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
             | ttype id '(' ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, $5); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
             ;
 params: params ',' param  {TData* data = newData(T_PARAMS, NO_TYPE, -1, "params"); Tree *tree = newTree(data, $1, $3); $$ = tree; }

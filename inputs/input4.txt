@@ -1,0 +1,4 @@
+program {
+
+void print() extern;
+}

@@ -1304,13 +1304,13 @@ yyreduce:
 
   case 13: /* method_decl: ttype id '(' params ')' EXTERN ';'  */
 #line 95 "calc-sintaxis.y"
-                                                 { Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-6].tree)->info->type, -1, (yyvsp[-5].tree)->info->name), (yyvsp[-3].tree), NULL); if(insertElem(&table, tree->info)){ (yyval.tree) = tree;} else {perror("wrong function declaration\n"); exit(1);} }
+                                                 { Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-6].tree)->info->type, -1, (yyvsp[-5].tree)->info->name), (yyvsp[-3].tree), newTree((yyvsp[-1].data), NULL, NULL)); if(insertElem(&table, tree->info)){ (yyval.tree) = tree;} else {perror("wrong function declaration\n"); exit(1);} }
 #line 1309 "calc-sintaxis.tab.c"
     break;
 
   case 14: /* method_decl: ttype id '(' ')' EXTERN ';'  */
 #line 96 "calc-sintaxis.y"
-                                           {Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-5].tree)->info->type, -1, (yyvsp[-4].tree)->info->name), NULL, NULL); if(insertElem(&table, tree->info) && (yyvsp[-5].tree)->info->type != NO_TYPE){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+                                           {Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-5].tree)->info->type, -1, (yyvsp[-4].tree)->info->name), NULL, newTree((yyvsp[-1].data), NULL, NULL)); if(insertElem(&table, tree->info) && (yyvsp[-5].tree)->info->type != NO_TYPE){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
 #line 1315 "calc-sintaxis.tab.c"
     break;
 

@@ -1,0 +1,8 @@
+program {
+    integer inc1(integer x) {
+        return x + 1;
+    }
+    void inc1(bool x) {
+        return x || false;
+    }
+}
