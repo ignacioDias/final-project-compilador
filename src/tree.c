@@ -143,12 +143,12 @@ void printTree(Tree *root) {
 }
 
 void enqueue (Queue *q, Tree *item) {
-  if (q->rear == MAX_QUEUE_SIZE - 1) {
-      printf ("Queue Overflow\n");
-      exit (EXIT_FAILURE);
+    if (q->rear == MAX_QUEUE_SIZE - 1) {
+        printf ("Queue Overflow\n");
+        exit (EXIT_FAILURE);
     }
-  q->rear++;
-  q->items[q->rear] = item;
+    q->rear++;
+    q->items[q->rear] = item;
 }
 
 Tree* dequeue (Queue *q) {

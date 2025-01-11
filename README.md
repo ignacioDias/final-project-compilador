@@ -1,2 +1,2 @@
-sh script
-./a.out file
+sh script <br>
+./project <file>

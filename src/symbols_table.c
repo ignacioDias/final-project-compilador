@@ -53,10 +53,6 @@ int evalType(Tree* bt) {
             return bt->info->type == BOOL;
             break;
         case T_MENOS: 
-        case T_MOD: 
-        case T_MULT:
-        case T_MAS:
-        case T_DIV: 
             if(bt->hd) {
                 if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
                     bt->info->type = INTEGER;
@@ -76,6 +72,19 @@ int evalType(Tree* bt) {
                 exit(1);
                 return 0;
             }
+            break;
+        case T_MOD: 
+        case T_MULT:
+        case T_MAS:
+        case T_DIV: 
+            if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
+                bt->info->type = INTEGER;
+                return 1;
+                break;
+            }
+            perror("Type error: integer expected\n");
+            exit(1);
+            return 0;
             break;
         case T_FUNCTION:
             curretFunctionType = bt->info->type;
