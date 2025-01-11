@@ -12,6 +12,8 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "stdlib.h": "c"
-    }
+        "stdlib.h": "c",
+        "cstdio": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

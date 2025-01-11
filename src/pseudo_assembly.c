@@ -100,6 +100,9 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
     }
 }    
 void handleFunctionDeclaration(AssemblyList **program, Tree *tree) {
+    if(tree->hd->info->token == T_EXTERN) {
+        return;
+    }
     handleBinaryOperation(program, NULL, NULL, FUN_DECL, tree->info); //FUN_DECL _ _ NAME
     handleParamsDefinition(program, tree->hi);
     generatePseudoAssembly(program, tree->hd);

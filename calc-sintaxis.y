@@ -100,7 +100,7 @@ params: params ',' param  {TData* data = newData(T_PARAMS, NO_TYPE, -1, "params"
         | param {$$ = $1; }
         ;
 
-param: ttype id {if(insertElem(&parameters, newData(T_PARAM, $1->info->type,-1 ,$2->info->name))) {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, $2->info->name), $1, $2);} else {printf("The parameter does already exist");}}
+param: ttype id {if(insertElem(&parameters, newData(T_PARAM, $1->info->type,-1, $2->info->name))) {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, $2->info->name), $1, $2);} else {printf("The parameter does already exist");}}
 ;
 block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);} block1 {removeLevel(&table); $$ = $2;}
 block1: '{' vars statements '}'   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, $2, $3); $$ = tree;}

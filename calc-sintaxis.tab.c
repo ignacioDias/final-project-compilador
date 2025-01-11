@@ -1334,7 +1334,7 @@ yyreduce:
 
   case 18: /* param: ttype id  */
 #line 103 "calc-sintaxis.y"
-                {if(insertElem(&parameters, newData(T_PARAM, (yyvsp[-1].tree)->info->type,-1 ,(yyvsp[0].tree)->info->name))) {(yyval.tree) = newTree(newData(T_YYUNDEF, NO_TYPE, -1, (yyvsp[0].tree)->info->name), (yyvsp[-1].tree), (yyvsp[0].tree));} else {printf("The parameter does already exist");}}
+                {if(insertElem(&parameters, newData(T_PARAM, (yyvsp[-1].tree)->info->type,-1, (yyvsp[0].tree)->info->name))) {(yyval.tree) = newTree(newData(T_YYUNDEF, NO_TYPE, -1, (yyvsp[0].tree)->info->name), (yyvsp[-1].tree), (yyvsp[0].tree));} else {printf("The parameter does already exist");}}
 #line 1339 "calc-sintaxis.tab.c"
     break;
 

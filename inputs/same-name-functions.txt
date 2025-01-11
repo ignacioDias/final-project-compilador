@@ -2,7 +2,7 @@ program {
     integer inc1(integer x) {
         return x + 1;
     }
-    void inc1(bool x) {
-        return x || false;
+    integer inc2(bool x) {
+        return 3;
     }
 }
