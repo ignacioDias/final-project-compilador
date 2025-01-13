@@ -47,7 +47,10 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, IGUAL, tree->info);
             break;
         case T_MENOS:
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOS, tree->info);
+            if(tree->hd)
+                handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOS, tree->info);
+            else
+                handleBinaryOperation(program, tree->hi->info, NULL, MENOS, tree->info);
             break;
         case T_MAS:
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, SUMA, tree->info);

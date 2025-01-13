@@ -2,7 +2,7 @@ program {
     integer inc1(integer x) {
         return x + 1;
     }
-    integer inc2(bool x) {
+    integer inc1(bool y) {
         return 3;
     }
 }

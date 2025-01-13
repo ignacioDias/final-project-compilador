@@ -2,15 +2,16 @@
 #define ASSEMBLYGENERATOR_H
 
 #include "symbols_table.h"
-#include <cstdio>
+#include "pseudo_assembly.h"
+#include <stdio.h>
 
 LSE *globalVariables;
-
 FILE *outputFile;
 
-void handleBinaryOperation();
-void insertNode();
-void generatePseudoAssembly();
+void identifyGlobal(AssemblyList *pseudoProgram);
+void insertGlobal(Triple *global);
+void generateAssembly();
+void insertNode();//insertGlobalVariable - insertFunction...
 void handleFunctionDeclaration();
 void handleParamsDefinition();
 void handleFunctionCall();

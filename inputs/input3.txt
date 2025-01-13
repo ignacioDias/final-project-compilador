@@ -1,9 +1,10 @@
 program {
+    integer x = 3 + 2;
     void main() {
-        integer x = 3 + 2;
+        integer a = 2;
         if(x == 5) then {
             integer y = 3 + 1;
-            if(y < 6 ) then {
+            if(x < 6 ) then {
                 integer x = 3;
             }
         }

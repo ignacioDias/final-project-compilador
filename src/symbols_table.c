@@ -26,6 +26,7 @@ int insertLevel(SymbolsTable **symbolsTable, LSE *level) {
     *symbolsTable = node; 
     return 1;
 }
+
 int setValueToNode(LSE *list, char* name, Type type, int val) {
     TData* elem = getNode(list, name, type);
     if(!elem)
@@ -88,7 +89,8 @@ int evalType(Tree* bt) {
             break;
         case T_FUNCTION:
             curretFunctionType = bt->info->type;
-            insertFunction(&functions, bt->info->type, bt->info->name, bt->hi);
+            if(!insertFunction(&functions, bt->info->type, bt->info->name, bt->hi))
+                return 0;
             if(bt->hd && bt->hi) 
                 return evalType(bt->hi) && evalType(bt->hd);
             if(bt->hd)
@@ -254,7 +256,9 @@ int removeNode(LSE **list, TData *node) {
     return 0;
 }
 
-void insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
+int insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
+    if(functionExists(*functions, type, name, params))
+        return 0;
     ListFunction *newNode = (ListFunction*)malloc(sizeof(ListFunction));
     newNode->name = name;
     newNode->type = type;
@@ -262,7 +266,15 @@ void insertFunction(ListFunction **functions, Type type, char* name, Tree *param
     newNode->next = *functions;
     *functions = newNode;
 }
-
+int functionExists(ListFunction *functions, Type type, char* name, Tree *params) {
+    ListFunction *aux = functions;
+    while(aux) {
+        if(strcmp(aux->name, name) == 0 && aux->type == type && checkParams(aux->params, params))
+            return 1;
+        aux = aux->next;
+    }
+    return 0;
+}
 int checkFunctionCall(ListFunction *functions, char* name, Tree *params) {
     ListFunction *aux = functions->next;
     while(aux) {

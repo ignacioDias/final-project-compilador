@@ -1,5 +1,23 @@
 program {
+    integer ab = 2;
     void main() {
-        integer x = -2;
+        integer x = 3 + 2;
+        integer a = 2;
+        if(x == 5) then {
+            integer y = 3 + 1;
+            x = y;
+        }
+        if(x == -1) then {
+            x = 2;
+        } else {
+            x = 3;
+        }
+        while(a == 2) {
+            a = 7;
+        }
+        a = 5;
     }
+    void hola() {
+        ab = 3;
+    }   
 }
