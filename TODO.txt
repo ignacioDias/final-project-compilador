@@ -1,0 +1,12 @@
+pseudo_assembly no reconoce las declaraciones sin asignación
+2- se rompe, quizás 1- lo soluciona:
+program {
+	integer x = 3;
+	integer y;
+	integer z = 2;
+	void main() {
+		y = 2;
+	}
+}
+3- arreglar y testear el writeFile
+4- testear el generador de código para variables

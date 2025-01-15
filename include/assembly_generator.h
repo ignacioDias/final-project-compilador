@@ -4,19 +4,21 @@
 #include "symbols_table.h"
 #include "pseudo_assembly.h"
 #include <stdio.h>
+#include <string.h>  
+// Declaración de variables globales
+extern int globalContext; // 1 valor por entorno, 0 significa contexto global
+extern AssemblyList* globalVariables; // Las variables globales no pueden ser dinámicas
+extern AssemblyList* linesOfCode;
+extern FILE *outputFile;
 
-LSE *globalVariables;
-FILE *outputFile;
-
+// Prototipos de funciones
+void intialize();
 void identifyGlobal(AssemblyList *pseudoProgram);
 void insertGlobal(Triple *global);
-void generateAssembly();
-void insertNode();//insertGlobalVariable - insertFunction...
-void handleFunctionDeclaration();
-void handleParamsDefinition();
-void handleFunctionCall();
-void handleParamsCall();
-void handleIf();
-void handleWhile();
+void generateAssembly(char* filename);
+void generateDeclaration(AssemblyList *node, char* filename);
+char* formatTriple(const Triple *triple);
+void generateFunction(AssemblyList *node, char* filename);
+void writeFile(char* fileName, char* text);
 
-#endif
+#endif // ASSEMBLY_GENERATOR_H

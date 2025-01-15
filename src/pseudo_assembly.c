@@ -96,6 +96,9 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             generatePseudoAssembly(program, tree->hd);
             handleBinaryOperation(program, tree->hd->info, NULL, ASIGN, tree->hi->info);
             break;
+        // case T_DECL:
+        //TODO: hay que reconocer las declaraciones que no posean asignación
+            // break;
         default:
             generatePseudoAssembly(program, tree->hi);
             generatePseudoAssembly(program, tree->hd);

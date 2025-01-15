@@ -1,5 +1,5 @@
 program{
-  integer x = 2 + 3;
+  integer x;
   bool b = true;
     integer suma(integer a){
       return a + b;

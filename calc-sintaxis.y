@@ -4,6 +4,7 @@
 #include "include/tree.h"
 #include "include/symbols_table.h"
 #include "include/pseudo_assembly.h"
+#include "include/assembly_generator.h"
 
 SymbolsTable* table;
 SymbolsTable* parameters;
@@ -73,7 +74,7 @@ void setTypeFunction(Type type);
 %left UMINUS
 
 %%
-program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); parameters = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
+program1: { table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); parameters = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }  program   {removeLevel(&table);}
 program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table); generatePseudoAssembly(&pseudoAssembly, $$); printAssemblyList(&pseudoAssembly);}
        |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table); generatePseudoAssembly(&pseudoAssembly, $$); printAssemblyList(&pseudoAssembly);}
        ;
