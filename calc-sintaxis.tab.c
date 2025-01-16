@@ -1235,19 +1235,19 @@ yyreduce:
     {
   case 2: /* $@1: %empty  */
 #line 77 "calc-sintaxis.y"
-          { table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); parameters = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); }
+          {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); parameters = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);  }
 #line 1240 "calc-sintaxis.tab.c"
     break;
 
   case 3: /* program1: $@1 program  */
 #line 77 "calc-sintaxis.y"
-                                                                                                                                                                                                                                                                                {removeLevel(&table);}
+                                                                                                                                                                                                                                                                              {identifyGlobal(pseudoAssembly); generateAssembly("prueba.txt"); removeLevel(&table); }
 #line 1246 "calc-sintaxis.tab.c"
     break;
 
   case 4: /* program: TPROGRAM '{' vars methods '}'  */
 #line 78 "calc-sintaxis.y"
-                                        {(yyval.tree) = newTree((yyvsp[-4].data), (yyvsp[-2].tree), (yyvsp[-1].tree)); evalType((yyval.tree));  printTree((yyval.tree)); showTable(table); generatePseudoAssembly(&pseudoAssembly, (yyval.tree)); printAssemblyList(&pseudoAssembly);}
+                                        {(yyval.tree) = newTree((yyvsp[-4].data), (yyvsp[-2].tree), (yyvsp[-1].tree)); evalType((yyval.tree));  printTree((yyval.tree)); showTable(table); generatePseudoAssembly(&pseudoAssembly, (yyval.tree)); printAssemblyList(&pseudoAssembly); }
 #line 1252 "calc-sintaxis.tab.c"
     break;
 

@@ -1,18 +1,19 @@
 #include "../include/pseudo_assembly.h"
 #include "../include/assembly_generator.h"
 #include <stdio.h>
+#include <stdint.h>
+#define DIRECTORY "assembly_files"
 
 int globalContext = 0; 
 AssemblyList* globalVariables; 
 AssemblyList* linesOfCode;
-FILE *outputFile;
 
 void intialize() {
     globalVariables = (AssemblyList*)malloc(sizeof(AssemblyList));
     linesOfCode = (AssemblyList*)malloc(sizeof(AssemblyList));
 }
 void identifyGlobal(AssemblyList *pseudoProgram) { 
-    if(!pseudoProgram)
+    if(!pseudoProgram || !pseudoProgram->info)
         return;
     switch((pseudoProgram->info)->op) {
         case ASIGN:
@@ -51,7 +52,7 @@ void insertGlobal(Triple *global) {
 
 void generateAssembly(char* fileName) {
     AssemblyList *aux = globalVariables;
-    while(aux) {
+    while(aux && aux->info) {
         switch((aux->info)->op) {
             case ASIGN:
                 generateDeclaration(aux, fileName);
@@ -73,19 +74,33 @@ void generateDeclaration(AssemblyList *node, char* fileName) {
     writeFile(fileName, text);    
 }
 char* formatTriple(const Triple *triple) { //TODO: TEST
-    // Obtener valores de los campos necesarios
     const char *tempName = triple->temporary->name;
     int firstValue = triple->firstOperand->value;
+    // Si el tipo es bool, ajustar el valor a 0 o 1
+    if (triple->firstOperand->type == T_BOOL) {
+        firstValue = (firstValue != 0) ? 1 : 0; // 1 para true, 0 para false
+    } else if(isAnOperation(triple->firstOperand->token)) {
+        firstValue = triple->firstOperand->value;
+    }
     // Calcular el tamaño necesario para el string resultante
-    size_t size = strlen(tempName) + strlen(":\n.long ") + 12 + 1; // 12 para el entero (máximo 32 bits) + nulo
+    size_t size = strlen(tempName) + strlen(":\n\t.long ") + 12 + 1; // 12 para el entero (máximo 32 bits) + nulo
     char *result = (char *)malloc(size);
     if (result == NULL) {
         fprintf(stderr, "Error al asignar memoria.\n");
         return NULL;
     }
+    if(firstValue < 0) {
+        uint32_t negativeValue = (uint32_t)(int32_t)firstValue;
+        snprintf(result, size, "%s:\n.long %d", tempName, negativeValue);
+        // snprintf(result, size, "%s:\n.long %u", tempName, negativeValue);
+    } else {
+        snprintf(result, size, "%s:\n.long %d", tempName, firstValue);
+    }
     // Construir la cadena
-    snprintf(result, size, "%s:\n.long %d", tempName, firstValue);
     return result;
+}
+int isAnOperation(Token token) {
+    return token == T_MENOS || token == T_MAS || token == T_MULT || token == T_DIV || token == T_MOD;
 }
 void generateFunction(AssemblyList *node, char* fileName) {
 
@@ -93,13 +108,12 @@ void generateFunction(AssemblyList *node, char* fileName) {
 void writeFile(char* fileName, char* text) {
     char fullPath[256]; // Buffer para almacenar la ruta completa
     // Crear la ruta completa (carpeta + nombre del archivo)
-    snprintf(fullPath, sizeof(fullPath), "%s/%s", "assembly_files", fileName);
-    outputFile = fopen(fullPath, "a");
-    if(!outputFile) {
-        perror("Error: could not open file\n");
+    snprintf(fullPath, sizeof(fullPath), "%s/%s", DIRECTORY, fileName);
+    FILE *outputFile = fopen(fullPath, "a");
+    if (outputFile == NULL) {
+        printf("Error opening file!\n");
         exit(1);
     }
-    fprintf(outputFile, "%s", text);
+    fprintf(outputFile, "%s\n", text);
     fclose(outputFile);
-
 }

@@ -38,24 +38,31 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
                 handleBinaryOperation(program, NULL, NULL, RET, NULL); // RETURN _  _  _ // return;
             break;
         case T_MENOR:
+            tree->info->value = tree->hi->info->value < tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOR, tree->info);
             break;
         case T_MAYOR:
+            tree->info->value = tree->hi->info->value > tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, MAYOR, tree->info);
             break;
         case T_IGUAL:
+            tree->info->value = tree->hi->info->value == tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, IGUAL, tree->info);
             break;
         case T_MENOS:
-            if(tree->hd)
+            if(tree->hd) {
+                tree->info->value = tree->hi->info->value - tree->hd->info->value;
                 handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOS, tree->info);
-            else
+            } else {
                 handleBinaryOperation(program, tree->hi->info, NULL, MENOS, tree->info);
+            }
             break;
         case T_MAS:
+            tree->info->value = tree->hi->info->value + tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, SUMA, tree->info);
             break;
         case T_MULT:
+            tree->info->value = tree->hi->info->value * tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, MULT, tree->info);
             break;
         case T_DIV:
@@ -64,15 +71,23 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
                 perror("Error: Division by zero");
                 exit(1);
             }
+            if(tree->info->token == T_DIV) {
+                tree->info->value = tree->hi->info->value / tree->hd->info->value;
+            } else {
+                tree->info->value = tree->hi->info->value % tree->hd->info->value;
+            }
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, tree->info->token, tree->info);
             break;
         case T_OR:
+            tree->info->value = tree->hi->info->value || tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, OR, tree->info);
             break;
         case T_NEG:
+            tree->info->value = !tree->hi->info->value;
             handleBinaryOperation(program, tree->hi->info, NULL, NEG, tree->info);
             break;
         case T_AND:
+            tree->info->value = tree->hi->info->value && tree->hd->info->value;
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOR, tree->info);
             break;
         case T_WHILE:

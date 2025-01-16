@@ -5,11 +5,11 @@
 #include "pseudo_assembly.h"
 #include <stdio.h>
 #include <string.h>  
+#include <stdint.h>
 // Declaración de variables globales
-extern int globalContext; // 1 valor por entorno, 0 significa contexto global
+extern int globalContext; //0 significa contexto global
 extern AssemblyList* globalVariables; // Las variables globales no pueden ser dinámicas
 extern AssemblyList* linesOfCode;
-extern FILE *outputFile;
 
 // Prototipos de funciones
 void intialize();

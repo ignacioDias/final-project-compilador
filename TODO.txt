@@ -1,4 +1,4 @@
-pseudo_assembly no reconoce las declaraciones sin asignación
+1-pseudo_assembly no reconoce las declaraciones sin asignación
 2- se rompe, quizás 1- lo soluciona:
 program {
 	integer x = 3;
@@ -8,5 +8,6 @@ program {
 		y = 2;
 	}
 }
-3- arreglar y testear el writeFile
-4- testear el generador de código para variables
+solución 1 y 2: modificar linea 94 de pseudo_assembly :P
+5- si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
+6- no andan los comparadores < > ==
