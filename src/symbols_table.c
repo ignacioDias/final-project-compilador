@@ -123,8 +123,10 @@ int evalType(Tree* bt) {
         case T_MAYOR: 
         case T_MENOR: 
         case T_IGUAL: 
-            if(evalType(bt->hi) && evalType(bt->hd) && bt->hd->info->type == bt->hi->info->type)
+            if(evalType(bt->hi) && evalType(bt->hd) && bt->hd->info->type == bt->hi->info->type) {
+                bt->info->type = BOOL;
                 return 1;
+            }
             perror("Type error: same type expected in comparator\n");
             exit(1);
             return 0;

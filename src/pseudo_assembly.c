@@ -80,9 +80,13 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             break;
         case T_OR:
             tree->info->value = tree->hi->info->value || tree->hd->info->value;
+            printf("VALOR DEL OR: %d \n", tree->info->value);
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, OR, tree->info);
             break;
         case T_NEG:
+            printf("valor a negar: %d\n", tree->hi->info->value);
+            printf("VALOR NEGADO: %d\n", tree->info->value);
+            generatePseudoAssembly(program, tree->hi);
             tree->info->value = !tree->hi->info->value;
             handleBinaryOperation(program, tree->hi->info, NULL, NEG, tree->info);
             break;

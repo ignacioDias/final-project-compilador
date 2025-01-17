@@ -1,5 +1,4 @@
 1-pseudo_assembly no reconoce las declaraciones sin asignación
-2- se rompe, quizás 1- lo soluciona:
 program {
 	integer x = 3;
 	integer y;
@@ -8,6 +7,9 @@ program {
 		y = 2;
 	}
 }
-solución 1 y 2: modificar linea 94 de pseudo_assembly :P
-5- si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
-6- no andan los comparadores < > ==
+solución 1: modificar linea 94 de pseudo_assembly :P
+2- si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
+3-  no anda esto:
+	bool prueba = !(true && true);
+    bool intento = !prueba; // acá está el problema, no me deja usar una variable como valor de su respectivo tipo
+	el problema está en que entra por ID pero no toma ni el valor ni tipo de la variable correspondiente, debería buscarlo en la tabla
