@@ -145,8 +145,8 @@ expr:
     | expr TMOD expr    {$$ = newTree($2, $1, $3); }
     | expr TIGUAL expr  {$$ = newTree($2, $1, $3); }
     | id {$$ = $1; if((doesExist(table, $1->info->name) == -1) && (doesExist(parameters, $1->info->name) == -1)) {perror("no declarated var\n"); exit(1);}}
-    | TMENOS expr %prec UMINUS  {printf("ACÁ 1  \n");$$ = newTree($1, $2, NULL); }
-    | TNEG expr %prec UMINUS {printf("ACÁ 2  \n"); $$ = newTree($1, $2, NULL); }
+    | TMENOS expr %prec UMINUS  {$$ = newTree($1, $2, NULL); }
+    | TNEG expr %prec UMINUS {$$ = newTree($1, $2, NULL); }
     | '(' expr ')' {$$ = $2;}   
     ;
 
@@ -156,7 +156,7 @@ literal: boolValue {$$ = $1;}
 boolValue: TR   {$$ = newTree($1, NULL, NULL); $$->info->value = 1; $$->info->type = BOOL;}
          | FAL  {$$ = newTree($1, NULL, NULL); $$->info->value = 0; $$->info->type = BOOL;}
          ;
-id: TID     {$$ = newTree($1, NULL, NULL); }
+id: TID     {$$ = newTree($1, NULL, NULL);}
     ;
 ttype: TINT     {$$ = newTree($1, NULL, NULL); $$->info->type = INTEGER;}
     | TBOOL     {$$ = newTree($1, NULL, NULL); $$->info->type = BOOL;}

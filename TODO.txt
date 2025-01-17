@@ -13,6 +13,7 @@ solución 1: modificar linea 94 de pseudo_assembly :P
     bool intento = !prueba; // acá está el problema, no me deja usar una variable como valor de su respectivo tipo
 	el problema está en que entra por ID pero no toma ni el valor ni tipo de la variable correspondiente, debería buscarlo en la tabla
 
+solución de momento: agregar en cada operación posible una invocación a getElem que busque en la tabla una variable con el tipo determinado (de momento no encuentro una solución más práctica)
 
 A tener en cuenta:
 + si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
