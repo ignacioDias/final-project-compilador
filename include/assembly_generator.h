@@ -15,10 +15,13 @@ extern AssemblyList* linesOfCode;
 void intialize();
 void identifyGlobal(AssemblyList *pseudoProgram);
 void insertGlobal(Triple *global);
-void generateAssembly(char* filename);
-void generateDeclaration(AssemblyList *node, char* filename);
-char* formatTriple(const Triple *triple);
-void generateFunction(AssemblyList *node, char* filename);
+void generateAssembly(char* fileName);
+void generateDeclaration(AssemblyList *node, char* fileName);
+char* formatTripleForDeclarations(const Triple *triple);
+int isAnOperation(Token token);
+void generateFunction(AssemblyList *node, char* fileName);
+AssemblyList* getFunction(AssemblyList *node);
+void formatBodyOfFunction(AssemblyList *node, char* fileName);
 void writeFile(char* fileName, char* text);
 
 #endif // ASSEMBLY_GENERATOR_H

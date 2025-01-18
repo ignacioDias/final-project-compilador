@@ -1,0 +1,6 @@
+y:
+.long 6
+x:
+.long -1
+b:
+.long 1

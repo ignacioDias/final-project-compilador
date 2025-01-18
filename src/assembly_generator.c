@@ -70,10 +70,10 @@ void generateAssembly(char* fileName) {
 }
 void generateDeclaration(AssemblyList *node, char* fileName) {
     AssemblyList *aux = node;
-    char *text = formatTriple(aux->info);
+    char *text = formatTripleForDeclarations(aux->info);
     writeFile(fileName, text);    
 }
-char* formatTriple(const Triple *triple) { //TODO: TEST
+char* formatTripleForDeclarations(const Triple *triple) { //TODO: TEST
     const char *tempName = triple->temporary->name;
     int firstValue = triple->firstOperand->value;
     // Si el tipo es bool, ajustar el valor a 0 o 1
@@ -103,7 +103,33 @@ int isAnOperation(Token token) {
     return token == T_MENOS || token == T_MAS || token == T_MULT || token == T_DIV || token == T_MOD;
 }
 void generateFunction(AssemblyList *node, char* fileName) {
+    AssemblyList *bodyFunction = (AssemblyList*)malloc(sizeof(AssemblyList));
+    bodyFunction = getFunction(node);
+    if(!bodyFunction) {
+        perror("Error: function not found\n");
+        exit(1);
+    }
+    formatBodyOfFunction(bodyFunction, fileName);
+}
+AssemblyList* getFunction(AssemblyList *node) {
+    AssemblyList *aux = linesOfCode;
+    AssemblyList *body = (AssemblyList*)malloc(sizeof(AssemblyList));
+    AssemblyList *auxBody = body;
+    while(aux && aux->info->temporary->name != node->info->temporary->name)
+        aux = aux->next;
+    do {
+        auxBody->info = aux->info;
+        auxBody->next = (AssemblyList*)malloc(sizeof(AssemblyList));
+        auxBody = auxBody->next;
+        aux = aux->next;
+    } while(aux && aux->info->op != END_FUNC);
 
+    return body;
+}
+void formatBodyOfFunction(AssemblyList *node, char* fileName) {
+    char *bodyText;
+    //implementación épica que funciona :D
+    writeFile(fileName, bodyText);
 }
 void writeFile(char* fileName, char* text) {
     char fullPath[256]; // Buffer para almacenar la ruta completa

@@ -1545,13 +1545,13 @@ yyreduce:
 
   case 53: /* expr: TMENOS expr  */
 #line 148 "calc-sintaxis.y"
-                                {printf("ACÁ 1  \n");(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); }
+                                {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); }
 #line 1550 "calc-sintaxis.tab.c"
     break;
 
   case 54: /* expr: TNEG expr  */
 #line 149 "calc-sintaxis.y"
-                             {printf("ACÁ 2  \n"); (yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); }
+                             {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); }
 #line 1556 "calc-sintaxis.tab.c"
     break;
 
@@ -1587,7 +1587,7 @@ yyreduce:
 
   case 60: /* id: TID  */
 #line 159 "calc-sintaxis.y"
-            {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); }
+            {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL);}
 #line 1592 "calc-sintaxis.tab.c"
     break;
 

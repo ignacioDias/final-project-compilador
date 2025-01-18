@@ -1,6 +1,6 @@
 program {
-    integer x = 2;
-    integer y = 3 + x;
+    integer x = -2;
+    integer y = 3 + 3;
     void main() {
         integer xx = 2;
     }
