@@ -1,6 +1,11 @@
 program {
     integer x = -2;
-    integer y = 3 + 3;
+    integer y = 3 * x;
+    integer y2 = 3 / x;
+    integer y3 = 3 - x;
+    integer y4 = 3 % x;
+    bool prueba = !(true && true);
+    bool intento = !prueba; 
     void main() {
         integer xx = 2;
     }

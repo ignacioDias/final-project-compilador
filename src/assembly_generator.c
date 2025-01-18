@@ -123,12 +123,47 @@ AssemblyList* getFunction(AssemblyList *node) {
         auxBody = auxBody->next;
         aux = aux->next;
     } while(aux && aux->info->op != END_FUNC);
-
+    if(aux && aux->info->op == END_FUNC) {
+        auxBody->info = aux->info;
+        auxBody->next = (AssemblyList*)malloc(sizeof(AssemblyList));
+        auxBody = auxBody->next;
+    }
     return body;
 }
 void formatBodyOfFunction(AssemblyList *node, char* fileName) {
     char *bodyText;
+    int currentParam = 1;
     //implementación épica que funciona :D
+    AssemblyList *aux = node;
+    while(aux) {
+        switch(aux->info->op) {
+            case MENOR:
+            case MAYOR:
+            case IGUAL:
+            case MENOS:
+            case SUMA:
+            case MULT:
+            case DIV:
+            case MOD:
+            case OR:
+            case AND:
+            case NEG:
+            case ASIGN:
+            case WHILEF:
+            case IFF:
+            case LABEL:
+            case JUMP:
+            case RET:
+            case FUN_CALL:
+            case FUN_DECL:
+            case END_FUNC:
+            case REQUIRED_PARAM:
+            case LOAD_PARAM:
+                //  mov     dword ptr [rbp - 4 * currentParam++], edi
+                
+            default:
+        }
+    }
     writeFile(fileName, bodyText);
 }
 void writeFile(char* fileName, char* text) {

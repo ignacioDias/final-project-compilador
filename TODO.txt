@@ -8,22 +8,16 @@ program {
 	}
 }
 solución 1: modificar linea 94 de pseudo_assembly :P
-2-  no anda esto:
-	bool prueba = !(true && true);
-    bool intento = !prueba; // acá está el problema, no me deja usar una variable como valor de su respectivo tipo
-	el problema está en que entra por ID pero no toma ni el valor ni tipo de la variable correspondiente, debería buscarlo en la tabla
-
-solución de momento: agregar en cada operación posible una invocación a getElem que busque en la tabla una variable con el tipo determinado (de momento no encuentro una solución más práctica)
-3- formatear los negativos para el assembly
+2- formatear los negativos para el assembly
 ejemplo:
 sea integer x = -1; --> x:\n\t .long 4294967295
-4- terminar el formateador de funciones:
+3- terminar el formateador de funciones:
 	pasos:
 		1- poner el nombre seguido de ":\n\t"
 		2- poner        push    rbp
         				mov     rbp, rsp
 		3- 
-5- hay que agregar labels al pseudo
-
+4- hay que agregar labels al pseudo
+5- no puedo usar variables como valores si la variable fue definida en otro entorno (se entiende que me refiero a un entorno en donde se debería de poder usar)
 A tener en cuenta:
 + si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P

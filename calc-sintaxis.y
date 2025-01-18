@@ -134,19 +134,19 @@ exprs: exprs ',' expr {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); $$ 
 expr: 
      method_call {$$ = $1;}
     | literal {$$ = $1;}
-    | expr TMAS expr    {$$ = newTree($2, $1, $3); }
-    | expr TMENOS expr  {$$ = newTree($2, $1, $3); }
-    | expr TDIV expr    {$$ = newTree($2, $1, $3); }
-    | expr TMULT expr   {$$ = newTree($2, $1, $3); }
-    | expr TAND expr    {$$ = newTree($2, $1, $3); }
-    | expr TOR expr     {$$ = newTree($2, $1, $3); }
-    | expr TMENOR expr  {$$ = newTree($2, $1, $3); }
-    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); }
-    | expr TMOD expr    {$$ = newTree($2, $1, $3); }
-    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); }
+    | expr TMAS expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TMENOS expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TDIV expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TMULT expr   {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TAND expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, BOOL); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TOR expr     {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, BOOL); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TMENOR expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TMOD expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
+    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = getNode(table->info, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
     | id {$$ = $1; if((doesExist(table, $1->info->name) == -1) && (doesExist(parameters, $1->info->name) == -1)) {perror("no declarated var\n"); exit(1);}}
-    | TMENOS expr %prec UMINUS  {$$ = newTree($1, $2, NULL); }
-    | TNEG expr %prec UMINUS {$$ = newTree($1, $2, NULL); }
+    | TMENOS expr %prec UMINUS  {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = getNode(table->info, $2->info->name, INTEGER); if(!$2->info) {perror("no declarated var\n"); exit(1);}}}
+    | TNEG expr %prec UMINUS {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = getNode(table->info, $2->info->name, BOOL); if(!$2->info) {perror("no declarated var\n"); exit(1);}}}
     | '(' expr ')' {$$ = $2;}   
     ;
 
