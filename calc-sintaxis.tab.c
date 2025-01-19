@@ -1479,79 +1479,79 @@ yyreduce:
 
   case 42: /* expr: expr TMAS expr  */
 #line 137 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1484 "calc-sintaxis.tab.c"
     break;
 
   case 43: /* expr: expr TMENOS expr  */
 #line 138 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1490 "calc-sintaxis.tab.c"
     break;
 
   case 44: /* expr: expr TDIV expr  */
 #line 139 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1496 "calc-sintaxis.tab.c"
     break;
 
   case 45: /* expr: expr TMULT expr  */
 #line 140 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1502 "calc-sintaxis.tab.c"
     break;
 
   case 46: /* expr: expr TAND expr  */
 #line 141 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1508 "calc-sintaxis.tab.c"
     break;
 
   case 47: /* expr: expr TOR expr  */
 #line 142 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1514 "calc-sintaxis.tab.c"
     break;
 
   case 48: /* expr: expr TMENOR expr  */
 #line 143 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1520 "calc-sintaxis.tab.c"
     break;
 
   case 49: /* expr: expr TMAYOR expr  */
 #line 144 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1526 "calc-sintaxis.tab.c"
     break;
 
   case 50: /* expr: expr TMOD expr  */
 #line 145 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1532 "calc-sintaxis.tab.c"
     break;
 
   case 51: /* expr: expr TIGUAL expr  */
 #line 146 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1538 "calc-sintaxis.tab.c"
     break;
 
   case 52: /* expr: id  */
 #line 147 "calc-sintaxis.y"
-         {(yyval.tree) = (yyvsp[0].tree); if((doesExist(table, (yyvsp[0].tree)->info->name) == -1) && (doesExist(parameters, (yyvsp[0].tree)->info->name) == -1)) {perror("no declarated var\n"); exit(1);}}
+         {(yyval.tree) = (yyvsp[0].tree); if((doesExist(table, (yyvsp[0].tree)->info->name) == -1) && (doesExist(parameters, (yyvsp[0].tree)->info->name) == -1)) {perror("no declarated var\n"); exit(1);} TData *newData = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!newData) {newData = findVariable(table, (yyvsp[0].tree)->info->name, BOOL);} (yyvsp[0].tree)->info = newData;}
 #line 1544 "calc-sintaxis.tab.c"
     break;
 
   case 53: /* expr: TMENOS expr  */
 #line 148 "calc-sintaxis.y"
-                                {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                                {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1550 "calc-sintaxis.tab.c"
     break;
 
   case 54: /* expr: TNEG expr  */
 #line 149 "calc-sintaxis.y"
-                             {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = getNode(table->info, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+                             {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
 #line 1556 "calc-sintaxis.tab.c"
     break;
 

@@ -1,4 +1,5 @@
 program {
+    bool xd = true;
     integer x = -2;
     integer y = 3 * x;
     integer y2 = 3 / x;
@@ -8,6 +9,7 @@ program {
     bool prueba = !(true && true);
     bool intento = !prueba; 
     void main() {
-        integer xx = 2;
+        integer xx = x;
+        bool c = true && xd; 
     }
 }

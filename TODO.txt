@@ -16,9 +16,9 @@ sea integer x = -1; --> x:\n\t .long 4294967295
 		1- poner el nombre seguido de ":\n\t"
 		2- poner        push    rbp
         				mov     rbp, rsp
-		3- 
-4- hay que agregar labels al pseudo
-5- no puedo usar variables como valores si la variable fue definida en otro entorno (se entiende que me refiero a un entorno en donde se debería de poder usar)
-se soluciona fácil, hay que empezar desde un ambiente mayor a buscar e ir bajando
+		3- ?
+
 A tener en cuenta:
 + si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
+
++hay que agregar labels al assembly

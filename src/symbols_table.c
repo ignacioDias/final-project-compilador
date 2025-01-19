@@ -207,6 +207,16 @@ TData *getNode(LSE *level, char* nom, Type type) {
     }
     return aux->info;
 }
+TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
+    SymbolsTable *aux = symbolsTable;
+    while(aux != NULL && aux->info != NULL) {
+        TData *currentVar = getNode(aux->info, nom, type);
+        if(currentVar)
+            return currentVar;
+        aux = aux->next;
+    }
+    return NULL;
+}
 Type doesExist(SymbolsTable *symbolsTable, char *name) {
     SymbolsTable *aux = symbolsTable;
     while(aux && aux->info) {

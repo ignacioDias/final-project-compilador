@@ -66,3 +66,101 @@ y:
 .long -3
 x:
 .long -1
+intento:
+.long 0
+prueba:
+.long 0
+y5:
+.long -1
+y4:
+.long 0
+y3:
+.long 4
+y2:
+.long -3
+y:
+.long -3
+x:
+.long -1
+intento:
+.long 0
+prueba:
+.long 0
+y5:
+.long -1
+y4:
+.long 0
+y3:
+.long 4
+y2:
+.long -3
+y:
+.long -3
+x:
+.long -1
+intento:
+.long 0
+prueba:
+.long 0
+y5:
+.long -1
+y4:
+.long 0
+y3:
+.long 4
+y2:
+.long -3
+y:
+.long -3
+x:
+.long -1
+intento:
+.long 0
+prueba:
+.long 0
+y5:
+.long -1
+y4:
+.long 0
+y3:
+.long 4
+y2:
+.long -3
+y:
+.long -3
+x:
+.long -1
+intento:
+.long 0
+prueba:
+.long 0
+y5:
+.long -1
+y4:
+.long 0
+y3:
+.long 4
+y2:
+.long -3
+y:
+.long -3
+x:
+.long -1
+intento:
+.long 0
+prueba:
+.long 0
+y5:
+.long -1
+y4:
+.long 0
+y3:
+.long 4
+y2:
+.long -3
+y:
+.long -3
+x:
+.long -1
+xd:
+.long 1

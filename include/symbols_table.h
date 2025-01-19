@@ -25,6 +25,7 @@ int insertElem(SymbolsTable **SymbolsTable, TData *elem);
 int insertLevel(SymbolsTable **symbolsTable, LSE *level);
 
 TData *getNode(LSE *level, char* nom, Type type);
+TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type);
 Type doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type
 
 int removeLevel(SymbolsTable **symbolsTable);
