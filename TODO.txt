@@ -4,7 +4,8 @@
 		2- poner        push    rbp
         				mov     rbp, rsp
 		3- ?
-
+2- en teoría ya reconoce las variables no inicializadas, pero falta aplicarlo en el assembly, usar
+el input7
 A tener en cuenta:
 + si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
 
