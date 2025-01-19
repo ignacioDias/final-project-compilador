@@ -4,7 +4,7 @@ program {
     integer y = 3 * x;
     integer y2 = 3 / x;
     integer y3 = 3 - x;
-    integer y4 = 3 % x;
+    integer y4 = x % 3;
     integer y5 = -x;
     bool prueba = !(true && true);
     bool intento = !prueba; 

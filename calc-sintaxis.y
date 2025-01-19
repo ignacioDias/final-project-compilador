@@ -11,6 +11,16 @@ SymbolsTable* parameters;
 AssemblyList *pseudoAssembly;
 void setTypeFunction(Type type);
 
+TData* checkForID(Tree *tree, Type type) {
+    if(tree->info->token != T_ID)
+        return tree->info;
+    TData *newVar = findVariable(table, tree->info->name, type);
+    if(!newVar) {
+        perror("no declarated var\n"); 
+        exit(1);
+    }
+    return newVar;
+}
 %}
 %code requires {#include "include/tree.h"}
 %code requires {#include "include/pseudo_assembly.h"}
@@ -86,7 +96,7 @@ var_decl:
 
                                 Tree *leftChild = newTree(newData(T_DECL, $1->info->type, -1, $2->info->name), $1, $2); $$ = newTree($3, leftChild, $4);
                             } else {
-                                    perror("Re-declaration"); exit(1);}}
+                                    perror("Re-declaration"); exit(1);} $4->info = checkForID($4, $1->info->type);}
     |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, -1, $2->info->name))){$$ = newTree(newData(T_DECL, NO_TYPE, -1, $2->info->name), $1, $2);} else {perror("var already exists");exit(1);}}
     ;
 methods: methods method_decl  {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), $1, $2); $$ = tree;}
@@ -134,17 +144,17 @@ exprs: exprs ',' expr {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); $$ 
 expr: 
      method_call {$$ = $1;}
     | literal {$$ = $1;}
-    | expr TMAS expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TMENOS expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TDIV expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TMULT expr   {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TAND expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, BOOL); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TOR expr     {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, BOOL); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TMENOR expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TMOD expr    {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); if($3->info->token == TID) {$3->info = findVariable(table, $3->info->name, INTEGER); if(!$3->info) {perror("no declarated var\n"); exit(1);}}}
-    | id {$$ = $1; if((doesExist(table, $1->info->name) == -1) && (doesExist(parameters, $1->info->name) == -1)) {perror("no declarated var\n"); exit(1);} TData *newData = findVariable(table, $1->info->name, INTEGER); if(!newData) {newData = findVariable(table, $1->info->name, BOOL);} $1->info = newData;}
+    | expr TMAS expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMENOS expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TDIV expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMULT expr   {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TAND expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, BOOL); $1->info = checkForID($1, BOOL);}
+    | expr TOR expr     {$$ = newTree($2, $1, $3); $3->info = checkForID($3, BOOL); $1->info = checkForID($1, BOOL);}
+    | expr TMENOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMOD expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | id {$$ = $1; if((doesExist(table, $1->info->name) == -1) && (doesExist(parameters, $1->info->name) == -1)) {perror("no declarated var\n"); exit(1);} }
     | TMENOS expr %prec UMINUS  {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = findVariable(table, $2->info->name, INTEGER); if(!$2->info) {perror("no declarated var\n"); exit(1);}}}
     | TNEG expr %prec UMINUS {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = findVariable(table, $2->info->name, BOOL); if(!$2->info) {perror("no declarated var\n"); exit(1);}}}
     | '(' expr ')' {$$ = $2;}   
@@ -162,3 +172,4 @@ ttype: TINT     {$$ = newTree($1, NULL, NULL); $$->info->type = INTEGER;}
     | TBOOL     {$$ = newTree($1, NULL, NULL); $$->info->type = BOOL;}
     | TVOID     {$$ = newTree($1, NULL, NULL); $$->info->type = VOID;}
     ;
+
