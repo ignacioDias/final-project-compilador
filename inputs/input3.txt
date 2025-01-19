@@ -1,5 +1,5 @@
 program {
-    integer x = 3 + 2;
+    integer x = -12;
     void main() {
         integer a = 2;
         if(x == 5) then {

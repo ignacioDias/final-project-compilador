@@ -1,6 +1,6 @@
 program {
     bool xd = true;
-    integer x = -2;
+    integer x = -1;
     integer y = 3 * x;
     integer y2 = 3 / x;
     integer y3 = 3 - x;

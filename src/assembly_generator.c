@@ -89,12 +89,11 @@ char* formatTripleForDeclarations(const Triple *triple) { //TODO: TEST
         fprintf(stderr, "Error al asignar memoria.\n");
         return NULL;
     }
-    if(firstValue < 0) {
-        uint32_t negativeValue = (uint32_t)(int32_t)firstValue;
-        snprintf(result, size, "%s:\n.long %d", tempName, negativeValue);
-        // snprintf(result, size, "%s:\n.long %u", tempName, negativeValue);
+    if (firstValue < 0) {
+        uint32_t unsignedValue = (uint32_t)firstValue; // Convert to 32-bit unsigned integer
+        snprintf(result, size, "%s:\n\t.long %u", tempName, unsignedValue);
     } else {
-        snprintf(result, size, "%s:\n.long %d", tempName, firstValue);
+        snprintf(result, size, "%s:\n\t.long %u", tempName, (uint32_t)firstValue);
     }
     // Construir la cadena
     return result;
