@@ -1,15 +1,4 @@
-1-pseudo_assembly no reconoce las declaraciones sin asignación
-program {
-	integer x = 3;
-	integer y;
-	integer z = 2;
-	void main() {
-		y = 2;
-	}
-}
-solución 1: modificar linea 94 de pseudo_assembly :P
-
-2- terminar el formateador de funciones:
+1- terminar el formateador de funciones:
 	pasos:
 		1- poner el nombre seguido de ":\n\t"
 		2- poner        push    rbp

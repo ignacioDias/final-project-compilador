@@ -6,7 +6,7 @@
 #include <string.h>
 
 int currentLabel = 1;
-
+LSE *visitedNodesForDeclaration;
 void handleBinaryOperation(AssemblyList **program, TData* value1, TData* value2, Operation op, TData* temporary) {
     Triple *newTriple = (Triple*)malloc(sizeof(Triple));
     newTriple->firstOperand = value1;
@@ -80,12 +80,9 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             break;
         case T_OR:
             tree->info->value = tree->hi->info->value || tree->hd->info->value;
-            printf("VALOR DEL OR: %d \n", tree->info->value);
             handleBinaryOperation(program, tree->hi->info, tree->hd->info, OR, tree->info);
             break;
         case T_NEG:
-            printf("valor a negar: %d\n", tree->hi->info->value);
-            printf("VALOR NEGADO: %d\n", tree->info->value);
             generatePseudoAssembly(program, tree->hi);
             tree->info->value = !tree->hi->info->value;
             handleBinaryOperation(program, tree->hi->info, NULL, NEG, tree->info);
@@ -115,9 +112,11 @@ void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
             generatePseudoAssembly(program, tree->hd);
             handleBinaryOperation(program, tree->hd->info, NULL, ASIGN, tree->hi->info);
             break;
-        // case T_DECL:
-        //TODO: hay que reconocer las declaraciones que no posean asignación
-            // break;
+        case T_DECL:
+            generatePseudoAssembly(program, tree->hi);
+            generatePseudoAssembly(program, tree->hd);
+            handleBinaryOperation(program, 0, NULL, DECL, tree->hd->info);
+            break;
         default:
             generatePseudoAssembly(program, tree->hi);
             generatePseudoAssembly(program, tree->hd);
@@ -212,7 +211,6 @@ void printAssemblyListReverse(AssemblyList *current) {
     }
     // Llamada recursiva al siguiente nodo
     printAssemblyListReverse(current->next);
-
     // Imprimir el nodo actual después de retornar de la recursión
     if (!current->info) {
         printf("Invalid instruction: NULL info\n");
@@ -249,6 +247,7 @@ const char *operationToString(Operation op) {
         case END_FUNC: return "END_FUNC";
         case REQUIRED_PARAM: return "REQUIRED_PARAM";
         case LOAD_PARAM: return "LOAD_PARAM";
+        case DECL: return "DECL";
         default: return "UNKNOWN";
     }
 }

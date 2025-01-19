@@ -1,0 +1,7 @@
+program {
+    integer z = 2;
+    integer x;
+    integer main() {
+        integer c = 2;
+    }
+}

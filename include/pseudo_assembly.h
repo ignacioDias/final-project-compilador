@@ -24,7 +24,8 @@ typedef enum Operation {
     FUN_DECL,
     END_FUNC,
     REQUIRED_PARAM,
-    LOAD_PARAM
+    LOAD_PARAM,
+    DECL
 } Operation;
 
 typedef struct {
