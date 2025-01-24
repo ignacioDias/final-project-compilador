@@ -132,39 +132,83 @@ AssemblyList* getFunction(AssemblyList *node) {
 void formatBodyOfFunction(AssemblyList *node, char* fileName) {
     char *bodyText;
     int currentParam = 1;
-    //implementación épica que funciona :D
+    //TODO: IMPLEMENTAR VALORES QUE CUENTEN LA CANTIDAD DE BLOQUES DETERMINADOS PARA VER SI UN CIERRE ES PARA EL DE INTERÉS O NO
     AssemblyList *aux = node;
+    int cycles = 0;
     while(aux) {
         switch(aux->info->op) {
-            case MENOR:
-            case MAYOR:
-            case IGUAL:
-            case MENOS:
-            case SUMA:
-            case MULT:
-            case DIV:
-            case MOD:
-            case OR:
-            case AND:
-            case NEG:
             case ASIGN:
             case WHILEF:
+                // cycles += generateWhile(aux, fileName);
+                break;
             case IFF:
+                // cycles += generateIf(aux, fileName);
+                break;
             case LABEL:
             case JUMP:
             case RET:
             case FUN_CALL:
+                // cycles += generateFunCall(aux, fileName);
             case FUN_DECL:
             case END_FUNC:
             case REQUIRED_PARAM:
             case LOAD_PARAM:
                 //  mov     dword ptr [rbp - 4 * currentParam++], edi
-                
             default:
+            break;
         }
+        while(cycles--) {
+            aux = aux->next;
+        }
+        // formatBodyOfFunction(aux, fileName);
     }
     writeFile(fileName, bodyText);
 }
+// int generateFunCall(AssemblyList *node, char* fileName) {
+//     char *text = "";
+//     formatBody(fileName, text);
+//     return 1;
+// }
+// int generateWhile(AssemblyList *node, char* fileName) {
+//     int cantMovements = 0;
+//     AssemblyList *aux = node->next;
+//     char *label = node->info->temporary->name;
+//     while(aux) {
+//         switch(aux->info->op) {
+//             case ASIGN:
+//             case WHILEF:
+//                 cantMovements += generateWhile(aux, fileName);
+//                 break;
+//             case IFF:
+//                 cantMovements += generateIf(aux, fileName);
+//                 break;
+//             case LABEL:
+//                 if(aux->info->temporary->name == label) {
+//                     char *text = "";
+//                     writeFile(fileName, text);
+//                     return cantMovements;
+//                 }
+//             case JUMP:
+//             case RET:
+//             case FUN_CALL:
+//                 cantMovements += generateFunCall(aux, fileName);
+//             case FUN_DECL:
+//             case END_FUNC:
+//             case REQUIRED_PARAM:
+//             case LOAD_PARAM:
+//                 //  mov     dword ptr [rbp - 4 * currentParam++], edi
+//             default:
+//             break;
+//         }
+//         aux = aux->next;
+//         cantMovements++;
+//     }
+//     if(!aux) {
+//         perror("Error: unexpected end of function\n");
+//         exit(1);
+//     }
+//     return cantMovements;
+// }
 void writeFile(char* fileName, char* text) {
     char fullPath[256]; // Buffer para almacenar la ruta completa
     // Crear la ruta completa (carpeta + nombre del archivo)

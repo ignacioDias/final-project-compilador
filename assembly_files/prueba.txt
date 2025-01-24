@@ -1,2 +1,36 @@
 z:
 	.long 2
+x:
+	.long 4294967295
+z:
+	.long 2
+ab:
+	.long 2
+ab:
+	.long 2
+intento:
+	.long 0
+prueba:
+	.long 0
+y5:
+	.long 4294967295
+y4:
+	.long 4294967295
+y3:
+	.long 4
+y2:
+	.long 4294967293
+y:
+	.long 4294967293
+x:
+	.long 4294967295
+xd:
+	.long 1
+z:
+	.long 2
+ab:
+	.long 2
+x:
+	.long 4294967295
+b:
+	.long 1

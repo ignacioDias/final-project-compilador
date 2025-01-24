@@ -1,14 +1,16 @@
 program{
   integer x;
   bool b = true;
-    integer suma(integer a){
-      return a + b;
-    }
-    integer main(){
-        if(true) then {
-	       x = 7;
-        } else {
-              x = suma(3);
-        }
+  integer suma(integer a){
+    return a;
+  }
+  integer main(){
+      if(true) then {
+        integer x;
+        x = 7;
+      } else {
+        integer x;
+        x = suma(3);
+      }
     }
 }
