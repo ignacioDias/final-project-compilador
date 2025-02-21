@@ -45,11 +45,11 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 25 "calc-sintaxis.y"
+#line 34 "calc-sintaxis.y"
 #include "include/tree.h"
-#line 26 "calc-sintaxis.y"
+#line 35 "calc-sintaxis.y"
 #include "include/pseudo_assembly.h"
-#line 27 "calc-sintaxis.y"
+#line 36 "calc-sintaxis.y"
 #include "include/symbols_table.h"
 
 #line 56 "calc-sintaxis.tab.h"
@@ -100,7 +100,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 29 "calc-sintaxis.y"
+#line 38 "calc-sintaxis.y"
 int i; int b; Tree *tree; char *s; TData *data;
 
 #line 107 "calc-sintaxis.tab.h"

@@ -21,9 +21,14 @@ typedef struct Stack {
     struct Stack *next;   
 } SymbolsTable;
 
+typedef struct Params {
+    char *functionName;
+    Tree *params;
+    struct Params *next;
+} ListParams;
 int insertElem(SymbolsTable **SymbolsTable, TData *elem);
 int insertLevel(SymbolsTable **symbolsTable, LSE *level);
-
+int insertParams(ListParams **parameteres, char *functionName, Tree *params);
 TData *getNode(LSE *level, char* nom, Type type);
 TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type);
 Type doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type

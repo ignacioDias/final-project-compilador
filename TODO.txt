@@ -6,12 +6,31 @@
 		3- ?
 2- en teoría ya reconoce las variables no inicializadas, pero falta aplicarlo en el assembly, usar
 el input7
-3- se pueden meter parámetros idénticos sin que salte error
-4-      integer suma(integer x, integer y) {
-        	return x + y;
-		}
-		se rompe: no encuentra a "y"
-
+3- 
+al hacer 
+  integer suma(integer a, integer b, integer c) {
+    return a + b + c;
+  }
+  pasa esto:
+FUN_DECL _ _ suma
+REQUIRED_PARAM _ _ a
+REQUIRED_PARAM _ _ b
+REQUIRED_PARAM _ _ c
+//error falta esto
+SUMA + c +
+RET _ _ +
+END_FUNC _ _ suma
+4- se rompe esto:
+  integer a;
+  integer suma(integer a, integer a){
+    return a + b + c;
+  }
+solución: 
+1- hacer una var. global que represente IN_FUNCTION o OUT_FUNCTION
+2- cuando entramos a una función o salimos, cambiamos el valor de la var. global
+3- en checkForID vemos qué valor es, y :
+	a- si es IN_FUNCTION vemos los parameters, si no encontramos, en la tabla
+	b- si es OUT_FUNCTION vemos en la tabla
 A tener en cuenta:
 + si hay que poner el assembly de las variables globales al final, probar con cambiar la lista con inserción a la cabeza :P
 

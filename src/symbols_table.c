@@ -18,7 +18,13 @@ int insertElem(SymbolsTable **symbolsTable, TData* elem) {
     (*symbolsTable)->info = node;
     return 1;
 }
-
+int insertParams(ListParams **parameteres, char *functionName, Tree *params) {
+    ListParams *newNode = (ListParams*)malloc(sizeof(ListParams));
+    newNode->functionName = functionName;
+    newNode->params = params;
+    newNode->next = *parameteres;
+    *parameteres = newNode;
+}
 int insertLevel(SymbolsTable **symbolsTable, LSE *level) {
     SymbolsTable* node = (SymbolsTable*)malloc(sizeof(SymbolsTable));
     node->info = level;
@@ -186,8 +192,10 @@ int evalType(Tree* bt) {
             break;
         case T_METHODS:
         case T_PARAMS:
-        case T_PARAM:
             return evalType(bt->hi) && evalType(bt->hd);
+            break;
+        case T_PARAM:
+            return evalType(bt->hi);
             break;
         default:
             return 0;
@@ -296,7 +304,7 @@ int checkFunctionCall(ListFunction *functions, char* name, Tree *params) {
         }
         aux = aux->next;
     }
-    return 0;
+     
 }
 int checkParams(Tree* paramsFunction, Tree* paramsCall) {
     Tree *aux = paramsFunction;
@@ -305,5 +313,8 @@ int checkParams(Tree* paramsFunction, Tree* paramsCall) {
         return 1;
     if(!aux || !auxCall)
         return 0;
-    return aux->info->type == auxCall->info->type && checkParams(aux->hi, auxCall->hi) && checkParams(aux->hd, auxCall->hd); 
+    if(aux->info->token == T_PARAM && auxCall->info->token == T_PARAM) {
+        return aux->info->type == auxCall->info->type && checkParams(aux->hi, auxCall->hi);
+    }
+    return checkParams(aux->hi, auxCall->hi) && checkParams(aux->hd, auxCall->hd);
 }
