@@ -31,6 +31,7 @@ int insertLevel(SymbolsTable **symbolsTable, LSE *level);
 int insertParams(ListParams **parameteres, char *functionName, Tree *params);
 TData *getNode(LSE *level, char* nom, Type type);
 TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type);
+TData *findParam(ListParams *params, char* nom, Type type, char *functionName);
 Type doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type
 
 int removeLevel(SymbolsTable **symbolsTable);

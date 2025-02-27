@@ -15,7 +15,7 @@ flex "$LEX_FILE" || { echo "Error en Flex"; exit 1; }
 
 # Ejecuta Bison
 echo "Generando analizador sintáctico con Bison..."
-bison -d "$YACC_FILE" || { echo "Error en Bison"; exit 1; }
+bison -d "$YACC_FILE" -Wcounterexamples || { echo "Error en Bison"; exit 1; }
 
 # Compilación final con GCC
 echo "Compilando con GCC..."

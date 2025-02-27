@@ -7,22 +7,23 @@
 #include "include/assembly_generator.h"
 
 int inFunction = 0;
+char *activeFunction;
 SymbolsTable* table;
 AssemblyList *pseudoAssembly;
 ListParams* params;
 void setTypeFunction(Type type);
 
-TData* checkForID(SymbolsTable *table, Tree *tree, Type type, int inFunction) {
+TData* checkForID(Tree *tree, Type type) {
     if(tree->info->token != T_ID)
         return tree->info;
     TData *newVar;
     if(inFunction) {
-        newVar = findVariable(paremeters, tree->info->name, type);
+        newVar = findParam(params, tree->info->name, type, activeFunction);
         if(!newVar) {
-            newVar = findVariable(symbols_table, tree->info->name, type);
+            newVar = findVariable(table, tree->info->name, type);
         }
     } else {
-        newVar = findVariable(symbols_table, tree->info->name, type);
+        newVar = findVariable(table, tree->info->name, type);
     }
     if(!newVar) {
         perror("no declarated var 1\n"); 
@@ -78,6 +79,7 @@ TData* checkForID(SymbolsTable *table, Tree *tree, Type type, int inFunction) {
 %type<tree> statements
 %type<tree> single_statement
 %type<tree> method_call
+%type<tree> method_call1
 %type<tree> exprs
 %type<tree> expr
 %type<tree> literal
@@ -93,7 +95,7 @@ TData* checkForID(SymbolsTable *table, Tree *tree, Type type, int inFunction) {
 %left UMINUS
 
 %%
-program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);  }  program {identifyGlobal(pseudoAssembly); generateAssembly("prueba.txt"); removeLevel(&table); }
+program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); params = (ListParams*)malloc(sizeof(ListParams));}  program {identifyGlobal(pseudoAssembly); generateAssembly("prueba.txt"); removeLevel(&table); }
 program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table); generatePseudoAssembly(&pseudoAssembly, $$); printAssemblyList(&pseudoAssembly); }
        |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table); generatePseudoAssembly(&pseudoAssembly, $$); printAssemblyList(&pseudoAssembly);}
        ;
@@ -105,14 +107,17 @@ var_decl:
 
                                 Tree *leftChild = newTree(newData(T_DECL, $1->info->type, -1, $2->info->name), $1, $2); $$ = newTree($3, leftChild, $4);
                             } else {
-                                    perror("Re-declaration"); exit(1);} $4->info = checkForID(table, $4, $1->info->type);}
+                                    perror("Re-declaration"); exit(1);} $4->info = checkForID($4, $1->info->type);}
     |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, 0, $2->info->name))){$$ = newTree(newData(T_DECL, NO_TYPE, 0, $2->info->name), $1, $2);} else {perror("var already exists");exit(1);}}
     ;
-methods: methods method_decl  {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), $1, $2); $$ = tree;}
-        | method_decl  {$$ = $1;}
+
+
+
+methods: methods method_decl { Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), $1, $2); $$ = tree; }
+        | method_decl { $$ = $1; }
         ;
-method_decl: ttype id '(' params ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, $6); if(insertElem(&table, tree->info) && insertParams(params, $2->info->name, $4)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '(' params ')' EXTERN ';' { Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, newTree($6, NULL, NULL)); if(insertElem(&table, tree->info) && insertParams(params, $2->info->name, $4)){ $$ = tree;} else {perror("wrong function declaration\n"); exit(1);} }
+method_decl: ttype id '(' params ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, $6); if(insertElem(&table, tree->info) && insertParams(&params, $2->info->name, $4)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+            | ttype id '(' params ')' EXTERN ';' { Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, newTree($6, NULL, NULL)); if(insertElem(&table, tree->info) && insertParams(&params, $2->info->name, $4)){ $$ = tree;} else {perror("wrong function declaration\n"); exit(1);} }
             | ttype id '('  ')' EXTERN ';' {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, newTree($5, NULL, NULL)); if(insertElem(&table, tree->info) && $1->info->type != NO_TYPE){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
             | ttype id '(' ')' block {Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, $5); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
             ;
@@ -143,7 +148,10 @@ single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
                 | ';' {$$ = NULL;}
                 | block {$$ = $1;}
                 ;
-method_call: id '('exprs')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, $3, NULL); }
+
+method_call: { inFunction = 1; } method_call1 { inFunction = 0; $$ = $2; activeFunction = $2->info->name; }
+            ;
+method_call1: id '('exprs')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, $3, NULL); }
             | id '(' ')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, NULL, NULL);}
     ;
 exprs: exprs ',' expr {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); $$ = newTree(data, $1, $3);}
@@ -153,16 +161,16 @@ exprs: exprs ',' expr {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); $$ 
 expr: 
      method_call {$$ = $1;}
     | literal {$$ = $1;}
-    | expr TMAS expr    {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TMENOS expr  {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TDIV expr    {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TMULT expr   {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TAND expr    {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, BOOL, inFunction); $1->info = checkForID(table, $1, BOOL, inFunction);}
-    | expr TOR expr     {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, BOOL, inFunction); $1->info = checkForID(table, $1, BOOL, inFunction);}
-    | expr TMENOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TMOD expr    {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
-    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); $3->info = checkForID(table, $3, INTEGER, inFunction); $1->info = checkForID(table, $1, INTEGER, inFunction);}
+    | expr TMAS expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMENOS expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TDIV expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMULT expr   {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TAND expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, BOOL); $1->info = checkForID($1, BOOL);}
+    | expr TOR expr     {$$ = newTree($2, $1, $3); $3->info = checkForID($3, BOOL); $1->info = checkForID($1, BOOL);}
+    | expr TMENOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TMOD expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
+    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
     | id {$$ = $1; if((doesExist(table, $1->info->name) == -1)) {perror("no declarated var 2\n"); exit(1);} }
     | TMENOS expr %prec UMINUS  {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = findVariable(table, $2->info->name, INTEGER); if(!$2->info) {perror("no declarated var 3\n"); exit(1);}}}
     | TNEG expr %prec UMINUS {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = findVariable(table, $2->info->name, BOOL); if(!$2->info) {perror("no declarated var 4\n"); exit(1);}}}

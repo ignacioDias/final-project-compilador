@@ -225,6 +225,46 @@ TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
     }
     return NULL;
 }
+
+TData *findParam(ListParams *params, char* nom, Type type, char *functionName) {
+    ListParams *aux = params;
+    while(aux != NULL && strcmp(aux->functionName, functionName) != 0) {
+        aux = aux->next; 
+    }
+    if(aux == NULL) {
+        perror("no se encuentra la función\n"); //error
+        exit(1);
+    } else {
+        Tree *tr = aux->params;
+        while(tr) {
+            if(strcmp(nom, tr->hd->info->name) == 0) {
+                tr = tr->hd;
+                break;
+            } else if(tr->hi->info->token == T_PARAM){
+                tr = tr->hi;
+                break;
+            } else {
+                tr = tr->hi;
+            }
+        }
+        return tr->info;
+    }
+}
+/*
+1 buscar en la tabla el nombre de la funcion, si no existe, error
+2 buscar el param en el tree correspondiente, si no existe error
+
+
+typedef struct Stack {
+    LSE *info;
+    struct Stack *next;   
+} SymbolsTable;
+typedef struct Params {
+    char *functionName;
+    Tree *params;
+    struct Params *next;
+} ListParams;
+*/
 Type doesExist(SymbolsTable *symbolsTable, char *name) {
     SymbolsTable *aux = symbolsTable;
     while(aux && aux->info) {
