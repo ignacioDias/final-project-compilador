@@ -4,8 +4,8 @@
 #include <string.h>
 #include <stdio.h>
 
+FunctionsList* functionTable = NULL; 
 Type curretFunctionType = NO_TYPE;
-ListFunction *functions;
 
 int insertElem(SymbolsTable **symbolsTable, TData* elem) {
     if(getNode((*symbolsTable)->info, elem->name, elem->type)) {
@@ -18,13 +18,7 @@ int insertElem(SymbolsTable **symbolsTable, TData* elem) {
     (*symbolsTable)->info = node;
     return 1;
 }
-int insertParams(ListParams **parameteres, char *functionName, Tree *params) {
-    ListParams *newNode = (ListParams*)malloc(sizeof(ListParams));
-    newNode->functionName = functionName;
-    newNode->params = params;
-    newNode->next = *parameteres;
-    *parameteres = newNode;
-}
+
 int insertLevel(SymbolsTable **symbolsTable, LSE *level) {
     SymbolsTable* node = (SymbolsTable*)malloc(sizeof(SymbolsTable));
     node->info = level;
@@ -95,8 +89,8 @@ int evalType(Tree* bt) {
             break;
         case T_FUNCTION:
             curretFunctionType = bt->info->type;
-            if(!insertFunction(&functions, bt->info->type, bt->info->name, bt->hi))
-                return 0;
+            // if(!insertFunction(&functions, bt->info->type, bt->info->name, bt->hi))
+            //     return 0;
             if(bt->hd && bt->hi) 
                 return evalType(bt->hi) && evalType(bt->hd);
             if(bt->hd)
@@ -106,7 +100,7 @@ int evalType(Tree* bt) {
             curretFunctionType = NO_TYPE;
             return bt->info->type == VOID;
         case T_METHODCALL:
-            return checkFunctionCall(functions, bt->info->name, bt->hi) && evalType(bt->hi);
+            // return checkFunctionCall(functions, bt->info->name, bt->hi) && evalType(bt->hi);
             break;
         case T_AND: 
         case T_OR: 
@@ -226,45 +220,6 @@ TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
     return NULL;
 }
 
-TData *findParam(ListParams *params, char* nom, Type type, char *functionName) {
-    ListParams *aux = params;
-    while(aux != NULL && strcmp(aux->functionName, functionName) != 0) {
-        aux = aux->next; 
-    }
-    if(aux == NULL) {
-        perror("no se encuentra la función\n"); //error
-        exit(1);
-    } else {
-        Tree *tr = aux->params;
-        while(tr) {
-            if(strcmp(nom, tr->hd->info->name) == 0) {
-                tr = tr->hd;
-                break;
-            } else if(tr->hi->info->token == T_PARAM){
-                tr = tr->hi;
-                break;
-            } else {
-                tr = tr->hi;
-            }
-        }
-        return tr->info;
-    }
-}
-/*
-1 buscar en la tabla el nombre de la funcion, si no existe, error
-2 buscar el param en el tree correspondiente, si no existe error
-
-
-typedef struct Stack {
-    LSE *info;
-    struct Stack *next;   
-} SymbolsTable;
-typedef struct Params {
-    char *functionName;
-    Tree *params;
-    struct Params *next;
-} ListParams;
-*/
 Type doesExist(SymbolsTable *symbolsTable, char *name) {
     SymbolsTable *aux = symbolsTable;
     while(aux && aux->info) {
@@ -316,45 +271,74 @@ int removeNode(LSE **list, TData *node) {
     return 0;
 }
 
-int insertFunction(ListFunction **functions, Type type, char* name, Tree *params) {
-    if(functionExists(*functions, type, name, params))
-        return 0;
-    ListFunction *newNode = (ListFunction*)malloc(sizeof(ListFunction));
-    newNode->name = name;
-    newNode->type = type;
-    newNode->params = params;
-    newNode->next = *functions;
-    *functions = newNode;
-}
-int functionExists(ListFunction *functions, Type type, char* name, Tree *params) {
-    ListFunction *aux = functions;
-    while(aux) {
-        if(strcmp(aux->name, name) == 0 && aux->type == type && checkParams(aux->params, params))
-            return 1;
-        aux = aux->next;
+int insertFunction(FunctionsList **table, Tree *newFunc) {
+    char *id = newFunc->info->name;
+    Type returnType = newFunc->info->type;
+    Tree *newParams = newFunc->hi;
+    // Buscar función existente
+    FunctionsList *curr = *table;
+    while (curr) {
+        Function *f = curr->currentFunction;
+        if (strcmp(f->id, id) == 0) {
+            // Ya existe una función con ese nombre
+            if (f->returnType == returnType) { //mismo tipo
+                // Comparar parámetros
+                ParamsList *existingParams = f->params;
+                ParamsList *incomingParams = treeToParamsList(newParams);
+                if (!compareParams(existingParams, incomingParams)) {
+                    fprintf(stderr, "Error: redefinición de %s\n", id);
+                    return 0;
+                }
+            }
+        }   
+        curr = curr->next;
     }
-    return 0;
+    // No existe: insertar la nueva función
+    Function *newEntry = malloc(sizeof(Function));
+    newEntry->id = strdup(id);
+    newEntry->returnType = returnType;
+    newEntry->params = treeToParamsList(newParams);
+
+    FunctionsList *node = malloc(sizeof(FunctionsList));
+    node->currentFunction = newEntry;
+    node->next = *table;
+    *table = node;
+
+    return true;
 }
-int checkFunctionCall(ListFunction *functions, char* name, Tree *params) {
-    ListFunction *aux = functions->next;
-    while(aux) {
-        if(strcmp(aux->name, name) == 0) {
-            if(checkParams(aux->params, params))
-                return 1;
+
+ParamsList* treeToParamsList(Tree *tree) {
+    if (!tree) return NULL;
+
+    if (tree->info->type == T_PARAMS) {
+        ParamsList *leftList = treeToParamsList(tree->hi);
+        ParamsList *rightList = treeToParamsList(tree->hd);
+        // Concatenar listas
+        ParamsList *last = leftList;
+        if (!last) return rightList;
+        while (last->next) last = last->next;
+        last->next = rightList;
+        return leftList;
+    } else if (tree->info->type == T_PARAM) {
+        ParamsList *node = malloc(sizeof(ParamsList));
+        Param *p = malloc(sizeof(Param));
+        p->id = strdup(tree->info->name);
+        p->type = tree->info->type;
+        node->param = p;
+        node->next = NULL;
+        return node;
+    }
+
+    return NULL;
+}
+
+int compareParams(ParamsList *a, ParamsList *b) {
+    while (a && b) {
+        if (a->param->type != b->param->type) {
+            return 0;
         }
-        aux = aux->next;
+        a = a->next;
+        b = b->next;
     }
-     
-}
-int checkParams(Tree* paramsFunction, Tree* paramsCall) {
-    Tree *aux = paramsFunction;
-    Tree *auxCall = paramsCall;
-    if (!aux && !auxCall)
-        return 1;
-    if(!aux || !auxCall)
-        return 0;
-    if(aux->info->token == T_PARAM && auxCall->info->token == T_PARAM) {
-        return aux->info->type == auxCall->info->type && checkParams(aux->hi, auxCall->hi);
-    }
-    return checkParams(aux->hi, auxCall->hi) && checkParams(aux->hd, auxCall->hd);
+    return a == NULL && b == NULL;
 }

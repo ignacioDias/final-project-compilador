@@ -55,15 +55,13 @@ void generateAssembly(char* fileName) {
     while(aux && aux->info) {
         switch((aux->info)->op) {
             case ASIGN:
-                generateDeclaration(aux, fileName);
-                break;
+            if(!checkIfIsGlobal(aux->info, globalVariables)) {
+                // insertGlobal(pseudoProgram->info);
+            }
+            break;
             case FUN_DECL:
-                generateFunction(aux, fileName);
-                break;
-            default:
-                perror("Error: unexpected token in global context\n");
-                exit(1);
-                break;
+
+            break;
         }
         aux = aux->next;
     }

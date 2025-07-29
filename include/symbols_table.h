@@ -9,29 +9,37 @@ typedef struct List {
     struct List *next;
 } LSE;
 
-typedef struct CheckFunctions {
-    char* name;
-    Type type;
-    Tree *params; 
-    struct CheckFunctions *next;
-} ListFunction;
-
 typedef struct Stack {
     LSE *info;
     struct Stack *next;   
 } SymbolsTable;
 
+typedef struct Parameter {
+    char *id;
+    Type type;
+} Param;
+
 typedef struct Params {
-    char *functionName;
-    Tree *params;
+    Param *param;
     struct Params *next;
-} ListParams;
+} ParamsList;
+typedef struct Func {
+    char* id;
+    ParamsList *params;
+    Type returnType;
+} Function;
+
+typedef struct MethodsList {
+    Function *currentFunction;
+    struct MethodsList *next;   
+} FunctionsList;
+
+extern FunctionsList* functionTable;  
+
 int insertElem(SymbolsTable **SymbolsTable, TData *elem);
 int insertLevel(SymbolsTable **symbolsTable, LSE *level);
-int insertParams(ListParams **parameteres, char *functionName, Tree *params);
 TData *getNode(LSE *level, char* nom, Type type);
 TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type);
-TData *findParam(ListParams *params, char* nom, Type type, char *functionName);
 Type doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type
 
 int removeLevel(SymbolsTable **symbolsTable);
@@ -47,9 +55,8 @@ int evalValue(int a, int b, Token token);
 void showTable(SymbolsTable *symbolsTable);
 void showLevel(LSE *list);
 
-int checkFunctionCall(ListFunction *functions, char* name, Tree *params);
-int insertFunction(ListFunction **functions, Type type, char* name, Tree *params);
-int functionExists(ListFunction *functions, Type type, char* name, Tree *params);
-int checkParams(Tree* paramsFunction, Tree* paramsCall);
+int insertFunction(FunctionsList **table, Tree *newFunc);
+ParamsList* treeToParamsList(Tree *tree);
+int compareParams(ParamsList *a, ParamsList *b);
 
 #endif
