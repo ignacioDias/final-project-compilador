@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-FunctionsList* functionTable = NULL; 
+FunctionsList** functionTable = NULL; 
 Type curretFunctionType = NO_TYPE;
 
 int insertElem(SymbolsTable **symbolsTable, TData* elem) {

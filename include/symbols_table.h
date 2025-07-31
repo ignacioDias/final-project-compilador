@@ -34,7 +34,7 @@ typedef struct MethodsList {
     struct MethodsList *next;   
 } FunctionsList;
 
-extern FunctionsList* functionTable;  
+extern FunctionsList** functionTable;  
 
 int insertElem(SymbolsTable **SymbolsTable, TData *elem);
 int insertLevel(SymbolsTable **symbolsTable, LSE *level);

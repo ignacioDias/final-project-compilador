@@ -55,9 +55,9 @@ void generateAssembly(char* fileName) {
     while(aux && aux->info) {
         switch((aux->info)->op) {
             case ASIGN:
-            if(!checkIfIsGlobal(aux->info, globalVariables)) {
-                // insertGlobal(pseudoProgram->info);
-            }
+            // if(!checkIfIsGlobal(aux->info, globalVariables)) {
+               // insertGlobal(pseudoProgram->info);
+            // }
             break;
             case FUN_DECL:
 
