@@ -77,9 +77,22 @@
 #include "include/assembly_generator.h"
 
 SymbolsTable* table;
+SymbolsTable* parameters;
 AssemblyList *pseudoAssembly;
+void setTypeFunction(Type type);
 
-#line 83 "calc-sintaxis.tab.c"
+TData* checkForID(Tree *tree, Type type) {
+    if(tree->info->token != T_ID)
+        return tree->info;
+    TData *newVar = findVariable(table, tree->info->name, type);
+    if(!newVar) {
+        perror("no declarated var\n"); 
+        exit(1);
+    }
+    return newVar;
+}
+
+#line 96 "calc-sintaxis.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -153,19 +166,24 @@ enum yysymbol_kind_t
   YYSYMBOL_var_decl = 43,                  /* var_decl  */
   YYSYMBOL_methods = 44,                   /* methods  */
   YYSYMBOL_method_decl = 45,               /* method_decl  */
-  YYSYMBOL_params = 46,                    /* params  */
-  YYSYMBOL_param = 47,                     /* param  */
-  YYSYMBOL_block = 48,                     /* block  */
-  YYSYMBOL_49_2 = 49,                      /* $@2  */
-  YYSYMBOL_block1 = 50,                    /* block1  */
-  YYSYMBOL_statements = 51,                /* statements  */
-  YYSYMBOL_single_statement = 52,          /* single_statement  */
-  YYSYMBOL_exprs = 53,                     /* exprs  */
-  YYSYMBOL_expr = 54,                      /* expr  */
-  YYSYMBOL_literal = 55,                   /* literal  */
-  YYSYMBOL_boolValue = 56,                 /* boolValue  */
-  YYSYMBOL_id = 57,                        /* id  */
-  YYSYMBOL_ttype = 58                      /* ttype  */
+  YYSYMBOL_46_2 = 46,                      /* $@2  */
+  YYSYMBOL_47_3 = 47,                      /* $@3  */
+  YYSYMBOL_48_4 = 48,                      /* $@4  */
+  YYSYMBOL_49_5 = 49,                      /* $@5  */
+  YYSYMBOL_params = 50,                    /* params  */
+  YYSYMBOL_param = 51,                     /* param  */
+  YYSYMBOL_block = 52,                     /* block  */
+  YYSYMBOL_53_6 = 53,                      /* $@6  */
+  YYSYMBOL_block1 = 54,                    /* block1  */
+  YYSYMBOL_statements = 55,                /* statements  */
+  YYSYMBOL_single_statement = 56,          /* single_statement  */
+  YYSYMBOL_method_call = 57,               /* method_call  */
+  YYSYMBOL_exprs = 58,                     /* exprs  */
+  YYSYMBOL_expr = 59,                      /* expr  */
+  YYSYMBOL_literal = 60,                   /* literal  */
+  YYSYMBOL_boolValue = 61,                 /* boolValue  */
+  YYSYMBOL_id = 62,                        /* id  */
+  YYSYMBOL_ttype = 63                      /* ttype  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -493,16 +511,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   261
+#define YYLAST   275
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  38
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  21
+#define YYNNTS  26
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  58
+#define YYNRULES  67
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  115
+#define YYNSTATES  127
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   286
@@ -554,12 +572,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    72,    72,    72,    73,    74,    76,    77,    80,    85,
-      88,    89,    91,    92,    93,    94,    96,    97,   100,   102,
-     102,   103,   104,   105,   106,   109,   110,   113,   114,   115,
-     116,   117,   118,   119,   120,   123,   124,   127,   128,   129,
-     130,   131,   132,   133,   134,   135,   136,   137,   138,   139,
-     140,   143,   144,   146,   147,   149,   151,   152,   153
+       0,    87,    87,    87,    88,    89,    91,    92,    95,   100,
+     102,   103,   105,   105,   106,   106,   107,   107,   108,   108,
+     110,   111,   114,   116,   116,   117,   118,   119,   120,   123,
+     124,   127,   128,   129,   130,   131,   132,   133,   134,   135,
+     137,   138,   140,   141,   144,   145,   146,   147,   148,   149,
+     150,   151,   152,   153,   154,   155,   156,   157,   158,   159,
+     162,   163,   165,   166,   168,   170,   171,   172
 };
 #endif
 
@@ -581,9 +600,9 @@ static const char *const yytname[] =
   "TAND", "EXTERN", "TWHILE", "TIF", "THEN", "TELSE", "TINT", "TBOOL",
   "TASIGN", "TPROGRAM", "UMINUS", "'{'", "'}'", "';'", "'('", "')'", "','",
   "$accept", "program1", "$@1", "program", "vars", "var_decl", "methods",
-  "method_decl", "params", "param", "block", "$@2", "block1", "statements",
-  "single_statement", "exprs", "expr", "literal", "boolValue", "id",
-  "ttype", YY_NULLPTR
+  "method_decl", "$@2", "$@3", "$@4", "$@5", "params", "param", "block",
+  "$@6", "block1", "statements", "single_statement", "method_call",
+  "exprs", "expr", "literal", "boolValue", "id", "ttype", YY_NULLPTR
 };
 
 static const char *
@@ -593,12 +612,12 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-35)
+#define YYPACT_NINF (-91)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-1)
+#define YYTABLE_NINF (-19)
 
 #define yytable_value_is_error(Yyn) \
   ((Yyn) == YYTABLE_NINF)
@@ -607,18 +626,19 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     -35,    26,   -26,   -35,   -24,   -35,    29,   -35,   -35,   -35,
-      29,   -35,     9,   -35,    18,   -35,    13,   -35,   -35,    18,
-     -35,    33,   -35,    12,     8,   -35,    24,   -35,   -35,   -35,
-       8,   172,   -35,   -35,    30,    39,    63,   -35,    18,   134,
-       8,     8,     8,     8,     8,     8,     8,     8,     8,     8,
-     -35,     8,    35,   -35,    62,    49,    29,   -35,   -35,   187,
-     187,   187,    64,    64,   -35,   -35,   -35,   232,   243,    67,
-     221,   -35,    21,   -35,    71,   -35,   -35,   -35,     8,     4,
-      66,    72,   -35,   -35,    92,   -35,    -1,   -35,    68,    18,
-     -35,   221,   -35,   196,     8,     8,   -35,   107,   -35,   -35,
-       8,     0,   -35,   145,   161,   -35,   207,   -35,    81,   -35,
-     -35,   -35,    82,   -35,   -35
+     -91,    20,    17,   -91,    30,   -91,    -2,   -91,   -91,   -91,
+      -2,   -91,    15,   -91,    35,   -91,    32,   -91,   -91,    35,
+     -91,   -12,   -91,    23,    96,   -91,    13,   -91,   -91,   -91,
+      96,    96,    96,   -91,   194,   -91,   -91,    37,    44,    56,
+     -91,    35,   -91,   -91,   156,    96,    96,    96,    96,    96,
+      96,    96,    96,    96,    96,   -91,    43,    55,   -91,    58,
+      -2,   -91,   -91,   146,   146,   146,    -7,    -7,   -91,   -91,
+     -91,   254,   209,   -91,    64,   243,    48,   -91,    52,   -91,
+      68,   -91,   -91,    96,   -91,   105,   -91,   -91,    69,   243,
+      88,    72,    77,   -91,   -91,   120,   -91,   117,   -91,    79,
+      26,    35,   -91,   -91,   218,    96,    96,   -91,   132,   -91,
+     -91,   -91,    96,    40,   -91,   167,   183,   -91,   229,   -91,
+      89,   -91,   -91,   -91,    91,   -91,   -91
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -626,34 +646,35 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     0,     1,     0,     3,     0,    58,    56,    57,
+       2,     0,     0,     1,     0,     3,     0,    67,    65,    66,
        0,     7,     0,    11,     0,     6,     0,     5,    10,     0,
-      55,     0,     4,     0,     0,     9,     0,    52,    53,    54,
-       0,     0,    38,    51,    49,    19,     0,    17,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       8,     0,     0,    15,     0,    19,     0,    18,    50,    45,
-      46,    48,    40,    39,    42,    41,    47,    44,    43,     0,
-      36,    14,    19,    20,     0,    12,    16,    37,     0,     0,
-       0,     0,    24,    33,    19,    34,    19,    26,     0,     0,
-      13,    35,    32,     0,     0,     0,    22,    19,    23,    25,
-       0,     0,    31,     0,     0,    21,     0,    19,     0,    27,
-      30,    19,    28,    19,    29
+      64,     0,     4,     0,     0,     9,     0,    61,    62,    63,
+       0,     0,     0,    44,     0,    45,    60,    56,    16,     0,
+      21,     0,    57,    58,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     8,     0,     0,    23,    12,
+       0,    22,    59,    52,    53,    55,    47,    46,    49,    48,
+      54,    51,    50,    41,     0,    43,     0,    19,     0,    23,
+       0,    20,    40,     0,    17,    23,    24,    13,     0,    42,
+       0,     0,     0,    28,    38,    23,    39,    23,    30,     0,
+       0,     0,    15,    37,     0,     0,     0,    26,    23,    27,
+      29,    32,     0,     0,    36,     0,     0,    25,     0,    23,
+       0,    31,    35,    23,    33,    23,    34
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -35,   -35,   -35,   -35,    37,    -8,   100,    47,   -35,    56,
-     -34,   -35,   -35,    34,   -33,   -35,    44,   -35,   -35,   -14,
-      -6
+     -91,   -91,   -91,   -91,    33,    -9,   109,    -4,   -91,   -91,
+     -91,   -91,   -91,    60,   -55,   -91,   -91,    39,   -90,   -41,
+     -91,   -17,   -91,   -91,   -14,   -10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,     2,     5,    10,    11,    12,    13,    36,    37,
-      85,    54,    73,    86,    87,    69,    31,    32,    33,    34,
-      14
+       0,     1,     2,     5,    10,    11,    12,    13,    79,    80,
+      57,    58,    39,    40,    96,    78,    86,    97,    98,    33,
+      74,    34,    35,    36,    37,    14
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -661,64 +682,66 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      21,    53,    15,    79,     4,    23,    19,    27,     6,    20,
-      19,    27,    28,    29,    20,     7,    28,    29,    20,     7,
-      38,    75,    80,    81,    57,    79,     3,     7,    20,    24,
-       7,    20,    98,    83,    25,     7,     8,     9,    92,    30,
-       8,     9,    17,    30,    80,    81,    22,    26,     8,     9,
-      38,     8,     9,    99,    82,    83,     8,     9,    88,    18,
-      35,    52,    24,    18,    99,    51,    89,    25,    26,    71,
-      88,    74,    88,   110,    39,   101,    15,   112,    89,   114,
-      45,    46,    47,    88,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    68,    72,    70,    79,   100,     7,    55,
-      56,    94,    20,    77,    78,    90,   111,    95,   113,    84,
-      16,    79,    76,     0,     0,    80,    81,    20,    97,     8,
-       9,     0,    91,    93,     0,    96,    83,     0,     0,     0,
-      80,    81,     0,     0,     0,     0,     0,     0,   103,   104,
-     105,    83,     0,     0,   106,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,     0,    49,    40,    41,    42,    43,
-      44,    45,    46,    47,    48,     0,    49,     0,     0,     0,
-      58,     0,    40,    41,    42,    43,    44,    45,    46,    47,
-      48,   107,    49,    40,    41,    42,    43,    44,    45,    46,
-      47,    48,     0,    49,     0,     0,     0,   108,    -1,    -1,
-      -1,    43,    44,    45,    46,    47,    50,    40,    41,    42,
-      43,    44,    45,    46,    47,    48,     0,    49,    40,    41,
-      42,    43,    44,    45,    46,    47,    48,     0,    49,     0,
-     102,     0,    40,    41,    42,    43,    44,    45,    46,    47,
-      48,   109,    49,    40,    41,    42,    43,    44,    45,    46,
-      47,     0,     0,    49,    40,    41,    42,    43,    44,    45,
-      46,    47
+      21,    15,    19,    77,     7,    23,    19,   110,    18,    50,
+      51,    52,    18,    42,    43,    44,    41,    24,   110,     7,
+       3,     7,    25,    26,    87,     8,     9,    61,    63,    64,
+      65,    66,    67,    68,    69,    70,    71,    72,     7,    75,
+       8,     9,     8,     9,    99,    20,    27,     4,    17,    38,
+      41,    28,    29,    20,    99,   112,    99,    30,    26,     8,
+       9,    56,     6,    31,   122,    22,    89,    99,   124,    24,
+     126,   100,    56,   104,    25,   101,   -18,    76,    32,    73,
+     -14,   100,    84,   100,    85,   101,    15,   113,   115,   116,
+      88,    27,    59,    60,   100,   118,    28,    29,    20,    27,
+      82,    83,    30,   102,    28,    29,    20,   105,    31,    90,
+      30,     7,   106,   111,   123,    20,    31,   125,    95,    16,
+      81,    90,   103,    32,    90,     0,     7,    20,    91,    92,
+      20,    32,     8,     9,   108,     0,    90,     0,    93,    94,
+      91,    92,    20,    91,    92,     0,     0,     8,     9,     0,
+     109,    94,     0,   107,    94,    91,    92,   -19,   -19,   -19,
+      48,    49,    50,    51,    52,   117,    94,    45,    46,    47,
+      48,    49,    50,    51,    52,    53,     0,    54,    45,    46,
+      47,    48,    49,    50,    51,    52,    53,     0,    54,     0,
+       0,     0,    62,     0,    45,    46,    47,    48,    49,    50,
+      51,    52,    53,   119,    54,    45,    46,    47,    48,    49,
+      50,    51,    52,    53,     0,    54,     0,     0,     0,   120,
+      45,    46,    47,    48,    49,    50,    51,    52,    55,    45,
+      46,    47,    48,    49,    50,    51,    52,    53,     0,    54,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,     0,
+      54,     0,   114,     0,    45,    46,    47,    48,    49,    50,
+      51,    52,    53,   121,    54,    45,    46,    47,    48,    49,
+      50,    51,    52,     0,     0,    54
 };
 
 static const yytype_int8 yycheck[] =
 {
-      14,    35,    10,     4,    30,    19,    12,     3,    32,    10,
-      16,     3,     8,     9,    10,     6,     8,     9,    10,     6,
-      26,    55,    23,    24,    38,     4,     0,     6,    10,    29,
-       6,    10,    33,    34,    34,     6,    27,    28,    34,    35,
-      27,    28,    33,    35,    23,    24,    33,    35,    27,    28,
-      56,    27,    28,    86,    33,    34,    27,    28,    72,    12,
-      36,    22,    29,    16,    97,    35,    72,    34,    35,    34,
-      84,    22,    86,   107,    30,    89,    84,   111,    84,   113,
-      16,    17,    18,    97,    40,    41,    42,    43,    44,    45,
-      46,    47,    48,    49,    32,    51,     4,    29,     6,    36,
-      37,    35,    10,    36,    37,    34,    25,    35,    26,    72,
-      10,     4,    56,    -1,    -1,    23,    24,    10,    84,    27,
-      28,    -1,    78,    79,    -1,    33,    34,    -1,    -1,    -1,
-      23,    24,    -1,    -1,    -1,    -1,    -1,    -1,    94,    95,
-      33,    34,    -1,    -1,   100,    11,    12,    13,    14,    15,
-      16,    17,    18,    19,    -1,    21,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    -1,    21,    -1,    -1,    -1,
-      36,    -1,    11,    12,    13,    14,    15,    16,    17,    18,
-      19,    36,    21,    11,    12,    13,    14,    15,    16,    17,
-      18,    19,    -1,    21,    -1,    -1,    -1,    36,    11,    12,
-      13,    14,    15,    16,    17,    18,    34,    11,    12,    13,
+      14,    10,    12,    58,     6,    19,    16,    97,    12,    16,
+      17,    18,    16,    30,    31,    32,    26,    29,   108,     6,
+       0,     6,    34,    35,    79,    27,    28,    41,    45,    46,
+      47,    48,    49,    50,    51,    52,    53,    54,     6,    56,
+      27,    28,    27,    28,    85,    10,     3,    30,    33,    36,
+      60,     8,     9,    10,    95,    29,    97,    14,    35,    27,
+      28,    35,    32,    20,   119,    33,    83,   108,   123,    29,
+     125,    85,    35,    90,    34,    85,    32,    22,    35,    36,
+      22,    95,    34,    97,    32,    95,    95,   101,   105,   106,
+      22,     3,    36,    37,   108,   112,     8,     9,    10,     3,
+      36,    37,    14,    34,     8,     9,    10,    35,    20,     4,
+      14,     6,    35,    34,    25,    10,    20,    26,    85,    10,
+      60,     4,    34,    35,     4,    -1,     6,    10,    23,    24,
+      10,    35,    27,    28,    95,    -1,     4,    -1,    33,    34,
+      23,    24,    10,    23,    24,    -1,    -1,    27,    28,    -1,
+      33,    34,    -1,    33,    34,    23,    24,    11,    12,    13,
+      14,    15,    16,    17,    18,    33,    34,    11,    12,    13,
       14,    15,    16,    17,    18,    19,    -1,    21,    11,    12,
       13,    14,    15,    16,    17,    18,    19,    -1,    21,    -1,
-      34,    -1,    11,    12,    13,    14,    15,    16,    17,    18,
-      19,    34,    21,    11,    12,    13,    14,    15,    16,    17,
-      18,    -1,    -1,    21,    11,    12,    13,    14,    15,    16,
-      17,    18
+      -1,    -1,    36,    -1,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    36,    21,    11,    12,    13,    14,    15,
+      16,    17,    18,    19,    -1,    21,    -1,    -1,    -1,    36,
+      11,    12,    13,    14,    15,    16,    17,    18,    34,    11,
+      12,    13,    14,    15,    16,    17,    18,    19,    -1,    21,
+      11,    12,    13,    14,    15,    16,    17,    18,    19,    -1,
+      21,    -1,    34,    -1,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    34,    21,    11,    12,    13,    14,    15,
+      16,    17,    18,    -1,    -1,    21
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
@@ -726,39 +749,42 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,    39,    40,     0,    30,    41,    32,     6,    27,    28,
-      42,    43,    44,    45,    58,    43,    44,    33,    45,    58,
-      10,    57,    33,    57,    29,    34,    35,     3,     8,     9,
-      35,    54,    55,    56,    57,    36,    46,    47,    58,    54,
-      11,    12,    13,    14,    15,    16,    17,    18,    19,    21,
-      34,    35,    22,    48,    49,    36,    37,    57,    36,    54,
-      54,    54,    54,    54,    54,    54,    54,    54,    54,    53,
-      54,    34,    32,    50,    22,    48,    47,    36,    37,     4,
-      23,    24,    33,    34,    42,    48,    51,    52,    57,    58,
-      34,    54,    34,    54,    35,    35,    33,    51,    33,    52,
-      29,    57,    34,    54,    54,    33,    54,    36,    36,    34,
-      48,    25,    48,    26,    48
+      42,    43,    44,    45,    63,    43,    44,    33,    45,    63,
+      10,    62,    33,    62,    29,    34,    35,     3,     8,     9,
+      14,    20,    35,    57,    59,    60,    61,    62,    36,    50,
+      51,    63,    59,    59,    59,    11,    12,    13,    14,    15,
+      16,    17,    18,    19,    21,    34,    35,    48,    49,    36,
+      37,    62,    36,    59,    59,    59,    59,    59,    59,    59,
+      59,    59,    59,    36,    58,    59,    22,    52,    53,    46,
+      47,    51,    36,    37,    34,    32,    54,    52,    22,    59,
+       4,    23,    24,    33,    34,    42,    52,    55,    56,    57,
+      62,    63,    34,    34,    59,    35,    35,    33,    55,    33,
+      56,    34,    29,    62,    34,    59,    59,    33,    59,    36,
+      36,    34,    52,    25,    52,    26,    52
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    38,    40,    39,    41,    41,    42,    42,    43,    43,
-      44,    44,    45,    45,    45,    45,    46,    46,    47,    49,
-      48,    50,    50,    50,    50,    51,    51,    52,    52,    52,
-      52,    52,    52,    52,    52,    53,    53,    54,    54,    54,
-      54,    54,    54,    54,    54,    54,    54,    54,    54,    54,
-      54,    55,    55,    56,    56,    57,    58,    58,    58
+      44,    44,    46,    45,    47,    45,    48,    45,    49,    45,
+      50,    50,    51,    53,    52,    54,    54,    54,    54,    55,
+      55,    56,    56,    56,    56,    56,    56,    56,    56,    56,
+      57,    57,    58,    58,    59,    59,    59,    59,    59,    59,
+      59,    59,    59,    59,    59,    59,    59,    59,    59,    59,
+      60,    60,    61,    61,    62,    63,    63,    63
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     0,     2,     5,     4,     2,     1,     5,     3,
-       2,     1,     6,     7,     6,     5,     3,     1,     2,     0,
-       2,     4,     3,     3,     2,     2,     1,     4,     6,     8,
-       5,     3,     2,     1,     1,     3,     1,     4,     1,     3,
-       3,     3,     3,     3,     3,     3,     3,     3,     3,     1,
-       3,     1,     1,     1,     1,     1,     1,     1,     1
+       2,     1,     0,     7,     0,     8,     0,     7,     0,     6,
+       3,     1,     2,     0,     2,     4,     3,     3,     2,     2,
+       1,     4,     2,     6,     8,     5,     3,     2,     1,     1,
+       4,     3,     3,     1,     1,     1,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     3,     1,     2,     2,     3,
+       1,     1,     1,     1,     1,     1,     1,     1
 };
 
 
@@ -1222,353 +1248,407 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* $@1: %empty  */
-#line 72 "calc-sintaxis.y"
-          {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel); ParamsList *params = (ParamsList*) malloc(sizeof(ParamsList));}
-#line 1228 "calc-sintaxis.tab.c"
+#line 87 "calc-sintaxis.y"
+          {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); parameters = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);  }
+#line 1254 "calc-sintaxis.tab.c"
     break;
 
   case 3: /* program1: $@1 program  */
-#line 72 "calc-sintaxis.y"
-                                                                                                                                                                                                                                                                                 {identifyGlobal(pseudoAssembly); generateAssembly("prueba.txt"); removeLevel(&table); }
-#line 1234 "calc-sintaxis.tab.c"
+#line 87 "calc-sintaxis.y"
+                                                                                                                                                                                                                                                                              {identifyGlobal(pseudoAssembly); generateAssembly("prueba.txt"); removeLevel(&table); }
+#line 1260 "calc-sintaxis.tab.c"
     break;
 
   case 4: /* program: TPROGRAM '{' vars methods '}'  */
-#line 73 "calc-sintaxis.y"
+#line 88 "calc-sintaxis.y"
                                         {(yyval.tree) = newTree((yyvsp[-4].data), (yyvsp[-2].tree), (yyvsp[-1].tree)); evalType((yyval.tree));  printTree((yyval.tree)); showTable(table); generatePseudoAssembly(&pseudoAssembly, (yyval.tree)); printAssemblyList(&pseudoAssembly); }
-#line 1240 "calc-sintaxis.tab.c"
+#line 1266 "calc-sintaxis.tab.c"
     break;
 
   case 5: /* program: TPROGRAM '{' methods '}'  */
-#line 74 "calc-sintaxis.y"
+#line 89 "calc-sintaxis.y"
                                     {(yyval.tree) = newTree((yyvsp[-3].data), (yyvsp[-1].tree), NULL); evalType((yyval.tree)); printTree((yyval.tree)); showTable(table); generatePseudoAssembly(&pseudoAssembly, (yyval.tree)); printAssemblyList(&pseudoAssembly);}
-#line 1246 "calc-sintaxis.tab.c"
+#line 1272 "calc-sintaxis.tab.c"
     break;
 
   case 6: /* vars: vars var_decl  */
-#line 76 "calc-sintaxis.y"
+#line 91 "calc-sintaxis.y"
                       {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); (yyval.tree) = newTree(data, (yyvsp[-1].tree), (yyvsp[0].tree));}
-#line 1252 "calc-sintaxis.tab.c"
+#line 1278 "calc-sintaxis.tab.c"
     break;
 
   case 7: /* vars: var_decl  */
-#line 77 "calc-sintaxis.y"
+#line 92 "calc-sintaxis.y"
                 {(yyval.tree) = (yyvsp[0].tree);}
-#line 1258 "calc-sintaxis.tab.c"
+#line 1284 "calc-sintaxis.tab.c"
     break;
 
   case 8: /* var_decl: ttype id TASIGN expr ';'  */
-#line 80 "calc-sintaxis.y"
+#line 95 "calc-sintaxis.y"
                              { if(insertElem(&table, newData((yyvsp[-3].tree)->info->token, (yyvsp[-4].tree)->info->type, (yyvsp[-1].tree)->info->value, (yyvsp[-3].tree)->info->name))) {
 
                                 Tree *leftChild = newTree(newData(T_DECL, (yyvsp[-4].tree)->info->type, -1, (yyvsp[-3].tree)->info->name), (yyvsp[-4].tree), (yyvsp[-3].tree)); (yyval.tree) = newTree((yyvsp[-2].data), leftChild, (yyvsp[-1].tree));
                             } else {
-                                    perror("Re-declaration"); exit(1);} }
-#line 1268 "calc-sintaxis.tab.c"
+                                    perror("Re-declaration"); exit(1);} (yyvsp[-1].tree)->info = checkForID((yyvsp[-1].tree), (yyvsp[-4].tree)->info->type);}
+#line 1294 "calc-sintaxis.tab.c"
     break;
 
   case 9: /* var_decl: ttype id ';'  */
-#line 85 "calc-sintaxis.y"
+#line 100 "calc-sintaxis.y"
                   {if(insertElem(&table, newData((yyvsp[-1].tree)->info->token, (yyvsp[-2].tree)->info->type, 0, (yyvsp[-1].tree)->info->name))){(yyval.tree) = newTree(newData(T_DECL, NO_TYPE, 0, (yyvsp[-1].tree)->info->name), (yyvsp[-2].tree), (yyvsp[-1].tree));} else {perror("var already exists");exit(1);}}
-#line 1274 "calc-sintaxis.tab.c"
+#line 1300 "calc-sintaxis.tab.c"
     break;
 
   case 10: /* methods: methods method_decl  */
-#line 88 "calc-sintaxis.y"
-                             { Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), (yyvsp[-1].tree), (yyvsp[0].tree)); (yyval.tree) = tree; }
-#line 1280 "calc-sintaxis.tab.c"
+#line 102 "calc-sintaxis.y"
+                              {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), (yyvsp[-1].tree), (yyvsp[0].tree)); (yyval.tree) = tree;}
+#line 1306 "calc-sintaxis.tab.c"
     break;
 
   case 11: /* methods: method_decl  */
-#line 89 "calc-sintaxis.y"
-                      { (yyval.tree) = (yyvsp[0].tree); }
-#line 1286 "calc-sintaxis.tab.c"
-    break;
-
-  case 12: /* method_decl: ttype id '(' params ')' block  */
-#line 91 "calc-sintaxis.y"
-                                           {Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-5].tree)->info->type, -1, (yyvsp[-4].tree)->info->name), (yyvsp[-2].tree), (yyvsp[0].tree)); if(insertFunction(functionTable, tree)){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-#line 1292 "calc-sintaxis.tab.c"
-    break;
-
-  case 13: /* method_decl: ttype id '(' params ')' EXTERN ';'  */
-#line 92 "calc-sintaxis.y"
-                                                 { Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-6].tree)->info->type, -1, (yyvsp[-5].tree)->info->name), (yyvsp[-3].tree), newTree((yyvsp[-1].data), NULL, NULL)); if(insertFunction(functionTable, tree)){ (yyval.tree) = tree;} else {perror("wrong function declaration\n"); exit(1);} }
-#line 1298 "calc-sintaxis.tab.c"
-    break;
-
-  case 14: /* method_decl: ttype id '(' ')' EXTERN ';'  */
-#line 93 "calc-sintaxis.y"
-                                           {Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-5].tree)->info->type, -1, (yyvsp[-4].tree)->info->name), NULL, newTree((yyvsp[-1].data), NULL, NULL)); if(insertFunction(functionTable, tree) && (yyvsp[-5].tree)->info->type != NO_TYPE){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-#line 1304 "calc-sintaxis.tab.c"
-    break;
-
-  case 15: /* method_decl: ttype id '(' ')' block  */
-#line 94 "calc-sintaxis.y"
-                                     {Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-4].tree)->info->type, -1, (yyvsp[-3].tree)->info->name), NULL, (yyvsp[0].tree)); if(insertFunction(functionTable, tree)){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-#line 1310 "calc-sintaxis.tab.c"
-    break;
-
-  case 16: /* params: params ',' param  */
-#line 96 "calc-sintaxis.y"
-                          {(yyval.tree) = newTree(newData(T_PARAMS, NO_TYPE, -1, "params"), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1316 "calc-sintaxis.tab.c"
-    break;
-
-  case 17: /* params: param  */
-#line 97 "calc-sintaxis.y"
-                { (yyval.tree) = (yyvsp[0].tree); }
-#line 1322 "calc-sintaxis.tab.c"
-    break;
-
-  case 18: /* param: ttype id  */
-#line 100 "calc-sintaxis.y"
-                {TData *data = newData(T_PARAM, (yyvsp[-1].tree)->info->type, -1, (yyvsp[0].tree)->info->name);  (yyval.tree) = newTree(data, (yyvsp[-1].tree), (yyvsp[0].tree)); }
-#line 1328 "calc-sintaxis.tab.c"
-    break;
-
-  case 19: /* $@2: %empty  */
-#line 102 "calc-sintaxis.y"
-       {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);}
-#line 1334 "calc-sintaxis.tab.c"
-    break;
-
-  case 20: /* block: $@2 block1  */
-#line 102 "calc-sintaxis.y"
-                                                                                          {removeLevel(&table); (yyval.tree) = (yyvsp[0].tree);}
-#line 1340 "calc-sintaxis.tab.c"
-    break;
-
-  case 21: /* block1: '{' vars statements '}'  */
 #line 103 "calc-sintaxis.y"
-                                  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, (yyvsp[-2].tree), (yyvsp[-1].tree)); (yyval.tree) = tree;}
-#line 1346 "calc-sintaxis.tab.c"
+                       {(yyval.tree) = (yyvsp[0].tree);}
+#line 1312 "calc-sintaxis.tab.c"
     break;
 
-  case 22: /* block1: '{' vars '}'  */
-#line 104 "calc-sintaxis.y"
-                    {(yyval.tree) = (yyvsp[-1].tree);}
-#line 1352 "calc-sintaxis.tab.c"
-    break;
-
-  case 23: /* block1: '{' statements '}'  */
+  case 12: /* $@2: %empty  */
 #line 105 "calc-sintaxis.y"
-                          {(yyval.tree) = (yyvsp[-1].tree);}
-#line 1358 "calc-sintaxis.tab.c"
+                                     {inFunction = 1;}
+#line 1318 "calc-sintaxis.tab.c"
     break;
 
-  case 24: /* block1: '{' '}'  */
+  case 13: /* method_decl: ttype id '(' params ')' $@2 block  */
+#line 105 "calc-sintaxis.y"
+                                                             {inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-6].tree)->info->type, -1, (yyvsp[-5].tree)->info->name), (yyvsp[-3].tree), (yyvsp[0].tree)); if(insertElem(&table, tree->info)){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+#line 1324 "calc-sintaxis.tab.c"
+    break;
+
+  case 14: /* $@3: %empty  */
 #line 106 "calc-sintaxis.y"
-               {(yyval.tree) = newTree(NULL, NULL, NULL);}
-#line 1364 "calc-sintaxis.tab.c"
+                                      {inFunction = 1;}
+#line 1330 "calc-sintaxis.tab.c"
     break;
 
-  case 25: /* statements: statements single_statement  */
-#line 109 "calc-sintaxis.y"
-                                        {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "statements"); (yyval.tree) = newTree(data, (yyvsp[-1].tree), (yyvsp[0].tree));}
-#line 1370 "calc-sintaxis.tab.c"
+  case 15: /* method_decl: ttype id '(' params ')' $@3 EXTERN ';'  */
+#line 106 "calc-sintaxis.y"
+                                                                   { inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-7].tree)->info->type, -1, (yyvsp[-6].tree)->info->name), (yyvsp[-4].tree), newTree((yyvsp[-1].data), NULL, NULL)); if(insertElem(&table, tree->info)){ (yyval.tree) = tree;} else {perror("wrong function declaration\n"); exit(1);} }
+#line 1336 "calc-sintaxis.tab.c"
     break;
 
-  case 26: /* statements: single_statement  */
+  case 16: /* $@4: %empty  */
+#line 107 "calc-sintaxis.y"
+                                {inFunction = 1;}
+#line 1342 "calc-sintaxis.tab.c"
+    break;
+
+  case 17: /* method_decl: ttype id '(' ')' $@4 EXTERN ';'  */
+#line 107 "calc-sintaxis.y"
+                                                             {inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-6].tree)->info->type, -1, (yyvsp[-5].tree)->info->name), NULL, newTree((yyvsp[-1].data), NULL, NULL)); if(insertElem(&table, tree->info) && (yyvsp[-6].tree)->info->type != NO_TYPE){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+#line 1348 "calc-sintaxis.tab.c"
+    break;
+
+  case 18: /* $@5: %empty  */
+#line 108 "calc-sintaxis.y"
+                               {inFunction = 1;}
+#line 1354 "calc-sintaxis.tab.c"
+    break;
+
+  case 19: /* method_decl: ttype id '(' ')' $@5 block  */
+#line 108 "calc-sintaxis.y"
+                                                       {inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, (yyvsp[-5].tree)->info->type, -1, (yyvsp[-4].tree)->info->name), NULL, (yyvsp[0].tree)); if(insertElem(&table, tree->info)){ (yyval.tree) = tree; } else {perror("wrong function declaration\n"); exit(1);} }
+#line 1360 "calc-sintaxis.tab.c"
+    break;
+
+  case 20: /* params: params ',' param  */
 #line 110 "calc-sintaxis.y"
-                             {(yyval.tree) = (yyvsp[0].tree);}
-#line 1376 "calc-sintaxis.tab.c"
+                          {TData* data = newData(T_PARAMS, NO_TYPE, -1, "params"); Tree *tree = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree)); (yyval.tree) = tree; }
+#line 1366 "calc-sintaxis.tab.c"
     break;
 
-  case 27: /* single_statement: id TASIGN expr ';'  */
-#line 113 "calc-sintaxis.y"
-                                     {(yyval.tree) = newTree((yyvsp[-2].data), (yyvsp[-3].tree), (yyvsp[-1].tree));}
-#line 1382 "calc-sintaxis.tab.c"
+  case 21: /* params: param  */
+#line 111 "calc-sintaxis.y"
+                {(yyval.tree) = (yyvsp[0].tree); }
+#line 1372 "calc-sintaxis.tab.c"
     break;
 
-  case 28: /* single_statement: TIF '(' expr ')' THEN block  */
+  case 22: /* param: ttype id  */
 #line 114 "calc-sintaxis.y"
-                                               {Tree *tree = newTree((yyvsp[-5].data), (yyvsp[-3].tree), newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL)); (yyval.tree) = tree;}
-#line 1388 "calc-sintaxis.tab.c"
+                {if(insertElem(&parameters, newData(T_PARAM, (yyvsp[-1].tree)->info->type,-1, (yyvsp[0].tree)->info->name))) {(yyval.tree) = newTree(newData(T_YYUNDEF, NO_TYPE, -1, (yyvsp[0].tree)->info->name), (yyvsp[-1].tree), (yyvsp[0].tree));} else {printf("The parameter does already exist");}}
+#line 1378 "calc-sintaxis.tab.c"
     break;
 
-  case 29: /* single_statement: TIF '(' expr ')' THEN block TELSE block  */
-#line 115 "calc-sintaxis.y"
-                                                          {(yyval.tree) = newTree((yyvsp[-7].data), (yyvsp[-5].tree), newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree((yyvsp[-3].data), (yyvsp[-2].tree), NULL), newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL)));}
-#line 1394 "calc-sintaxis.tab.c"
-    break;
-
-  case 30: /* single_statement: TWHILE '(' expr ')' block  */
+  case 23: /* $@6: %empty  */
 #line 116 "calc-sintaxis.y"
-                                            {(yyval.tree) = newTree((yyvsp[-4].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1400 "calc-sintaxis.tab.c"
+       {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);}
+#line 1384 "calc-sintaxis.tab.c"
     break;
 
-  case 31: /* single_statement: TRET expr ';'  */
+  case 24: /* block: $@6 block1  */
+#line 116 "calc-sintaxis.y"
+                                                                                          {removeLevel(&table); (yyval.tree) = (yyvsp[0].tree);}
+#line 1390 "calc-sintaxis.tab.c"
+    break;
+
+  case 25: /* block1: '{' vars statements '}'  */
 #line 117 "calc-sintaxis.y"
-                                {(yyval.tree) = newTree(newData(T_RET, -1, -1, "RET WITH VALUE"), (yyvsp[-1].tree), NULL);}
-#line 1406 "calc-sintaxis.tab.c"
+                                  {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, (yyvsp[-2].tree), (yyvsp[-1].tree)); (yyval.tree) = tree;}
+#line 1396 "calc-sintaxis.tab.c"
     break;
 
-  case 32: /* single_statement: TRET ';'  */
+  case 26: /* block1: '{' vars '}'  */
 #line 118 "calc-sintaxis.y"
-                           {(yyval.tree) = newTree(newData(T_RET, -1, -1, "RET WITHOUT VALUE"), NULL, NULL);}
-#line 1412 "calc-sintaxis.tab.c"
+                    {(yyval.tree) = (yyvsp[-1].tree);}
+#line 1402 "calc-sintaxis.tab.c"
     break;
 
-  case 33: /* single_statement: ';'  */
+  case 27: /* block1: '{' statements '}'  */
 #line 119 "calc-sintaxis.y"
-                      {(yyval.tree) = NULL;}
-#line 1418 "calc-sintaxis.tab.c"
+                          {(yyval.tree) = (yyvsp[-1].tree);}
+#line 1408 "calc-sintaxis.tab.c"
     break;
 
-  case 34: /* single_statement: block  */
+  case 28: /* block1: '{' '}'  */
 #line 120 "calc-sintaxis.y"
-                        {(yyval.tree) = (yyvsp[0].tree);}
-#line 1424 "calc-sintaxis.tab.c"
+               {(yyval.tree) = newTree(NULL, NULL, NULL);}
+#line 1414 "calc-sintaxis.tab.c"
     break;
 
-  case 35: /* exprs: exprs ',' expr  */
+  case 29: /* statements: statements single_statement  */
 #line 123 "calc-sintaxis.y"
-                      {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); (yyval.tree) = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1430 "calc-sintaxis.tab.c"
+                                        {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "statements"); (yyval.tree) = newTree(data, (yyvsp[-1].tree), (yyvsp[0].tree));}
+#line 1420 "calc-sintaxis.tab.c"
     break;
 
-  case 36: /* exprs: expr  */
+  case 30: /* statements: single_statement  */
 #line 124 "calc-sintaxis.y"
-           {(yyval.tree) = (yyvsp[0].tree);}
-#line 1436 "calc-sintaxis.tab.c"
+                             {(yyval.tree) = (yyvsp[0].tree);}
+#line 1426 "calc-sintaxis.tab.c"
     break;
 
-  case 37: /* expr: id '(' exprs ')'  */
+  case 31: /* single_statement: id TASIGN expr ';'  */
 #line 127 "calc-sintaxis.y"
-                              { (yyval.tree) = newTree(newData(T_METHODCALL, NO_TYPE, -1, (yyvsp[-3].tree)->info->name), (yyvsp[-1].tree), NULL); }
-#line 1442 "calc-sintaxis.tab.c"
+                                     {(yyval.tree) = newTree((yyvsp[-2].data), (yyvsp[-3].tree), (yyvsp[-1].tree));}
+#line 1432 "calc-sintaxis.tab.c"
     break;
 
-  case 38: /* expr: literal  */
+  case 32: /* single_statement: method_call ';'  */
 #line 128 "calc-sintaxis.y"
-              {(yyval.tree) = (yyvsp[0].tree);}
-#line 1448 "calc-sintaxis.tab.c"
+                                  {(yyval.tree) = (yyvsp[-1].tree);}
+#line 1438 "calc-sintaxis.tab.c"
     break;
 
-  case 39: /* expr: expr TMAS expr  */
+  case 33: /* single_statement: TIF '(' expr ')' THEN block  */
 #line 129 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1454 "calc-sintaxis.tab.c"
+                                               {Tree *tree = newTree((yyvsp[-5].data), (yyvsp[-3].tree), newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL)); (yyval.tree) = tree;}
+#line 1444 "calc-sintaxis.tab.c"
     break;
 
-  case 40: /* expr: expr TMENOS expr  */
+  case 34: /* single_statement: TIF '(' expr ')' THEN block TELSE block  */
 #line 130 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1460 "calc-sintaxis.tab.c"
+                                                          {(yyval.tree) = newTree((yyvsp[-7].data), (yyvsp[-5].tree), newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree((yyvsp[-3].data), (yyvsp[-2].tree), NULL), newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL)));}
+#line 1450 "calc-sintaxis.tab.c"
     break;
 
-  case 41: /* expr: expr TDIV expr  */
+  case 35: /* single_statement: TWHILE '(' expr ')' block  */
 #line 131 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1466 "calc-sintaxis.tab.c"
+                                            {(yyval.tree) = newTree((yyvsp[-4].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
+#line 1456 "calc-sintaxis.tab.c"
     break;
 
-  case 42: /* expr: expr TMULT expr  */
+  case 36: /* single_statement: TRET expr ';'  */
 #line 132 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1472 "calc-sintaxis.tab.c"
+                                {(yyval.tree) = newTree(newData(T_RET, -1, -1, "RET WITH VALUE"), (yyvsp[-1].tree), NULL);}
+#line 1462 "calc-sintaxis.tab.c"
     break;
 
-  case 43: /* expr: expr TAND expr  */
+  case 37: /* single_statement: TRET ';'  */
 #line 133 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1478 "calc-sintaxis.tab.c"
+                           {(yyval.tree) = newTree(newData(T_RET, -1, -1, "RET WITHOUT VALUE"), NULL, NULL);}
+#line 1468 "calc-sintaxis.tab.c"
     break;
 
-  case 44: /* expr: expr TOR expr  */
+  case 38: /* single_statement: ';'  */
 #line 134 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1484 "calc-sintaxis.tab.c"
+                      {(yyval.tree) = NULL;}
+#line 1474 "calc-sintaxis.tab.c"
     break;
 
-  case 45: /* expr: expr TMENOR expr  */
+  case 39: /* single_statement: block  */
 #line 135 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1490 "calc-sintaxis.tab.c"
+                        {(yyval.tree) = (yyvsp[0].tree);}
+#line 1480 "calc-sintaxis.tab.c"
     break;
 
-  case 46: /* expr: expr TMAYOR expr  */
-#line 136 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1496 "calc-sintaxis.tab.c"
-    break;
-
-  case 47: /* expr: expr TMOD expr  */
+  case 40: /* method_call: id '(' exprs ')'  */
 #line 137 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1502 "calc-sintaxis.tab.c"
+                            {TData* data = newData(T_METHODCALL, NO_TYPE, -1, (yyvsp[-3].tree)->info->name); (yyval.tree) = newTree(data, (yyvsp[-1].tree), NULL); setCurrentFunction((yyvsp[-3].tree)->info->name, (yyvsp[-1].tree));}
+#line 1486 "calc-sintaxis.tab.c"
     break;
 
-  case 48: /* expr: expr TIGUAL expr  */
+  case 41: /* method_call: id '(' ')'  */
 #line 138 "calc-sintaxis.y"
-                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1508 "calc-sintaxis.tab.c"
+                         {TData* data = newData(T_METHODCALL, NO_TYPE, -1, (yyvsp[-2].tree)->info->name); (yyval.tree) = newTree(data, NULL, NULL); setCurrentFunction((yyvsp[-2].tree)->info->name, NULL);}
+#line 1492 "calc-sintaxis.tab.c"
     break;
 
-  case 49: /* expr: id  */
-#line 139 "calc-sintaxis.y"
-         {(yyval.tree) = (yyvsp[0].tree); if((doesExist(table, (yyvsp[0].tree)->info->name) == -1)) {perror("no declarated var 2\n"); exit(1);} }
-#line 1514 "calc-sintaxis.tab.c"
-    break;
-
-  case 50: /* expr: '(' expr ')'  */
+  case 42: /* exprs: exprs ',' expr  */
 #line 140 "calc-sintaxis.y"
-                   {(yyval.tree) = (yyvsp[-1].tree);}
-#line 1520 "calc-sintaxis.tab.c"
+                      {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); (yyval.tree) = newTree(data, (yyvsp[-2].tree), (yyvsp[0].tree));}
+#line 1498 "calc-sintaxis.tab.c"
     break;
 
-  case 51: /* literal: boolValue  */
-#line 143 "calc-sintaxis.y"
-                   {(yyval.tree) = (yyvsp[0].tree);}
-#line 1526 "calc-sintaxis.tab.c"
+  case 43: /* exprs: expr  */
+#line 141 "calc-sintaxis.y"
+           {(yyval.tree) = (yyvsp[0].tree);}
+#line 1504 "calc-sintaxis.tab.c"
     break;
 
-  case 52: /* literal: INTV  */
+  case 44: /* expr: method_call  */
 #line 144 "calc-sintaxis.y"
-                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = INTEGER;}
-#line 1532 "calc-sintaxis.tab.c"
+                  {(yyval.tree) = (yyvsp[0].tree);}
+#line 1510 "calc-sintaxis.tab.c"
     break;
 
-  case 53: /* boolValue: TR  */
+  case 45: /* expr: literal  */
+#line 145 "calc-sintaxis.y"
+              {(yyval.tree) = (yyvsp[0].tree);}
+#line 1516 "calc-sintaxis.tab.c"
+    break;
+
+  case 46: /* expr: expr TMAS expr  */
 #line 146 "calc-sintaxis.y"
-                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->value = 1; (yyval.tree)->info->type = BOOL;}
-#line 1538 "calc-sintaxis.tab.c"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1522 "calc-sintaxis.tab.c"
     break;
 
-  case 54: /* boolValue: FAL  */
+  case 47: /* expr: expr TMENOS expr  */
 #line 147 "calc-sintaxis.y"
-                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->value = 0; (yyval.tree)->info->type = BOOL;}
-#line 1544 "calc-sintaxis.tab.c"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1528 "calc-sintaxis.tab.c"
     break;
 
-  case 55: /* id: TID  */
+  case 48: /* expr: expr TDIV expr  */
+#line 148 "calc-sintaxis.y"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1534 "calc-sintaxis.tab.c"
+    break;
+
+  case 49: /* expr: expr TMULT expr  */
 #line 149 "calc-sintaxis.y"
-            {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL);}
-#line 1550 "calc-sintaxis.tab.c"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1540 "calc-sintaxis.tab.c"
     break;
 
-  case 56: /* ttype: TINT  */
+  case 50: /* expr: expr TAND expr  */
+#line 150 "calc-sintaxis.y"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), BOOL); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), BOOL);}
+#line 1546 "calc-sintaxis.tab.c"
+    break;
+
+  case 51: /* expr: expr TOR expr  */
 #line 151 "calc-sintaxis.y"
-                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = INTEGER;}
-#line 1556 "calc-sintaxis.tab.c"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), BOOL); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), BOOL);}
+#line 1552 "calc-sintaxis.tab.c"
     break;
 
-  case 57: /* ttype: TBOOL  */
+  case 52: /* expr: expr TMENOR expr  */
 #line 152 "calc-sintaxis.y"
-                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = BOOL;}
-#line 1562 "calc-sintaxis.tab.c"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1558 "calc-sintaxis.tab.c"
     break;
 
-  case 58: /* ttype: TVOID  */
+  case 53: /* expr: expr TMAYOR expr  */
 #line 153 "calc-sintaxis.y"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1564 "calc-sintaxis.tab.c"
+    break;
+
+  case 54: /* expr: expr TMOD expr  */
+#line 154 "calc-sintaxis.y"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1570 "calc-sintaxis.tab.c"
+    break;
+
+  case 55: /* expr: expr TIGUAL expr  */
+#line 155 "calc-sintaxis.y"
+                        {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[-2].tree), (yyvsp[0].tree)); (yyvsp[0].tree)->info = checkForID((yyvsp[0].tree), INTEGER); (yyvsp[-2].tree)->info = checkForID((yyvsp[-2].tree), INTEGER);}
+#line 1576 "calc-sintaxis.tab.c"
+    break;
+
+  case 56: /* expr: id  */
+#line 156 "calc-sintaxis.y"
+         {(yyval.tree) = (yyvsp[0].tree); if((doesExist(table, (yyvsp[0].tree)->info->name) == -1) && (doesExist(parameters, (yyvsp[0].tree)->info->name) == -1)) {perror("no declarated var\n"); exit(1);} }
+#line 1582 "calc-sintaxis.tab.c"
+    break;
+
+  case 57: /* expr: TMENOS expr  */
+#line 157 "calc-sintaxis.y"
+                                {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, INTEGER); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+#line 1588 "calc-sintaxis.tab.c"
+    break;
+
+  case 58: /* expr: TNEG expr  */
+#line 158 "calc-sintaxis.y"
+                             {(yyval.tree) = newTree((yyvsp[-1].data), (yyvsp[0].tree), NULL); if((yyvsp[0].tree)->info->token == TID) {(yyvsp[0].tree)->info = findVariable(table, (yyvsp[0].tree)->info->name, BOOL); if(!(yyvsp[0].tree)->info) {perror("no declarated var\n"); exit(1);}}}
+#line 1594 "calc-sintaxis.tab.c"
+    break;
+
+  case 59: /* expr: '(' expr ')'  */
+#line 159 "calc-sintaxis.y"
+                   {(yyval.tree) = (yyvsp[-1].tree);}
+#line 1600 "calc-sintaxis.tab.c"
+    break;
+
+  case 60: /* literal: boolValue  */
+#line 162 "calc-sintaxis.y"
+                   {(yyval.tree) = (yyvsp[0].tree);}
+#line 1606 "calc-sintaxis.tab.c"
+    break;
+
+  case 61: /* literal: INTV  */
+#line 163 "calc-sintaxis.y"
+                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = INTEGER;}
+#line 1612 "calc-sintaxis.tab.c"
+    break;
+
+  case 62: /* boolValue: TR  */
+#line 165 "calc-sintaxis.y"
+                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->value = 1; (yyval.tree)->info->type = BOOL;}
+#line 1618 "calc-sintaxis.tab.c"
+    break;
+
+  case 63: /* boolValue: FAL  */
+#line 166 "calc-sintaxis.y"
+                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->value = 0; (yyval.tree)->info->type = BOOL;}
+#line 1624 "calc-sintaxis.tab.c"
+    break;
+
+  case 64: /* id: TID  */
+#line 168 "calc-sintaxis.y"
+            {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL);}
+#line 1630 "calc-sintaxis.tab.c"
+    break;
+
+  case 65: /* ttype: TINT  */
+#line 170 "calc-sintaxis.y"
+                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = INTEGER;}
+#line 1636 "calc-sintaxis.tab.c"
+    break;
+
+  case 66: /* ttype: TBOOL  */
+#line 171 "calc-sintaxis.y"
+                {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = BOOL;}
+#line 1642 "calc-sintaxis.tab.c"
+    break;
+
+  case 67: /* ttype: TVOID  */
+#line 172 "calc-sintaxis.y"
                 {(yyval.tree) = newTree((yyvsp[0].data), NULL, NULL); (yyval.tree)->info->type = VOID;}
-#line 1568 "calc-sintaxis.tab.c"
+#line 1648 "calc-sintaxis.tab.c"
     break;
 
 
-#line 1572 "calc-sintaxis.tab.c"
+#line 1652 "calc-sintaxis.tab.c"
 
       default: break;
     }

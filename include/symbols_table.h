@@ -26,7 +26,6 @@ typedef struct Params {
 typedef struct Func {
     char* id;
     ParamsList *params;
-    Type returnType;
 } Function;
 
 typedef struct MethodsList {
@@ -35,19 +34,19 @@ typedef struct MethodsList {
 } FunctionsList;
 
 extern FunctionsList** functionTable;  
+extern int inFunction;
+extern Function* currentFunction;
 
 int insertElem(SymbolsTable **SymbolsTable, TData *elem);
 int insertLevel(SymbolsTable **symbolsTable, LSE *level);
 TData *getNode(LSE *level, char* nom, Type type);
 TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type);
-Type doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type
+int doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type
 
 int removeLevel(SymbolsTable **symbolsTable);
 int removeNode(LSE **list, TData *node);
 
 int setValueToNode(LSE *list, char* name, Type type, int val);
-
-void setTypeFunction(Type type);
 
 int evalType(Tree* bt);
 int evalValue(int a, int b, Token token);
@@ -58,5 +57,7 @@ void showLevel(LSE *list);
 int insertFunction(FunctionsList **table, Tree *newFunc);
 ParamsList* treeToParamsList(Tree *tree);
 int compareParams(ParamsList *a, ParamsList *b);
+int isParemeter(char* id, Type type);
+void setCurrentFunction(char* id, Tree *paremeters);
 
 #endif

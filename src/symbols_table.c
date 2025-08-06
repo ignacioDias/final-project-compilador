@@ -6,6 +6,8 @@
 
 FunctionsList** functionTable = NULL; 
 Type curretFunctionType = NO_TYPE;
+int inFunction = 0;
+Function* currentFunction = NULL;
 
 int insertElem(SymbolsTable **symbolsTable, TData* elem) {
     if(getNode((*symbolsTable)->info, elem->name, elem->type)) {
@@ -210,6 +212,17 @@ TData *getNode(LSE *level, char* nom, Type type) {
     return aux->info;
 }
 TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
+    if(inFunction) {
+        if(isParemeter(nom, type)) {
+            TData *data = (TData*)malloc(sizeof(TData));
+            data->name = nom;
+            data->type = type;
+            data->value = -1;
+            data->token = T_PARAM;
+            return data;
+        }
+        return NULL;
+    }
     SymbolsTable *aux = symbolsTable;
     while(aux != NULL && aux->info != NULL) {
         TData *currentVar = getNode(aux->info, nom, type);
@@ -220,16 +233,19 @@ TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
     return NULL;
 }
 
-Type doesExist(SymbolsTable *symbolsTable, char *name) {
+int doesExist(SymbolsTable *symbolsTable, char *name) {
     SymbolsTable *aux = symbolsTable;
     while(aux && aux->info) {
-        for(int type = 0; type < 4; type++) {
-            if(getNode(aux->info, name, type))
-                return type;
+        LSE* level = aux->info;
+        while(level && level->info) {
+            if(strcmp(level->info->name, name) == 0) {
+                return 1;
+            }
+            level = level->next;
         }
         aux = aux->next;
     }
-    return -1; //not found
+    return 0; //not found
 }
 void showLevel(LSE *list) {
     LSE* aux = list;
@@ -271,24 +287,22 @@ int removeNode(LSE **list, TData *node) {
     return 0;
 }
 
-int insertFunction(FunctionsList **table, Tree *newFunc) {
+int insertFunction(Tree *newFunc) {
+    if(!*functionTable || !newFunc||!newFunc->info)
+        return -1;
     char *id = newFunc->info->name;
-    Type returnType = newFunc->info->type;
     Tree *newParams = newFunc->hi;
     // Buscar función existente
-    FunctionsList *curr = *table;
+    FunctionsList *curr = *functionTable;
     while (curr) {
         Function *f = curr->currentFunction;
-        if (strcmp(f->id, id) == 0) {
-            // Ya existe una función con ese nombre
-            if (f->returnType == returnType) { //mismo tipo
-                // Comparar parámetros
-                ParamsList *existingParams = f->params;
-                ParamsList *incomingParams = treeToParamsList(newParams);
-                if (!compareParams(existingParams, incomingParams)) {
-                    fprintf(stderr, "Error: redefinición de %s\n", id);
-                    return 0;
-                }
+        if (strcmp(f->id, id) == 0) {            // Ya existe una función con ese nombre
+            // Comparar parámetros
+            ParamsList *existingParams = f->params;
+            ParamsList *incomingParams = treeToParamsList(newParams);
+            if (!compareParams(existingParams, incomingParams)) {
+                fprintf(stderr, "Error: redefinición de %s\n", id);
+                return 0;
             }
         }   
         curr = curr->next;
@@ -296,20 +310,19 @@ int insertFunction(FunctionsList **table, Tree *newFunc) {
     // No existe: insertar la nueva función
     Function *newEntry = malloc(sizeof(Function));
     newEntry->id = strdup(id);
-    newEntry->returnType = returnType;
     newEntry->params = treeToParamsList(newParams);
 
     FunctionsList *node = malloc(sizeof(FunctionsList));
     node->currentFunction = newEntry;
-    node->next = *table;
-    *table = node;
+    node->next = *functionTable;
+    *functionTable = node;
 
     return true;
 }
 
 ParamsList* treeToParamsList(Tree *tree) {
-    if (!tree) return NULL;
-
+    if (!tree || !tree->info) 
+        return NULL;
     if (tree->info->type == T_PARAMS) {
         ParamsList *leftList = treeToParamsList(tree->hi);
         ParamsList *rightList = treeToParamsList(tree->hd);
@@ -328,7 +341,6 @@ ParamsList* treeToParamsList(Tree *tree) {
         node->next = NULL;
         return node;
     }
-
     return NULL;
 }
 
@@ -341,4 +353,35 @@ int compareParams(ParamsList *a, ParamsList *b) {
         b = b->next;
     }
     return a == NULL && b == NULL;
+}
+
+int isParemeter(char* id, Type type) {
+    if(!inFunction) {
+        perror("Illegal call");
+        exit(1);
+    }
+    ParamsList * auxParams = currentFunction->params;
+    while(auxParams) {
+        Param *currentParam = auxParams->param;
+        if(strcmp(currentParam->id, id) == 0 && currentParam->type == type) {
+            return 1;
+        }
+        auxParams = auxParams->next;
+    }
+    return 0;
+
+}
+void setCurrentFunction(char* id, Tree *paremeters) {
+    ParamsList *params = treeToParamsList(paremeters);
+    FunctionsList *aux = functionTable;
+    while(aux && aux->currentFunction) {
+        Function *currentFun = aux->currentFunction;
+        if(strcmp(currentFun->id, id) == 0) {
+            currentFunction->id = id;
+            currentFunction->params = params;
+        }
+        aux = aux->next;
+    }
+    perror("illegal call");
+    exit(1);
 }
