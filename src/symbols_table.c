@@ -214,14 +214,8 @@ TData *getNode(LSE *level, char* nom, Type type) {
 TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
     if(inFunction) {
         if(isParemeter(nom, type)) {
-            TData *data = (TData*)malloc(sizeof(TData));
-            data->name = nom;
-            data->type = type;
-            data->value = -1;
-            data->token = T_PARAM;
-            return data;
+            return getPramValue(nom, type);
         }
-        return NULL;
     }
     SymbolsTable *aux = symbolsTable;
     while(aux != NULL && aux->info != NULL) {
