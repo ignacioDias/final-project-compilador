@@ -533,13 +533,15 @@ char *yytext;
 #include <stdlib.h>
 #include <string.h>
 #include "include/tree.h"
+#include "include/symbols_table.h"
+#include "calc-sintaxis.tab.h"
 
 int yyparse();
 void yyerror();
 void current_token(TOKENS token_symbol);
 
-#line 542 "lex.yy.c"
-#line 543 "lex.yy.c"
+#line 544 "lex.yy.c"
+#line 545 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -756,10 +758,10 @@ YY_DECL
 		}
 
 	{
-#line 20 "cacl-lexico.l"
+#line 22 "cacl-lexico.l"
 
 
-#line 763 "lex.yy.c"
+#line 765 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -828,192 +830,192 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 22 "cacl-lexico.l"
+#line 24 "cacl-lexico.l"
 { return EXTERN; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 23 "cacl-lexico.l"
+#line 25 "cacl-lexico.l"
 { return PROGRAM; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 24 "cacl-lexico.l"
+#line 26 "cacl-lexico.l"
 { return MAIN; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 25 "cacl-lexico.l"
+#line 27 "cacl-lexico.l"
 { return RETURN; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 27 "cacl-lexico.l"
+#line 29 "cacl-lexico.l"
 { return IF;   }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 28 "cacl-lexico.l"
+#line 30 "cacl-lexico.l"
 { return THEN; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 29 "cacl-lexico.l"
+#line 31 "cacl-lexico.l"
 { return ELSE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 30 "cacl-lexico.l"
+#line 32 "cacl-lexico.l"
 { return WHILE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 34 "cacl-lexico.l"
+#line 36 "cacl-lexico.l"
 { return TYPE_VOID; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 35 "cacl-lexico.l"
+#line 37 "cacl-lexico.l"
 { return TYPE_INT;  } 
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 36 "cacl-lexico.l"
+#line 38 "cacl-lexico.l"
 { return TYPE_BOOL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 37 "cacl-lexico.l"
+#line 39 "cacl-lexico.l"
 { current_token(CONSBOOL); return TTRUE;  }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 38 "cacl-lexico.l"
+#line 40 "cacl-lexico.l"
 { current_token(CONSBOOL); return TFALSE; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 41 "cacl-lexico.l"
+#line 43 "cacl-lexico.l"
 { current_token(CONSINT); return INT; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 43 "cacl-lexico.l"
+#line 45 "cacl-lexico.l"
 { yylval.symbol = CreateSymbol(strdup(yytext),EID,0,yylineno); return ID; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 46 "cacl-lexico.l"
+#line 48 "cacl-lexico.l"
 { return OR;  }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 47 "cacl-lexico.l"
+#line 49 "cacl-lexico.l"
 { return AND; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 48 "cacl-lexico.l"
+#line 50 "cacl-lexico.l"
 { return NOT; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 49 "cacl-lexico.l"
+#line 51 "cacl-lexico.l"
 { return EQUAL;  }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 50 "cacl-lexico.l"
+#line 52 "cacl-lexico.l"
 { return GREATER_THAN; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 51 "cacl-lexico.l"
+#line 53 "cacl-lexico.l"
 { return LESS_THAN; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 54 "cacl-lexico.l"
+#line 56 "cacl-lexico.l"
 { return TASIGN; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 55 "cacl-lexico.l"
+#line 57 "cacl-lexico.l"
 { return TMINUS;     }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 56 "cacl-lexico.l"
+#line 58 "cacl-lexico.l"
 { return TPLUS;       }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 57 "cacl-lexico.l"
+#line 59 "cacl-lexico.l"
 { return TTIMES;       }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 58 "cacl-lexico.l"
+#line 60 "cacl-lexico.l"
 { return TDIV;  }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 59 "cacl-lexico.l"
+#line 61 "cacl-lexico.l"
 { return TMOD;     }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 61 "cacl-lexico.l"
+#line 63 "cacl-lexico.l"
 { return TPAR_OP;   }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 62 "cacl-lexico.l"
+#line 64 "cacl-lexico.l"
 { return TPAR_CL;   }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 63 "cacl-lexico.l"
+#line 65 "cacl-lexico.l"
 { return TBRAC_OP; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 64 "cacl-lexico.l"
+#line 66 "cacl-lexico.l"
 { return TBRAC_CL; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 66 "cacl-lexico.l"
+#line 68 "cacl-lexico.l"
 
 	YY_BREAK
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 67 "cacl-lexico.l"
+#line 69 "cacl-lexico.l"
 
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 70 "cacl-lexico.l"
+#line 72 "cacl-lexico.l"
 { return *yytext; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 72 "cacl-lexico.l"
+#line 74 "cacl-lexico.l"
 { return -1; }
 	YY_BREAK
 case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
-#line 74 "cacl-lexico.l"
+#line 76 "cacl-lexico.l"
 ; /** ignore **/
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 76 "cacl-lexico.l"
+#line 78 "cacl-lexico.l"
 ECHO;
 	YY_BREAK
-#line 1017 "lex.yy.c"
+#line 1019 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2030,7 +2032,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 76 "cacl-lexico.l"
+#line 78 "cacl-lexico.l"
 
 
 void current_token(TOKENS token_symbol) {
