@@ -7,7 +7,7 @@
 #include "../include/tree.h"
 #include "../include/pseudo_Assembly.h"
 void compilador(Tree *tree);
-Tree* createTreeWhitSymbol(char * name,enum TYPES type,int size, int line, Tree *l, Tree *r);
+Tree* createTreeWhitSymbol(char * name, TOKENS token,int size, int line, Tree *l, Tree *r);
 extern int yylineno;
 int blockNum = 0;
 %}
@@ -207,8 +207,8 @@ void compilador(Tree* ar){
     elimArbol(ar);
 }
 
-Tree* createTreeWhitSymbol(char * name,enum TYPES type,int size, int line, Tree *l, Tree *r){
-    struct Tsymbol* aux = CreateSymbol(name,type,0,yylineno);
+Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){
+    struct Tsymbol* aux = CreateSymbol(name,token,0,yylineno);
     return createTree(aux,l,r);
 }
 

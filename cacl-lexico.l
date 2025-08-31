@@ -8,7 +8,7 @@
 
 int yyparse();
 void yyerror();
-void current_token(TOKEN token_symbol);
+void current_token(TOKENS token_symbol);
 
 %}
 
@@ -76,7 +76,7 @@ digito [0-9]
 
 %%
 
-void current_token(TOKEN token_symbol) {
+void current_token(TOKENS token_symbol) {
 	yylval.symbol = CreateSymbol(strdup(yytext),token_symbol,1,yylineno);
 	if (token_symbol == CONSINT)
 		setValue(yylval.symbol, atoi(yytext));
