@@ -110,7 +110,6 @@ void createTable(Tree* tree) {
         InstallInCurrentScope(tree->symbol);
     }
     if (tipoActual == VARBOOL || tipoActual == VARINT){
-        //Esto es para las variables globales, no tengan un scope  Ya que pertenecen al scope 1. (DESPUES FIJARNOS QUE M**** HACER CON ESTOS.)
         if (getScope() != 1) {
             tree->symbol->offset = offset;
             offset += -16;
@@ -149,7 +148,6 @@ void createTable(Tree* tree) {
         }
         PopScope();
         cantRetBlock = 0;
-        // printf("FIN BLOQUE  \n\n");
 
     }
     if (tree->right != NULL && tree->left != NULL) {
@@ -212,7 +210,7 @@ void createTable(Tree* tree) {
     }
 }
 
-void retError(){
+void retError() {
     if(errRet){
        printf("\033[31mTe falta un return \033[0m\n");
        err = true;
