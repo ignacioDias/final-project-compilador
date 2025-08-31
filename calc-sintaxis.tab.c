@@ -1265,13 +1265,13 @@ yyreduce:
 
   case 9: /* list_decls: declaracion  */
 #line 90 "calc-sintaxis.y"
-                                     {char * name = "DECLARACION"; (yyval.tree) = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,(yyvsp[0].tree), NULL);}
+                                     {char * name = "DECLARACION"; (yyval.tree) = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,(yyvsp[0].tree), NULL);}
 #line 1270 "calc-sintaxis.tab.c"
     break;
 
   case 10: /* list_decls: list_decls declaracion  */
 #line 91 "calc-sintaxis.y"
-                                     {char * name = "DECLARACION"; (yyval.tree) = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,(yyvsp[-1].tree), (yyvsp[0].tree));}
+                                     {char * name = "DECLARACION"; (yyval.tree) = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,(yyvsp[-1].tree), (yyvsp[0].tree));}
 #line 1276 "calc-sintaxis.tab.c"
     break;
 
@@ -1390,7 +1390,7 @@ yyreduce:
 
   case 29: /* parametros: dec_parametro ',' parametros  */
 #line 133 "calc-sintaxis.y"
-                                            {char * name = "PARAMETROS"; (yyval.tree) = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+                                            {char * name = "PARAMETROS"; (yyval.tree) = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1395 "calc-sintaxis.tab.c"
     break;
 
@@ -1468,13 +1468,13 @@ yyreduce:
 
   case 42: /* expr: expr TPLUS expr  */
 #line 157 "calc-sintaxis.y"
-                                 {char * name = "+"; (yyval.tree) = createTreeWhitSymbol(name,SUMA,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+                                 {char * name = "+"; (yyval.tree) = createTreeWhitSymbol(name,PLUS,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1473 "calc-sintaxis.tab.c"
     break;
 
   case 43: /* expr: expr TMINUS expr  */
 #line 158 "calc-sintaxis.y"
-                                {char * name = "-"; (yyval.tree) = createTreeWhitSymbol(name,RESTA,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+                                {char * name = "-"; (yyval.tree) = createTreeWhitSymbol(name,MINUS,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1479 "calc-sintaxis.tab.c"
     break;
 
@@ -1492,19 +1492,19 @@ yyreduce:
 
   case 46: /* expr: expr TMOD expr  */
 #line 161 "calc-sintaxis.y"
-                              {char * name = "%"; (yyval.tree) = createTreeWhitSymbol(name,ERESTO,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+                              {char * name = "%"; (yyval.tree) = createTreeWhitSymbol(name,EMOD,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1497 "calc-sintaxis.tab.c"
     break;
 
   case 47: /* expr: expr GREATER_THAN expr  */
 #line 162 "calc-sintaxis.y"
-                                    {char * name = ">"; (yyval.tree) = createTreeWhitSymbol(name,EMAYORQUE,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+                                    {char * name = ">"; (yyval.tree) = createTreeWhitSymbol(name,GREATER_THAN,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1503 "calc-sintaxis.tab.c"
     break;
 
   case 48: /* expr: expr LESS_THAN expr  */
 #line 163 "calc-sintaxis.y"
-                                 {char * name = "<"; (yyval.tree) = createTreeWhitSymbol(name,EMENORQUE,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+                                 {char * name = "<"; (yyval.tree) = createTreeWhitSymbol(name,LESS_THAN,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
 #line 1509 "calc-sintaxis.tab.c"
     break;
 
