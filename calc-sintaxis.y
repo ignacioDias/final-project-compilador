@@ -1,173 +1,216 @@
 %{
-#include <stdlib.h>
+
 #include <stdio.h>
-#include "include/tree.h"
-#include "include/symbols_table.h"
-#include "include/pseudo_assembly.h"
-#include "include/assembly_generator.h"
-
-SymbolsTable* table;
-SymbolsTable* parameters;
-AssemblyList *pseudoAssembly;
-void setTypeFunction(Type type);
-
-TData* checkForID(Tree *tree, Type type) {
-    if(tree->info->token != T_ID)
-        return tree->info;
-    TData *newVar = findVariable(table, tree->info->name, type);
-    if(!newVar) {
-        perror("no declarated var\n"); 
-        exit(1);
-    }
-    return newVar;
-}
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../include/tree.h"
+#include "../include/pseudo_Assembly.h"
+void compilador(struct AST *arbol);
+struct AST* createTreeWhitSymbol(char * name,enum TYPES type,int size, int line, struct AST *l, struct AST *r);
+extern int yylineno;
+int blockNum = 0;
 %}
-%code requires {#include "include/tree.h"}
-%code requires {#include "include/pseudo_assembly.h"}
-%code requires {#include "include/symbols_table.h"}
 
-%union{int i; int b; Tree *tree; char *s; TData *data;}
+%union {
+    struct Tsymbol* symbol;
+    struct AST *arbol;
+}
 
-%token<data> INTV
-%token<data> TRET
-%token<data> TDECL
-%token<data> TVOID
-%token<data> TMAIN
-%token<data> TR
-%token<data> FAL
-%token<data> TID
-%token<data> TMENOR
-%token<data> TMAYOR
-%token<data> TIGUAL
-%token<data> TMENOS
-%token<data> TMAS
-%token<data> TMULT
-%token<data> TDIV
-%token<data> TMOD
-%token<data> TOR
-%token<data> TNEG
-%token<data> TAND
-%token<data> EXTERN
-%token<data> TWHILE
-%token<data> TIF
-%token<data> THEN
-%token<data> TELSE
-%token<data> TINT
-%token<data> TBOOL
-%token<data> TASIGN
-%token<data> TPROGRAM
+/*declaraciones*/
+%token <symbol> ID
 
-%type<tree> program
-%type<tree> vars
-%type<tree> var_decl
-%type<tree> methods
-%type<tree> method_decl
-%type<tree> params
-%type<tree> param
-%type<tree> block
-%type<tree> block1
-%type<tree> statements
-%type<tree> single_statement
-%type<tree> method_call
-%type<tree> exprs
-%type<tree> expr
-%type<tree> literal
-%type<tree> boolValue
-%type<tree> id
-%type<tree> ttype
+/* tipos de datos */
+%token <symbol> INT
+%token <symbol> TTRUE
+%token <symbol> TFALSE
+%token TYPE_INT
+%token TYPE_BOOL
+%token TYPE_VOID
 
-%left TOR
-%left TAND
-%nonassoc TIGUAL TMAYOR TMENOR
-%left TMAS TMENOS 
-%left TMULT TDIV TMOD
-%left UMINUS
+/* simbolos */
+%token TMAS
+%token TPOR
+%token TMENOS
+%token TDIVISION
+%token TRESTO
+%token ASIGNACION
+%token TPAR_OP
+%token TPAR_CL
+%token TLLAVE_OP
+%token TLLAVE_CL
+%token OR
+%token AND
+%token NOT
+%token MAYORQUE
+%token MENORQUE
+%token EQ
+
+/* palabras reservadas */
+%token PROGRAM
+%token EXTERN
+%token THEN
+%token IF
+%token ELSE
+%token WHILE
+%token RETURN
+%token MAIN
+
+
+/* presedencias */
+%left OR AND                // ||, &&
+%left EQ                    // ==
+%left MAYORQUE MENORQUE     // >,<
+%left TMAS TMENOS           // +, -
+%left TPOR TDIVISION TRESTO // *, /, %
+%right NOT                  // La negación es asociativa a la derecha
+
+/*Types*/
+%type <arbol> prog main retorno
+%type <arbol> call_func expr
+%type <arbol> asignacion valor argumento
+%type <arbol> declaracion sentencia dec_parametro declare_funcion
+%type <arbol> list_decls list_sents list_func parametros
+%type <arbol> if_else while block
 
 %%
-program1: {table = (SymbolsTable*)malloc(sizeof(SymbolsTable)); parameters = (SymbolsTable*)malloc(sizeof(SymbolsTable)); pseudoAssembly = (AssemblyList*)malloc(sizeof(AssemblyList)); LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);  }  program {identifyGlobal(pseudoAssembly); generateAssembly("prueba.txt"); removeLevel(&table); }
-program: TPROGRAM '{' vars methods '}'  {$$ = newTree($1, $3, $4); evalType($$);  printTree($$); showTable(table); generatePseudoAssembly(&pseudoAssembly, $$); printAssemblyList(&pseudoAssembly); }
-       |  TPROGRAM  '{' methods '}' {$$ = newTree($1, $3, NULL); evalType($$); printTree($$); showTable(table); generatePseudoAssembly(&pseudoAssembly, $$); printAssemblyList(&pseudoAssembly);}
-       ;
-vars: vars var_decl   {TData* data = newData(T_DECL, NO_TYPE, -1, "vars"); $$ = newTree(data, $1, $2);}
-    | var_decl  {$$ = $1;}
+
+prog: PROGRAM TLLAVE_OP list_decls list_func main TLLAVE_CL  { char * name = "PROGRAM_BLOCK"; struct AST* aux= createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$4, $5);
+                                                              char * name1 = "PROGRAM"; compilador(createTreeWhitSymbol(name1,EPROGRAM,blockNum,yylineno,$3, aux));}
+    | PROGRAM TLLAVE_OP  main TLLAVE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,NULL, $3));}
+    | PROGRAM TLLAVE_OP  list_func main TLLAVE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
+    | PROGRAM TLLAVE_OP list_decls  main TLLAVE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
     ;
-var_decl:
-    ttype id TASIGN expr ';' { if(insertElem(&table, newData($2->info->token, $1->info->type, $4->info->value, $2->info->name))) {
 
-                                Tree *leftChild = newTree(newData(T_DECL, $1->info->type, -1, $2->info->name), $1, $2); $$ = newTree($3, leftChild, $4);
-                            } else {
-                                    perror("Re-declaration"); exit(1);} $4->info = checkForID($4, $1->info->type);}
-    |ttype id ';' {if(insertElem(&table, newData($2->info->token, $1->info->type, 0, $2->info->name))){$$ = newTree(newData(T_DECL, NO_TYPE, 0, $2->info->name), $1, $2);} else {perror("var already exists");exit(1);}}
+main: TYPE_BOOL MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTreeWhitSymbol(name,RETBOL,blockNum,yylineno,$5, NULL);}
+    | TYPE_INT MAIN TPAR_OP TPAR_CL block   { char * name = "main";$$ = createTreeWhitSymbol(name,RETINT,blockNum,yylineno,$5, NULL);}
+    | TYPE_VOID MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTreeWhitSymbol(name,RETVOID,blockNum,yylineno,$5, NULL);}
     ;
-methods: methods method_decl  {Tree *tree = newTree(newData(T_METHODS, NO_TYPE, -1, "methods"), $1, $2); $$ = tree;}
-        | method_decl  {$$ = $1;}
-        ;
-method_decl: ttype id '(' params ')' {inFunction = 1;} block {inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, $7); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '(' params ')' {inFunction = 1;} EXTERN ';' { inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), $4, newTree($7, NULL, NULL)); if(insertElem(&table, tree->info)){ $$ = tree;} else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '('  ')' {inFunction = 1;} EXTERN ';' {inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, newTree($6, NULL, NULL)); if(insertElem(&table, tree->info) && $1->info->type != NO_TYPE){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-            | ttype id '(' ')' {inFunction = 1;} block {inFunction = 0; Tree *tree = newTree(newData(T_FUNCTION, $1->info->type, -1, $2->info->name), NULL, $6); if(insertElem(&table, tree->info)){ $$ = tree; } else {perror("wrong function declaration\n"); exit(1);} }
-            ;
-params: params ',' param  {TData* data = newData(T_PARAMS, NO_TYPE, -1, "params"); Tree *tree = newTree(data, $1, $3); $$ = tree; }
-        | param {$$ = $1; }
-        ;
 
-param: ttype id {if(insertElem(&parameters, newData(T_PARAM, $1->info->type,-1, $2->info->name))) {$$ = newTree(newData(T_YYUNDEF, NO_TYPE, -1, $2->info->name), $1, $2);} else {printf("The parameter does already exist");}}
-;
-block: {LSE* newLevel = (LSE*)malloc(sizeof(LSE)); insertLevel(&table, newLevel);} block1 {removeLevel(&table); $$ = $2;}
-block1: '{' vars statements '}'   {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "block"); Tree *tree = newTree(data, $2, $3); $$ = tree;}
-     | '{' vars '}' {$$ = $2;}
-     | '{' statements '}' {$$ = $2;}
-     | '{' '}' {$$ = newTree(NULL, NULL, NULL);}
-     ;
-
-statements: statements single_statement {TData* data = newData(T_YYUNDEF, NO_TYPE, -1, "statements"); $$ = newTree(data, $1, $2);}
-          | single_statement {$$ = $1;}
+list_decls: declaracion              {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,$1, NULL);}
+          | list_decls declaracion   {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,$1, $2);}
           ;
 
-single_statement: id TASIGN expr ';' {$$ = newTree($2, $1, $3);}
-                | method_call ';' {$$ = $1;}
-                | TIF '(' expr ')' THEN block  {Tree *tree = newTree($1, $3, newTree($5, $6, NULL)); $$ = tree;}
-                | TIF '(' expr ')' THEN block TELSE block {$$ = newTree($1, $3, newTree(newData(T_YYUNDEF, NO_TYPE, -1, "body-if-else"), newTree($5, $6, NULL), newTree($7, $8, NULL)));}
-                | TWHILE '(' expr ')' block {$$ = newTree($1, $3, $5);}
-                | TRET expr ';' {$$ = newTree(newData(T_RET, -1, -1, "RET WITH VALUE"), $2, NULL);}
-                | TRET ';' {$$ = newTree(newData(T_RET, -1, -1, "RET WITHOUT VALUE"), NULL, NULL);}
-                | ';' {$$ = NULL;}
-                | block {$$ = $1;}
-                ;
-method_call: id '('exprs')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, $3, NULL); setCurrentFunction($1->info->name, $3);} //TODO: preguntar por orden
-            | id '(' ')' {TData* data = newData(T_METHODCALL, NO_TYPE, -1, $1->info->name); $$ = newTree(data, NULL, NULL); setCurrentFunction($1->info->name, NULL);}
-    ;
-exprs: exprs ',' expr {TData* data = newData(T_EXPRS, NO_TYPE, -1, "exprs"); $$ = newTree(data, $1, $3);}
-    | expr {$$ = $1;}
-    ;
+list_sents:                                     {$$ = NULL;}
+          |list_sents sentencia                 {char * name = "SENTENCIA"; $$ = createTreeWhitSymbol(name,SENTEN,blockNum,yylineno,$1, $2);}
+          ;
 
-expr: method_call {$$ = $1;}
-    | literal {$$ = $1;}
-    | expr TMAS expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TMENOS expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TDIV expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TMULT expr   {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TAND expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, BOOL); $1->info = checkForID($1, BOOL);}
-    | expr TOR expr     {$$ = newTree($2, $1, $3); $3->info = checkForID($3, BOOL); $1->info = checkForID($1, BOOL);}
-    | expr TMENOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TMAYOR expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TMOD expr    {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | expr TIGUAL expr  {$$ = newTree($2, $1, $3); $3->info = checkForID($3, INTEGER); $1->info = checkForID($1, INTEGER);}
-    | id {$$ = $1; if((doesExist(table, $1->info->name) == -1) && (doesExist(parameters, $1->info->name) == -1)) {perror("no declarated var\n"); exit(1);} }
-    | TMENOS expr %prec UMINUS  {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = findVariable(table, $2->info->name, INTEGER); if(!$2->info) {perror("no declarated var\n"); exit(1);}}}
-    | TNEG expr %prec UMINUS {$$ = newTree($1, $2, NULL); if($2->info->token == TID) {$2->info = findVariable(table, $2->info->name, BOOL); if(!$2->info) {perror("no declarated var\n"); exit(1);}}}
-    | '(' expr ')' {$$ = $2;}   
-    ;
+block: TLLAVE_OP list_decls list_sents TLLAVE_CL  { char *name1 = "BLOCK_FIN"; struct AST*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
+                                                    char *name2 = "BLOCK_INTERNO"; struct AST*aux2 = createTreeWhitSymbol(name2,OTHERS,blockNum,yylineno,$2, $3);
+                                                    char *name = "BLOCK"; $$ = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,aux2, aux); }
+     | TLLAVE_OP list_sents TLLAVE_CL             { char *name1 = "BLOCK_FIN"; struct AST*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
+                                                    char *name = "BLOCK"; $$ = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,$2, aux); }
+     ;
 
-literal: boolValue {$$ = $1;}
-        | INTV  {$$ = newTree($1, NULL, NULL); $$->info->type = INTEGER;}
-        ;
-boolValue: TR   {$$ = newTree($1, NULL, NULL); $$->info->value = 1; $$->info->type = BOOL;}
-         | FAL  {$$ = newTree($1, NULL, NULL); $$->info->value = 0; $$->info->type = BOOL;}
+sentencia: asignacion                               {$$ = $1;}
+         | retorno                                  {$$ = $1;}
+         | if_else                                  {$$ = $1;}
+         | while                                    {$$ = $1;}
+         | call_func ';'                            {$$ = $1;}
          ;
-id: TID     {$$ = newTree($1, NULL, NULL);}
+
+asignacion: ID ASIGNACION expr ';' {char * name = $1->varname;struct AST* aux3 = createTreeWhitSymbol(name,EID,blockNum,yylineno,NULL, NULL);
+                                    char * nameAsig = "asignacion";$$ = createTreeWhitSymbol(nameAsig,ASIG,1,yylineno,aux3, $3);}
+          ;
+
+call_func : ID TPAR_OP argumento TPAR_CL {char * name = $1->varname;struct AST* aux3 = createTreeWhitSymbol(name,EFUNC,blockNum,yylineno,NULL, NULL);
+                                    char * nameCall = "LLAMADA_FUNC";$$ = createTreeWhitSymbol(nameCall,CALL_F,blockNum,yylineno,aux3, $3);}
+          ;
+
+declaracion: TYPE_INT ID ';'  {char * name = $2->varname; $$ = createTreeWhitSymbol(name,VARINT,blockNum,yylineno,NULL, NULL);}
+           | TYPE_BOOL ID ';' {char * name = $2->varname;$$ = createTreeWhitSymbol(name,VARBOOL,blockNum,yylineno,NULL, NULL);}
+           ;
+
+
+argumento:                         {$$ = NULL;}
+         | expr                    {$$ = $1;}
+         | argumento ',' expr      {char * name = "arguments"; $$ = createTreeWhitSymbol(name,ARGS, blockNum, yylineno, $1, $3);}
+         ;
+
+
+parametros:                                 {$$ = NULL;}
+          | dec_parametro                   {$$ = $1;}
+          | dec_parametro ',' parametros    {char * name = "PARAMETROS"; $$ = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,$1, $3);}
+          ;
+
+dec_parametro : TYPE_INT ID  {char * name = $2->varname; $$ = createTreeWhitSymbol(name,PARAMINT,blockNum,yylineno,NULL, NULL);}
+              | TYPE_BOOL ID  {char * name = $2->varname;$$ = createTreeWhitSymbol(name,PARAMBOOL,blockNum,yylineno,NULL, NULL);}
+              ;
+
+
+
+list_func: declare_funcion                  {char * name = "LIS_FUNCION";$$ = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$1, NULL);}                //modificar esto
+         | list_func declare_funcion        {char * name = "LIS_FUNCION";$$ = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$1, $2);}                //modificar esto
+         ;
+
+declare_funcion: TYPE_INT ID TPAR_OP parametros TPAR_CL block           { char * nameAux = $2->varname; $$ = createTreeWhitSymbol(nameAux, RETINT, blockNum, yylineno, $4, $6);}
+               | TYPE_BOOL ID TPAR_OP parametros TPAR_CL block          { char * nameAux = $2->varname; $$ = createTreeWhitSymbol(nameAux, RETBOL, blockNum, yylineno, $4, $6);}
+               | TYPE_VOID ID TPAR_OP parametros TPAR_CL block          { char * nameAux = $2->varname; $$ = createTreeWhitSymbol(nameAux, RETVOID, blockNum, yylineno, $4, $6);}
+               | TYPE_INT ID TPAR_OP parametros TPAR_CL EXTERN ';'      { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTINT,blockNum-1,yylineno,$4, NULL);}
+               | TYPE_BOOL ID TPAR_OP parametros TPAR_CL EXTERN ';'     { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTBOL,blockNum-1,yylineno,$4, NULL);}
+               | TYPE_VOID ID TPAR_OP parametros TPAR_CL EXTERN ';'     { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTVOID,blockNum-1,yylineno,$4, NULL);}
+               ;
+
+
+expr: valor                     {$$ = $1;}
+    | call_func                 {$$ = $1;}
+    | expr TMAS expr            {char * name = "+"; $$ = createTreeWhitSymbol(name,SUMA,blockNum,yylineno,$1, $3);}
+    | expr TMENOS expr          {char * name = "-"; $$ = createTreeWhitSymbol(name,RESTA,blockNum,yylineno,$1, $3);}
+    | expr TPOR expr            {char * name = "*"; $$ = createTreeWhitSymbol(name,PROD,blockNum,yylineno,$1, $3);}
+    | expr TDIVISION expr       {char * name = "/"; $$ = createTreeWhitSymbol(name,EDIV,blockNum,yylineno,$1, $3);}
+    | expr TRESTO expr          {char * name = "%"; $$ = createTreeWhitSymbol(name,ERESTO,blockNum,yylineno,$1, $3);}
+    | expr MAYORQUE expr        {char * name = ">"; $$ = createTreeWhitSymbol(name,EMAYORQUE,blockNum,yylineno,$1, $3);}
+    | expr MENORQUE expr        {char * name = "<"; $$ = createTreeWhitSymbol(name,EMENORQUE,blockNum,yylineno,$1, $3);}
+    | expr EQ expr              {char * name = "=="; $$ = createTreeWhitSymbol(name,EEQ,blockNum,yylineno,$1, $3);}
+    | expr AND expr             {char * name = "&&"; $$ = createTreeWhitSymbol(name,EAND,blockNum,yylineno,$1, $3);}
+    | expr OR expr              {char * name = "||"; $$ = createTreeWhitSymbol(name,EOR,blockNum,yylineno,$1, $3);}
+    | NOT expr                  {char * name = "!"; $$ = createTreeWhitSymbol(name,ENOT,blockNum,yylineno,$2, NULL);}
+    | TPAR_OP expr TPAR_CL      {$$ = $2;}
     ;
-ttype: TINT     {$$ = newTree($1, NULL, NULL); $$->info->type = INTEGER;}
-    | TBOOL     {$$ = newTree($1, NULL, NULL); $$->info->type = BOOL;}
-    | TVOID     {$$ = newTree($1, NULL, NULL); $$->info->type = VOID;}
-    ;
+
+
+valor: INT                      {$$ = createTree($1, NULL, NULL);}
+     | ID                       {$$ = createTree($1, NULL, NULL);}
+     | TMENOS INT               {int len = strlen($2->varname); char* newVarname = (char*)malloc(len + 2);
+                                 newVarname[0] = '-'; strcpy(newVarname + 1, $2->varname);
+                                 $2->varname = newVarname;
+                                 $2->value = $2->value * - 1; $$ = createTree($2, NULL, NULL);}
+     | TTRUE                    {$$ = createTree($1, NULL, NULL);}
+     | TFALSE                   {$$ = createTree($1, NULL, NULL);}
+     ;
+
+retorno: RETURN expr ';' {char * name = "return";$$ = createTreeWhitSymbol(name,ERETURN,blockNum,yylineno,$2, NULL);}
+       ;
+
+if_else: IF TPAR_OP expr TPAR_CL THEN block {char * name = "if_then"; $$ = createTreeWhitSymbol(name,EIF,blockNum,yylineno,$3, $6);}
+       | IF TPAR_OP expr TPAR_CL THEN block ELSE block { char * name = "then"; char * name2 = "else";
+                                                         struct AST* aux_else = createTreeWhitSymbol(name2,EELSE,blockNum,yylineno,$8, NULL);
+                                                         struct AST* aux_then = createTreeWhitSymbol(name,ETHEN,blockNum,yylineno,$6, aux_else);
+                                                         char * name3 = "if_else"; $$ = createTreeWhitSymbol(name3,EIF,blockNum,yylineno,$3, aux_then);}
+       ;
+
+while: WHILE TPAR_OP expr TPAR_CL block {char * name = "while"; $$ = createTreeWhitSymbol(name,EWHILE,blockNum,yylineno,$3, $5);}
+     ;
+
+%%
+
+void compilador(struct AST* ar){
+    printDot(ar,"output/Arbol.dot");
+    createTable(ar);
+    retError();
+    if(getError()) {
+       elimArbol(ar);
+       exit(1);
+    }
+    generateThreeDir(ar);
+    printAsembler();
+    generateAssembler();
+    deleteInstructions();
+    elimArbol(ar);
+}
+
+struct AST* createTreeWhitSymbol(char * name,enum TYPES type,int size, int line, struct AST *l, struct AST *r){
+    struct Tsymbol* aux = CreateSymbol(name,type,0,yylineno);
+    return createTree(aux,l,r);
+}
+
