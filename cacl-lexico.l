@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "include/tree.h"
+#include "include/symbols_table.h"
+#include "calc-sintaxis.tab.h"
 
 int yyparse();
 void yyerror();
