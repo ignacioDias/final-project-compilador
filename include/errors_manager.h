@@ -3,8 +3,8 @@
 #include "tree.h"
 #include "symbols_table.h"
 
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifndef ERRORS_MANAGER_H
+#define ERRORS_MANAGER_H
 
 void errorAsig(Tree *ar, bool* err);
 void errorNot(Tree* ar, bool* err);
