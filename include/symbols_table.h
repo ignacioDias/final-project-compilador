@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#ifndef SYMBOL_H
-#define SYMBOL_H
+#ifndef SYMBOLS_TABLE_H
+#define SYMBOLS_TABLE_H
 typedef enum TOKENS {
     VAR,
     EMAIN,
@@ -65,9 +65,6 @@ typedef struct TData {
     struct TData *table;
 } TData;
 
-struct TData *Lookup(char * name);  
-void Install(TData *symbol);  
-void DeleteList();
 void prinTable();
 TData* CreateSymbol(char *name, TOKENS token, int size, int line);
 void setValue(TData* symbol, int value);
