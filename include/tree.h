@@ -15,7 +15,6 @@ typedef struct BinaryTree {
 Tree* createTree(TData* symbol, Tree *l, Tree *r);
 
 void showTreeDot(Tree* tree,FILE* file);
-void printDot(Tree* tree, const char* filename);
 void elimArbol(Tree* tree);
 
 void createTable(Tree* tree);

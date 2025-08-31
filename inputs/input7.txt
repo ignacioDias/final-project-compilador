@@ -1,5 +1,4 @@
 program {
-    integer z = 2;
     integer main() {
         integer c = 2;
     }

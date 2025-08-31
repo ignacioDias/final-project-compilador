@@ -1,27 +1,28 @@
-#ifndef ASSEMBLYGENERATOR_H
-#define ASSEMBLYGENERATOR_H
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "symbols_table.h"
 #include "pseudo_assembly.h"
-#include <stdio.h>
-#include <string.h>  
-#include <stdint.h>
-// Declaración de variables globales
-extern int globalContext; //0 significa contexto global
-extern AssemblyList* globalVariables; // Las variables globales no pueden ser dinámicas
-extern AssemblyList* linesOfCode;
 
-// Prototipos de funciones
-void intialize();
-void identifyGlobal(AssemblyList *pseudoProgram);
-void insertGlobal(Triple *global);
-void generateAssembly(char* fileName);
-void generateDeclaration(AssemblyList *node, char* fileName);
-char* formatTripleForDeclarations(const Triple *triple);
-int isAnOperation(Token token);
-void generateFunction(AssemblyList *node, char* fileName);
-AssemblyList* getFunction(AssemblyList *node);
-void formatBodyOfFunction(AssemblyList *node, char* fileName);
-void writeFile(char* fileName, char* text);
+#ifndef ASSEMBLY_GENERATOR_H
+#define ASSEMBLY_GENERATOR_H
 
-#endif // ASSEMBLY_GENERATOR_H
+void createFile();
+void createWriteASM(PseudoAssembly* instruction);
+void writeAsign(PseudoAssembly* instruction);
+void writeReturn(PseudoAssembly* instruction);
+void writeFunc(PseudoAssembly* instruction);
+void writeOperation(TData* op1, TData* op2, TData* final, ASM tag);
+void writeBooleanOp(TData* op1, TData* op2, TData* final, ASM tag);
+void writeComparation(TData* op1, TData* op2, TData* final, ASM tag);
+
+void writeVarGlobal(PseudoAssembly* instruction);
+void writeIFF(PseudoAssembly* instruction);
+void writeLabel(PseudoAssembly* instruction);
+void writeJump(PseudoAssembly* instruction);
+void writeLoadParam(PseudoAssembly* instruction, int cantParam);
+void writeEndFunc(PseudoAssembly* instruction);
+void writeLoadParamInFunc(PseudoAssembly* instruction);
+void writeCallFunc(PseudoAssembly* instruction);
+#endif

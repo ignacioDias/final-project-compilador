@@ -6,14 +6,14 @@
 #ifndef ERRORS_MANAGER_H
 #define ERRORS_MANAGER_H
 
-void errorAsig(Tree *ar, bool* err);
+void errorAsign(Tree *ar, bool* err);
 void errorNot(Tree* ar, bool* err);
-void errorCond(Tree *ar, bool* err);
-void errorOpera(Tree *ar, TOKENS type, bool* err);
-void errorRet(Tree* ar, TOKENS type, bool* err);
-void evaluate_op_condiciones(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
-void evaluate_op_booleanos(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
-void evaluate_op_aritmeticos(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
+void errorCondition(Tree *ar, bool* err);
+void errorOperation(Tree *ar, TOKENS type, bool* err);
+void errorReturn(Tree* ar, TOKENS type, bool* err);
+void evaluate_op_cond(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
+void evaluate_op_booleans(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
+void evaluate_op_aritmetics(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
 
 bool isVarCompatibleASIGN (TOKENS tipoIzq, TOKENS tipoDer);
 

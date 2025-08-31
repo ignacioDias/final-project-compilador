@@ -1,253 +1,539 @@
-#include "../include/tree.h"
-#include "../include/symbols_table.h"
 #include "../include/pseudo_assembly.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "../include/assembly_generator.h"
 #include <string.h>
 
-int currentLabel = 1;
-LSE *visitedNodesForDeclaration;
-void handleBinaryOperation(AssemblyList **program, TData* value1, TData* value2, Operation op, TData* temporary) {
-    Triple *newTriple = (Triple*)malloc(sizeof(Triple));
-    newTriple->firstOperand = value1;
-    newTriple->secondOperand = value2;
-    newTriple->op = op;
-    newTriple->temporary = temporary;
-    insertNode(program, newTriple);
+//para paramteros que tienen mas de 6
+PseudoAssembly* ParamsMayorSeis = NULL;
+PseudoAssembly* instructions = NULL;
+
+int labID = 1;
+int paramReq  = 0;
+
+void createInstallSequence(ASM tag, TData* op1, TData* op2, TData* result){
+    PseudoAssembly* sequense = (PseudoAssembly*)malloc(sizeof(PseudoAssembly));
+    sequense->tag = tag;
+    sequense->op1 = op1;
+    sequense->op2 = op2;
+    sequense->result = result;
+    sequense->next = instructions;
+    instructions = sequense;
 }
-void insertNode(AssemblyList **program, Triple *triple) {
-    if(!(*program)) {
-        *program = (AssemblyList*)malloc(sizeof(AssemblyList));
-        (*program)->info = triple;
-    } else {
-        AssemblyList *newNode = (AssemblyList*)malloc(sizeof(AssemblyList));
-        newNode->info = triple;
-        newNode->next = *program;
-        *program = newNode;
-    }
+
+void operComparate(TOKENS tag,TData* op1, TData* op2, TData* res){
+    TData *auxLeft = LookupVar(op1->varname);
+    TData *auxRigth = LookupVar(op2->varname);
+    switch(tag){
+        case  T_GREATER_THAN:
+            createInstallSequence(T_GREATER,op1, op2,res);
+            break;
+        case  T_LESS_THAN:
+            createInstallSequence(T_LESS,op1, op2, res);
+            break;
+        case  EEQ:
+            createInstallSequence(T_EQUAL,op1,  op2, res);
+            break;
+        }
 }
-void generatePseudoAssembly(AssemblyList **program, Tree *tree) {
-    if(!tree)
-        return;
-    switch(tree->info->token) {
-        case T_RET:
-            if(tree->hi) {
-                generatePseudoAssembly(program, tree->hi);
-                handleBinaryOperation(program, NULL, NULL, RET, tree->hi->info); // RETURN _  _  RET_VALUE
-            } else
-                handleBinaryOperation(program, NULL, NULL, RET, NULL); // RETURN _  _  _ // return;
+
+void operBoolean(TOKENS tag,TData* op1, TData* op2, TData* res){
+    TData *auxLeft = LookupVar(op1->varname);
+    TData *auxRigth = LookupVar(op2->varname);
+    switch(tag){
+        case  EAND:
+            createInstallSequence(T_AND,op1,  op2, res);
             break;
-        case T_MENOR:
-            tree->info->value = tree->hi->info->value < tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOR, tree->info);
+        case  EOR:
+            createInstallSequence(T_OR,op1, op2, res);
             break;
-        case T_MAYOR:
-            tree->info->value = tree->hi->info->value > tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, MAYOR, tree->info);
-            break;
-        case T_IGUAL:
-            tree->info->value = tree->hi->info->value == tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, IGUAL, tree->info);
-            break;
-        case T_MENOS:
-            if(tree->hd) {
-                tree->info->value = tree->hi->info->value - tree->hd->info->value;
-                handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOS, tree->info);
-            } else {
-                handleBinaryOperation(program, tree->hi->info, NULL, MENOS, tree->info);
-            }
-            break;
-        case T_MAS:
-            tree->info->value = tree->hi->info->value + tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, SUMA, tree->info);
-            break;
-        case T_MULT:
-            tree->info->value = tree->hi->info->value * tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, MULT, tree->info);
-            break;
-        case T_DIV:
-        case T_MOD:
-            if(tree->hd->info->value == 0) {
-                perror("Error: Division by zero");
-                exit(1);
-            }
-            if(tree->info->token == T_DIV) {
-                tree->info->value = tree->hi->info->value / tree->hd->info->value;
-            } else {
-                tree->info->value = tree->hi->info->value % tree->hd->info->value;
-            }
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, tree->info->token, tree->info);
-            break;
-        case T_OR:
-            tree->info->value = tree->hi->info->value || tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, OR, tree->info);
-            break;
-        case T_NEG:
-            generatePseudoAssembly(program, tree->hi);
-            tree->info->value = !tree->hi->info->value;
-            handleBinaryOperation(program, tree->hi->info, NULL, NEG, tree->info);
-            break;
-        case T_AND:
-            tree->info->value = tree->hi->info->value && tree->hd->info->value;
-            handleBinaryOperation(program, tree->hi->info, tree->hd->info, MENOR, tree->info);
-            break;
-        case T_WHILE:
-            handleWhile(program, tree);
-            break;
-        case T_IF:
-            handleIf(program, tree);
-            break;
-        case T_FUNCTION:
-            handleFunctionDeclaration(program, tree);
-            break;
-        case T_METHODS:
-            generatePseudoAssembly(program, tree->hd);
-            generatePseudoAssembly(program, tree->hi);
-            break;
-        case T_METHODCALL:
-            handleFunctionCall(program, tree);
-            break;
-        case T_ASIGN:
-            generatePseudoAssembly(program, tree->hi);
-            generatePseudoAssembly(program, tree->hd);
-            handleBinaryOperation(program, tree->hd->info, NULL, ASIGN, tree->hi->info);
-            break;
-        case T_DECL:
-            generatePseudoAssembly(program, tree->hi);
-            generatePseudoAssembly(program, tree->hd);
-            handleBinaryOperation(program, 0, NULL, DECL, tree->hd->info);
-            break;
-        default:
-            generatePseudoAssembly(program, tree->hi);
-            generatePseudoAssembly(program, tree->hd);
-            break;
-    }
-}    
-void handleFunctionDeclaration(AssemblyList **program, Tree *tree) {
-    if(tree->hd->info->token == T_EXTERN) {
-        return;
-    }
-    handleBinaryOperation(program, NULL, NULL, FUN_DECL, tree->info); //FUN_DECL _ _ NAME
-    handleParamsDefinition(program, tree->hi);
-    generatePseudoAssembly(program, tree->hd);
-    handleBinaryOperation(program, NULL, NULL, END_FUNC, tree->info); // END_FUN _ _ NAME
-}
-void handleParamsDefinition(AssemblyList **program, Tree *tree) {
-    if(!tree)
-        return;
-    if(tree->info->token == T_PARAMS) {
-        handleParamsDefinition(program, tree->hi);
-        handleParamsDefinition(program, tree->hd);
-    } else {
-        handleBinaryOperation(program, NULL, NULL, REQUIRED_PARAM, tree->info);
-    }
-}
-void handleFunctionCall(AssemblyList **program, Tree *tree) {
-    if(tree->hi)
-        handleParamsCall(program, tree->hi);
-    //T_CALL NAME _ CALLED_FUNC
-    handleBinaryOperation(program, tree->info, NULL, FUN_CALL, newData(T_FUNCTION, NO_TYPE, -1, tree->info->name));
-}
-void handleParamsCall(AssemblyList **program, Tree *tree) {
-    if(!tree)
-        return;
-    if(tree->info->token == T_EXPRS) {
-        handleParamsCall(program, tree->hi);
-        handleParamsCall(program, tree->hd);
-    } else {
-        handleBinaryOperation(program, NULL, NULL, LOAD_PARAM, tree->info);
     }
 
 }
-void handleIf(AssemblyList **program, Tree *tree) {
-    TData *iffLabel = generateNewLabel();
-    TData *elseLabel = generateNewLabel();
-    handleBinaryOperation(program, tree->hi->info, NULL, IFF, iffLabel); //IFF cond _ LABEL
-    generatePseudoAssembly(program, tree->hd->hi); //BODY THEN
-    if(tree->hd->hd) {
-        handleBinaryOperation(program, NULL, NULL, JUMP, elseLabel); //JUMP _ _ LABEL2
-        handleBinaryOperation(program, NULL, NULL, LABEL, iffLabel); // TAG_LABEL _ _ LABEL
-        generatePseudoAssembly(program, tree->hd->hd); //CUERPO ELSE
-        handleBinaryOperation(program, NULL, NULL, LABEL, elseLabel); //TAG_LABEL _ _ LABEL2
-    } else {
-        handleBinaryOperation(program, NULL, NULL, LABEL, iffLabel);
+
+void operAritmetic(TOKENS tag,TData* op1, TData* op2, TData* res){
+    TData *auxLeft = LookupVar(op1->varname);
+    TData *auxRigth = LookupVar(op2->varname);
+    switch(tag){
+        case PLUS:
+            createInstallSequence(T_PLUS,op1, op2, res);
+            break;
+        case MINUS:
+            createInstallSequence(T_MINUS,op1, op2, res);
+            break;
+        case PROD:
+            createInstallSequence(T_PROD,op1, op2, res);
+            break;
+        case  EDIV:
+            if (auxRigth != NULL && auxLeft != NULL) {
+                if(auxRigth->value == 0 && auxRigth->token == CONSINT) {
+                    printf("\033[31mNo se puede dividir por 0 \033[0m, linea de error: %d\n", auxLeft->line);
+                    exit(1);
+                }
+            } else if (auxRigth == NULL && auxLeft != NULL) {
+                if(op2->value == 0) {
+                    printf("\033[31mNo se puede dividir por 0 \033[0m, linea de error: %d\n", auxLeft->line);
+                    exit(1);
+                }
+            } else if(auxRigth != NULL && auxLeft == NULL){
+                if(auxRigth->value == 0) {
+                    printf("\033[31mNo se puede dividir por 0 \033[0m, linea de error: %d\n",  op1->line);
+                    exit(1);
+                }
+            } else {
+                if(op2->value == 0) {
+                    printf("\033[31mNo se puede dividir por 0 \033[0m, linea de error: %d\n",  op1->line);
+                    exit(1);
+                }
+            }
+            createInstallSequence(T_DIV,op1, op2, res);
+            break;
+        case EMOD:
+            if (auxRigth != NULL && auxLeft != NULL) {
+                if(auxRigth->value == 0 && auxRigth->token == CONSINT) {
+                    printf("\033[31mNo se puede sacar resto por 0 \033[0m, linea de error: %d\n", auxLeft->line);
+                    exit(1);
+                }
+            } else if (auxRigth == NULL && auxLeft != NULL) {
+                if(op2->value == 0) {
+                    printf("\033[31mNo se puede sacar resto por 0 \033[0m, linea de error: %d\n", auxLeft->line);
+                    exit(1);
+                }
+            } else if(auxRigth != NULL && auxLeft == NULL){
+                if(auxRigth->value == 0) {
+                    printf("\033[31mNo se puede sacar resto por 0 \033[0m, linea de error: %d\n",  op1->line);
+                    exit(1);
+                }
+            } else {
+                if(op2->value == 0) {
+                    printf("\033[31mNo se puede sacar resto por 0 \033[0m, linea de error: %d\n",  op1->line);
+                    exit(1);
+                }
+            }
+            createInstallSequence(T_MOD,op1, op2, res);
+            break;
+        }
+}
+
+void traslate(TOKENS tag, Tree* op1, Tree* op2, Tree* res) {
+    TData * op1Symbol = op1->symbol;
+    TData * op2Symbol = NULL;
+    TData * resSymbol = res->symbol;
+
+    TData *auxRigth = NULL;
+    TData *auxLeft = LookupVar(op1->symbol->varname);
+
+    if(op2 != NULL){
+        op2Symbol = op2->symbol;
+        auxRigth = LookupVar(op2->symbol->varname);
+    }
+
+    switch(tag){
+        case ASIGN:
+            if(auxRigth){
+                op1Symbol->value = auxRigth->value;
+                resSymbol = op1Symbol;
+            }else {
+                op1Symbol->value = op2Symbol->value;
+                resSymbol = op1Symbol;
+            }
+            createInstallSequence(T_ASIGN,op1Symbol,op2Symbol,resSymbol);
+            break;
+        case PLUS: case MINUS: case PROD: case EDIV: case EMOD:
+            operAritmetic(tag,op1Symbol,op2Symbol,resSymbol);
+            break;
+        case  EAND: case  EOR:
+            operBoolean(tag,op1Symbol,op2Symbol,resSymbol);
+            break;
+        case  T_GREATER_THAN: case  T_LESS_THAN: case  EEQ:
+            operComparate(tag,op1Symbol,op2Symbol,resSymbol);
+            break;
+        case EWHILE:
+            createInstallSequence(T_WHILE,op1Symbol,op2Symbol,resSymbol);
+            break;
+        case EIF:
+            createInstallSequence(T_IF,op1Symbol,op2Symbol,resSymbol);
+            break;
+        case ENOT:
+            createInstallSequence(T_NOT,op1Symbol,op2Symbol,resSymbol);
+            break;
     }
 }
-void handleWhile(AssemblyList **program, Tree *tree) {
-    TData *firstLabel = generateNewLabel();
-    TData *falseWhileLabel = generateNewLabel();
-    handleBinaryOperation(program, NULL, NULL, LABEL, firstLabel); //LABEL USED FOR ITERATING
-    handleBinaryOperation(program, tree->hi->info, NULL, WHILEF, falseWhileLabel);  //CHECK WHILE CONDITION, IF FALSE, JUMP TO END
-    generatePseudoAssembly(program, tree->hd); //BODY OF WHILE
-    handleBinaryOperation(program, NULL, NULL, JUMP, firstLabel); //JUMP TO THE FIRST LABEL, ITERATION
-    handleBinaryOperation(program, NULL, NULL, LABEL, falseWhileLabel); //LABEL USED FOR FALSE CONDITION
-}
-TData *generateNewLabel() {
-    return newData(T_YYUNDEF, NO_TYPE, -1, generateNewIDForLabel());
-}
-char* generateNewIDForLabel() {
-    // Determinar el tamaño necesario para el string resultante
-    // "L" + dígitos de currentLabel + '\0'
-    int size = snprintf(NULL, 0, "L%d", currentLabel) + 1;
-    // Reservar memoria para el string resultante
-    char* result = (char*)malloc(size);
-    // Generar el string en la memoria reservada
-    if (result != NULL) {
-        snprintf(result, size, "L%d", currentLabel);
+
+TData *LookupVar(char * name){
+  PseudoAssembly* head = instructions;
+  if(name == NULL) {
+    return NULL;
+  }
+  while(head != NULL) {
+    if(strcmp(name, head->result->varname)==0){
+      return head->result;
     }
-    currentLabel++;
-    return result; 
+    head = head->next;
+  }
+  return NULL;
 }
-void printAssemblyList(AssemblyList **program) {
-    if (!(*program)) {
-        printf("PSEUDO ASSEMBLY NULL\n");
+
+void generateThreeDir(Tree* tree) {
+    generateCode(tree);
+    invertASM(&instructions);
+}
+
+void generateVarGlobals(){
+    TData * aux = getTable();
+    while(aux != NULL) {
+        TData * recorrert = aux->table;
+        while(recorrert != NULL) {
+            if(recorrert->token == VARINT || recorrert->token == VARBOOL ){
+                char * name1 = "_";
+                createInstallSequence(T_GLOBAL, CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0), recorrert);
+            }
+        recorrert = recorrert->next;
+        }
+        aux = aux->next;
+    }
+}
+
+void generateCode(Tree* tree) {
+    TOKENS tipoActual = tree->symbol->token;
+    switch(tipoActual){
+        case ERETURN:
+            handleGenerateOpReturn(tree);
+            createRetTag(tree->left->symbol);
+            break;
+        case RETINT: case RETBOL: case RETVOID:
+            if (strcmp((tree->symbol)->varname,"main") == 0) {
+                handleGenerateMain(tree);
+                createSentenThreeDir(T_END_FUN, tree->symbol);
+            } else {
+                handleGenerateFunc(tree);
+                paramReq = 0;
+                createSentenThreeDir(T_END_FUN, tree->symbol);
+            }
+            break;
+        case CALL_F:
+            has_Operation(tree->right);
+            has_Call_Func(tree->right);
+            generateLoadParams(tree->right);
+            createCall_Func(tree->left->symbol, tree->symbol);
+            break;
+        case EIF:
+            handleGenerateIF(tree);
+            break;
+        case EWHILE:
+            handleGenerateWhile(tree);
+            break;
+        default:
+            if(strcmp((tree->symbol)->varname,"PROGRAM") == 0){
+                generateVarGlobals();
+            }
+            if ((tree->right != NULL && tree->left != NULL)) {
+                handleGenerateBinaryOperation(tree);
+            }else if (tree->left != NULL) {
+                handleUnaryOp(tree);
+            }else if (tree->right != NULL) {
+                generateCode(tree->right);
+            }
+            break;
+    }
+}
+
+void handleGenerateOpReturn(Tree* tree) {
+    if (tree->left != NULL)
+        generateCode(tree->left);
+    if (tree->right != NULL)
+        generateCode(tree->right);
+}
+
+void handleGenerateMain(Tree* tree){
+    createSentenThreeDir(T_FUNC,tree->symbol);
+    if (tree->left != NULL)
+        generateCode(tree->left);
+    if (tree->right != NULL)
+        generateCode(tree->right);
+    if(tree->symbol->token == RETVOID){
+        char * name1 = " ";
+        createInstallSequence(T_RETURN, CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0), CreateSymbol(name1,OTHERS,0,0));
+    }
+ }
+
+void has_Operation(Tree* tree){
+    if(tree == NULL) return;
+
+    if(tree->left)
+        has_Operation(tree->left);
+    if(tree->right)
+        has_Operation(tree->right);
+    TOKENS tipoActual = tree->symbol->token;
+    bool operArit = (tipoActual == PLUS || tipoActual == MINUS || tipoActual == PROD || tipoActual == EDIV || tipoActual == EMOD);
+    bool operBool = (tipoActual == EOR || tipoActual == EAND || tipoActual == ENOT );
+    bool operCondi = (tipoActual == T_GREATER_THAN || tipoActual == T_LESS_THAN || tipoActual == EEQ);
+    if(operArit || operBool || operCondi){
+        generateCode(tree);
+    }
+}
+
+void has_Call_Func(Tree* tree) {
+    if(tree == NULL) return;
+
+    if(tree->left)
+        has_Call_Func(tree->left);
+
+    if(tree->right)
+        has_Call_Func(tree->right);
+
+    if (tree->symbol->token == CALL_F) {
+        generateLoadParams(tree->right);
+        createCall_Func(
+            tree->left->symbol, tree->symbol);
+    }
+}
+
+void generateLoadParams(Tree* tree) {
+    if(tree == NULL) return;
+
+    TOKENS tipoActual = tree->symbol->token;
+
+    if (tipoActual != ARGS) {
+        createTagLoad(tree->symbol);
+    }
+    bool notOperArit = (tipoActual != PLUS && tipoActual != MINUS && tipoActual != PROD && tipoActual != EDIV && tipoActual != EMOD);
+    bool notOperBool = (tipoActual != EOR && tipoActual != EAND && tipoActual != ENOT );
+    bool notOperCondi = (tipoActual != T_GREATER_THAN && tipoActual != T_LESS_THAN && tipoActual != EEQ);
+    bool ifNotType = (tipoActual != CALL_F && (notOperArit && notOperBool && notOperCondi));
+    if(ifNotType) {
+        if(tree->left != NULL){
+            generateLoadParams(tree->left);
+        }
+        if(tree->right != NULL){
+            generateLoadParams(tree->right);
+        }
+    }
+
+}
+
+void createTagLoad(TData* symbol) {
+    char * name1 = "_";
+    createInstallSequence(T_LOAD_PARAM, CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0), symbol);
+}
+
+void concatLists(PseudoAssembly *list1, PseudoAssembly *list2) {
+    if(!list2) {
         return;
     }
-    printAssemblyListReverse(*program); // Llamada inicial
+    PseudoAssembly * actual = list2;
+    while (actual->next != NULL) {
+        actual = actual->next;
+    }
+    actual->next = list1;
+    instructions = list2;
 }
-void printAssemblyListReverse(AssemblyList *current) {
-    if (current == NULL) {
-        return; // Caso base: llegamos al final de la lista
+
+void handleGenerateFunc(Tree* tree){
+    createSentenThreeDir(T_FUNC,tree->symbol);
+    if(tree->left != NULL) {
+        requireParams(tree->left);
+        invertASM(&ParamsMayorSeis);
+        concatLists(instructions,ParamsMayorSeis);
+        ParamsMayorSeis = NULL;
     }
-    // Llamada recursiva al siguiente nodo
-    printAssemblyListReverse(current->next);
-    // Imprimir el nodo actual después de retornar de la recursión
-    if (!current->info) {
-        printf("Invalid instruction: NULL info\n");
-        return;
+    if(tree->right != NULL) {
+        generateCode(tree->right);
     }
-    Triple *triple = current->info;
-    printf("%s %s %s %s\n",
-           operationToString(triple->op),
-           triple->firstOperand ? (triple->firstOperand->name ? triple->firstOperand->name : "_") : "_",
-           triple->secondOperand ? (triple->secondOperand->name ? triple->secondOperand->name : "_") : "_",
-           triple->temporary ? (triple->temporary->name ? triple->temporary->name : "_") : "_");
+    if(tree->symbol->token == RETVOID){
+        char * name1 = " ";
+        createInstallSequence(T_RETURN, CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0), CreateSymbol(name1,OTHERS,0,0));
+    }
+ }
+
+
+void requireParams(Tree* tree) {
+    if(tree->symbol->token == PARAMBOOL || tree->symbol->token == PARAMINT){
+        paramReq += 1;
+        createCodRequiredParam(tree->symbol);
+    }
+    if(tree->left)
+        requireParams(tree->left);
+    if(tree->right)
+        requireParams(tree->right);
+ }
+
+ void createCall_Func(TData* nameFunc, TData* tempResult){
+    char * name1 = "_";
+    createInstallSequence(T_CALL, nameFunc,CreateSymbol(name1,OTHERS,0,0), tempResult);
+ }
+
+ void createSentenThreeDir(ASM tag , TData* func){
+    char * name1 = "_";
+    createInstallSequence(tag, CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0), func);
+ }
+
+void handleGenerateIF(Tree* tree) {
+    generateCode(tree->left);
+    PseudoAssembly* IFF = createTagForFalse(T_IFF,  tree->left->symbol);
+    char* labelIFF = (char*) malloc(10 * sizeof(char));
+    strcpy(labelIFF, IFF->result->varname);
+
+    IFF->next = instructions;
+    instructions = IFF;
+
+    TOKENS tipoActual = (tree->symbol)->token;
+    TData* auxLeft = LookupVar(tree->left->symbol->varname);
+
+    if((strcmp((tree->symbol)->varname,"if_then") == 0)){
+        generateCode(tree->right);
+        createAndAppendTagLabel(labelIFF);
+
+    } else if((strcmp((tree->symbol)->varname,"if_else") == 0)){
+        generateCode((tree->right)->left);  //then
+        //create jump
+        PseudoAssembly* jump = createJump();
+        jump->next = instructions;
+        instructions = jump;
+        createAndAppendTagLabel(labelIFF);
+        generateCode((tree->right)->right->left); //else
+        createAndAppendTagLabel(jump->result->varname);
+    }
 }
-const char *operationToString(Operation op) {
-    switch (op) {
-        case MENOR: return "MENOR";
-        case MAYOR: return "MAYOR";
-        case IGUAL: return "IGUAL";
-        case MENOS: return "MENOS";
-        case SUMA: return "SUMA";
-        case MULT: return "MULT";
-        case DIV: return "DIV";
-        case MOD: return "MOD";
-        case OR: return "OR";
-        case AND: return "AND";
-        case NEG: return "NEG";
-        case ASIGN: return "ASIGN";
-        case WHILEF: return "WHILEF";
-        case IFF: return "T_IFF";
-        case LABEL: return "T_LABEL";
-        case JUMP: return "T_JUMP";
-        case RET: return "RET";
-        case FUN_CALL: return "FUN_CALL";
-        case FUN_DECL: return "FUN_DECL";
-        case END_FUNC: return "END_FUNC";
-        case REQUIRED_PARAM: return "REQUIRED_PARAM";
-        case LOAD_PARAM: return "LOAD_PARAM";
-        case DECL: return "DECL";
-        default: return "UNKNOWN";
+
+void handleGenerateWhile(Tree* tree) {
+    PseudoAssembly* jump = createJump();
+    createAndAppendTagLabel(jump->result->varname);
+    generateCode(tree->left);
+    PseudoAssembly* conditionFalse = createTagForFalse(T_WF,  tree->left->symbol);
+    conditionFalse->next = instructions;
+    instructions = conditionFalse;
+    generateCode(tree->right);  
+    jump->next = instructions;
+    instructions = jump;
+    createAndAppendTagLabel(conditionFalse->result->varname);
+}
+
+void handleGenerateBinaryOperation(Tree* tree) {
+    TOKENS tipoActual = (tree->symbol)->token;
+    if (tree->left != NULL) {
+        generateCode(tree->left);
     }
+    if (tree->right != NULL) {
+        generateCode(tree->right);
+    }
+    bool isAsignBool = tipoActual == ASIGN || tipoActual == EAND || tipoActual == EOR || tipoActual == EEQ || tipoActual == T_GREATER_THAN || tipoActual == T_LESS_THAN;
+    bool isAritmet = tipoActual == PLUS || tipoActual == MINUS || tipoActual == PROD || tipoActual == EMOD || tipoActual == EDIV;
+    if (isAsignBool || isAritmet) {
+        traslate(tipoActual, tree->left, tree->right, tree);
+    }
+}
+
+void handleUnaryOp(Tree* tree) {
+    generateCode(tree->left);
+    if ((tree->symbol)->token  == ENOT) {
+        traslate((tree->symbol)->token, tree->left,NULL, tree);
+    }
+}
+
+void invertASM(PseudoAssembly ** list) {
+    PseudoAssembly* prev = NULL;
+    PseudoAssembly* current = *list;
+    PseudoAssembly* next = NULL;
+
+    while (current != NULL) {
+        next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+    }
+    *list = prev;
+}
+void deleteInstructions() {
+    PseudoAssembly* current = instructions;
+    PseudoAssembly* next = NULL;
+
+    while (current != NULL) {
+        next = current->next;
+        if (current->tag == T_IFF) {
+            free(current->op2);
+            free(current->result);
+        } else if (current->tag == T_JUMP || current->tag == T_LABEL) {
+            free(current->op1);
+            free(current->op2);
+            free(current->result);
+        }
+        free(current);
+        current = next;
+    }
+}
+
+void printAsembler() {
+    PseudoAssembly* current = instructions;
+    printf("\nInstructions\n");
+    while (current != NULL) {
+        if (current->op1 && current->op2) {
+            printf("%s %s %s %s\n", tagName[current->tag], current->op1->varname, current->op2->varname, current->result->varname);
+        }else if (!current->op1 && current->op2){
+            printf("%s   %s %s\n", tagName[current->tag], current->op2->varname, current->result->varname);
+        }else if (current->op1 && !current->op2){
+            printf("%s %s   %s\n", tagName[current->tag], current->op1->varname, current->result->varname);
+        }else{
+            printf("%s     %s\n", tagName[current->tag], current->result->varname);
+        }
+        current = current->next;
+    }
+}
+
+PseudoAssembly* createTagForFalse(ASM tag, TData* condition) {
+    PseudoAssembly* sequense = (PseudoAssembly*)malloc(sizeof(PseudoAssembly));
+    sequense->tag = tag;
+    sequense->op1 = condition;
+    char * name1 = "_";
+    sequense->op2 =  CreateSymbol(name1,OTHERS,0,0);
+    char* name = generateNameLabel();
+    sequense->result = CreateSymbol(name,OTHERS,0,0);
+    return sequense;
+}
+
+PseudoAssembly* createJump() {
+    PseudoAssembly* jump = (PseudoAssembly*)malloc(sizeof(PseudoAssembly));
+    jump->tag = T_JUMP;
+    char * name1 = "_";
+    jump->op1 = CreateSymbol(name1,OTHERS,0,0);
+    jump->op2 =  CreateSymbol(name1,OTHERS,0,0);
+    char* name = generateNameLabel();
+    jump->result = CreateSymbol(name,OTHERS,0,0);
+    return jump;
+}
+
+char* generateNameLabel() {
+    char* nameLabel = (char*) malloc(10 * sizeof(char));
+    sprintf(nameLabel, "L%d", labID);
+    labID++;
+    return nameLabel;
+}
+
+void createAndAppendTagLabel(char* nameLabel) {
+    char * name1 = "_";
+    createInstallSequence(T_LABEL,CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0),CreateSymbol(nameLabel,OTHERS,0,0));
+}
+
+void createRetTag(TData* func){
+    char * name1 = " ";
+    createInstallSequence(T_RETURN,CreateSymbol(name1,OTHERS,0,0),CreateSymbol(name1,OTHERS,0,0),func);
+}
+
+void createCodRequiredParam(TData* param){
+    if( paramReq > 6) {
+        PseudoAssembly* sequense = (PseudoAssembly*)malloc(sizeof(PseudoAssembly));
+        sequense->tag = T_REQUIRED_PARAM;
+        char * name1 = " ";
+        sequense->op1 = CreateSymbol(name1,OTHERS,0,0);
+        sequense->op2 =  CreateSymbol(name1,OTHERS,0,0);
+        sequense->result = param;
+        sequense->next = ParamsMayorSeis;
+        ParamsMayorSeis = sequense;
+    }else {
+        char * name1 = " ";
+        createInstallSequence(T_REQUIRED_PARAM,CreateSymbol(name1,OTHERS,0,0), CreateSymbol(name1,OTHERS,0,0), param);
+    }
+}
+
+void generateAssembler() {
+    createFile();
+    createWriteASM(instructions);
 }

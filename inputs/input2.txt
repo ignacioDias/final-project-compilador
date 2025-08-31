@@ -1,8 +1,8 @@
-program{
+program { 
   integer x;
   integer a;
   integer suma(integer a, integer a){
-    return a + b + c;
+    return a + b;
   }
   integer main(){
       if(true) then {

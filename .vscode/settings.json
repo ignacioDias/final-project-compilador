@@ -13,7 +13,12 @@
         "type_traits": "c",
         "utility": "c",
         "stdlib.h": "c",
-        "cstdio": "cpp"
+        "cstdio": "cpp",
+        "stdbool.h": "c",
+        "symbols_table.h": "c",
+        "pseudo_assembly.h": "c",
+        "tree.h": "c",
+        "stdio.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

@@ -1,381 +1,170 @@
-#include "../include/tree.h"
 #include "../include/symbols_table.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+TData *table = NULL;
 
-FunctionsList** functionTable = NULL; 
-Type curretFunctionType = NO_TYPE;
-int inFunction = 0;
-Function* currentFunction = NULL;
+int num = 0;
+int numScope = 0;
 
-int insertElem(SymbolsTable **symbolsTable, TData* elem) {
-    if(getNode((*symbolsTable)->info, elem->name, elem->type)) {
-        return 0;
-    }
-    LSE *aux = (*symbolsTable)->info;
-    LSE* node = (LSE*)malloc(sizeof(LSE));
-    node->info = elem;
-    node->next = aux; 
-    (*symbolsTable)->info = node;
-    return 1;
+struct TData * CreateSymbol(char *name, TOKENS token, int size, int line){
+    TData *newSymbol = (TData *)malloc(sizeof(TData));
+    newSymbol->id=num++;
+    newSymbol->varname = name;
+    newSymbol->token = token;
+    newSymbol->line = line;
+    newSymbol->value = 0;
+    newSymbol->table = NULL;
+    newSymbol->offset = 0;
+    return newSymbol;
 }
 
-int insertLevel(SymbolsTable **symbolsTable, LSE *level) {
-    SymbolsTable* node = (SymbolsTable*)malloc(sizeof(SymbolsTable));
-    node->info = level;
-    node->next = *symbolsTable; 
-    *symbolsTable = node; 
-    return 1;
+struct TData * getTable(){
+    return table;
 }
 
-int setValueToNode(LSE *list, char* name, Type type, int val) {
-    TData* elem = getNode(list, name, type);
-    if(!elem)
-        return 0;
-    elem->value = val;
-    return 1;
+int getScope() {
+  return numScope;
 }
 
-int evalType(Tree* bt) {
-    if(!bt)
-        return 1;
-    switch(bt->info->token) {
-        case T_VOID:
-            return bt->info->type == VOID;
-        case T_ID:
-            return 1;
-            break;
-        case T_INTV:
-        case T_INT:
-            return bt->info->type == INTEGER;
-            break;
-        case T_TRUE:
-        case T_FAL:
-        case T_BOOL:
-            return bt->info->type == BOOL;
-            break;
-        case T_MENOS: 
-            if(bt->hd) {
-                if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
-                    bt->info->type = INTEGER;
-                    return 1;
-                    break;
-                }
-                perror("Type error: integer expected\n");
-                exit(1);
-                return 0;
-            } else {
-                if(evalType(bt->hi) && bt->hi->info->type == INTEGER) {
-                    bt->info->type = INTEGER;
-                    return 1;
-                    break;
-                }
-                perror("Type error: integer expected\n");
-                exit(1);
-                return 0;
-            }
-            break;
-        case T_MOD: 
-        case T_MULT:
-        case T_MAS:
-        case T_DIV: 
-            if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == INTEGER) && (bt->hi->info->type == INTEGER)) {
-                bt->info->type = INTEGER;
-                return 1;
-                break;
-            }
-            perror("Type error: integer expected\n");
-            exit(1);
-            return 0;
-            break;
-        case T_FUNCTION:
-            curretFunctionType = bt->info->type;
-            // if(!insertFunction(&functions, bt->info->type, bt->info->name, bt->hi))
-            //     return 0;
-            if(bt->hd && bt->hi) 
-                return evalType(bt->hi) && evalType(bt->hd);
-            if(bt->hd)
-                return evalType(bt->hd);
-            if(bt->hi)
-                return evalType(bt->hi);
-            curretFunctionType = NO_TYPE;
-            return bt->info->type == VOID;
-        case T_METHODCALL:
-            // return checkFunctionCall(functions, bt->info->name, bt->hi) && evalType(bt->hi);
-            break;
-        case T_AND: 
-        case T_OR: 
-            if(evalType(bt->hi) && evalType(bt->hd) && (bt->hd->info->type == BOOL) && (bt->hi->info->type == BOOL)) {
-                    bt->info->type = BOOL;
-                    return 1;
-            }
-            perror("Type error: integer expected\n");
-            exit(1);
-            return 0;
-            break;
-        case T_NEG:
-            if(evalType(bt->hi) && bt->hi->info->type == BOOL) {
-                    bt->info->type = BOOL;
-                    return 1;
-                }
-                perror("Type error: bool expected\n");
-                exit(1);
-                return 0;
-        case T_MAYOR: 
-        case T_MENOR: 
-        case T_IGUAL: 
-            if(evalType(bt->hi) && evalType(bt->hd) && bt->hd->info->type == bt->hi->info->type) {
-                bt->info->type = BOOL;
-                return 1;
-            }
-            perror("Type error: same type expected in comparator\n");
-            exit(1);
-            return 0;
-            break;
-        case T_RET:
-            if(bt->hi) {
-                if(evalType(bt->hi) && (bt->hi->info->type == curretFunctionType) && (curretFunctionType != VOID) && (curretFunctionType != NO_TYPE)) {
-                    bt->info->type = bt->hi->info->type;
-                    curretFunctionType = NO_TYPE;
-                    return 1;
-                }
-                perror("Type error: wrong return\n");
-                exit(1);
-                return 0;
-            }
-            if(curretFunctionType == VOID) {
-                curretFunctionType = NO_TYPE;
-                return 1;
-            }
-            perror("Type error: return expected\n");
-            exit(1);
-            return 0;
-            break;
-        case T_ASIGN:
-            if(evalType(bt->hi) && evalType(bt->hd) && bt->hi->info->type == bt->hd->info->type) {
-                bt->info->type = bt->hi->info->type;
-                return 1;
-            }
-            perror("Type error: same type expected in assignment\n");
-            exit(1);
-            return 0;
-            break;
-        case T_DECL:
-            if(evalType(bt->hi) && evalType(bt->hd)) {
-                bt->info->type = bt->hi->info->type;
-                return 1;
-            }
-            perror("Declaration error: missing something?\n");
-            exit(1);
-            return 0;
-            break;
-        case T_IF:
-        case T_WHILE:
-            return evalType(bt->hi) && evalType(bt->hd);
-            break;
-        case T_THEN:
-            return evalType(bt->hi);
-            break;
-        case T_ELSE:
-            return evalType(bt->hi);
-            break;
-        case T_PROGRAM:
-            if(bt->hd) {
-                return evalType(bt->hi) && evalType(bt->hd);
-            }
-            return evalType(bt->hi);
-            break;
-        case T_METHODS:
-        case T_PARAMS:
-            return evalType(bt->hi) && evalType(bt->hd);
-            break;
-        case T_PARAM:
-            return evalType(bt->hi);
-            break;
-        default:
-            return 0;
-            break; 
-    }
+//push - instalo en la tabla el scope
+void InstallScope(){
+  char aux[10];
+  char *name = "SCOPE";
+  numScope++;
+  sprintf(aux,"Scope %d",numScope);
+  TData *scope = CreateSymbol(name,OTHERS, 0, 0);
+
+  scope->next =  table;
+  table = scope;
 }
 
-TData *getNode(LSE *level, char* nom, Type type) {
-    LSE *aux = level;
-    while(aux != NULL && aux->info != NULL) {
-        if(type == aux->info->type && strcmp(nom, (aux->info)->name) == 0)
-            break;
-        aux = aux->next;
-    }
-    if(!aux) {
-        return NULL;
-    }
-    return aux->info;
-}
-TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type) {
-    if(inFunction) {
-        if(isParemeter(nom, type)) {
-            return getPramValue(nom, type);
-        }
-    }
-    SymbolsTable *aux = symbolsTable;
-    while(aux != NULL && aux->info != NULL) {
-        TData *currentVar = getNode(aux->info, nom, type);
-        if(currentVar)
-            return currentVar;
-        aux = aux->next;
-    }
+TData *LookupInCurrentLevel(char * name){
+  TData *head = table->table;
+  if(name == NULL) {
     return NULL;
+  }
+  while(head != NULL) {
+    if(strcmp(name, head->varname)==0){
+      return head;
+    }
+    head = head->next;
+  }
+  return NULL;
 }
 
-int doesExist(SymbolsTable *symbolsTable, char *name) {
-    SymbolsTable *aux = symbolsTable;
-    while(aux && aux->info) {
-        LSE* level = aux->info;
-        while(level && level->info) {
-            if(strcmp(level->info->name, name) == 0) {
-                return 1;
-            }
-            level = level->next;
-        }
-        aux = aux->next;
-    }
-    return 0; //not found
-}
-void showLevel(LSE *list) {
-    LSE* aux = list;
-    while(aux != NULL && aux->info != NULL) {
-        printf("\nType: %d, var: %s\n", aux->info->type, aux->info->name);
-        aux = aux->next;
-    }
-}
-void showTable(SymbolsTable *symbolsTable) {
-    SymbolsTable *aux = symbolsTable;
-    while(aux) {
-        showLevel(aux->info);
-        printf("------------------------------\n");
-        aux = aux->next;
-    }
-}
-
-int removeLevel(SymbolsTable **symbolsTable) {
-    (*symbolsTable) = (*symbolsTable)->next;    
-    return 0;
-}
-
-int removeNode(LSE **list, TData *node) {
-
-    LSE *aux = *list;
-    LSE *aux2 = aux;
-    if(aux->info == node) {
-        *list = (*list)->next;
-        return 1;
-    }
-    while(aux) {
-        if(aux->info == node) {
-            aux2->next = aux->next; 
-            return 1;
-        }
-        aux2 = aux;
-        aux = aux->next;
-    }
-    return 0;
-}
-
-int insertFunction(Tree *newFunc) {
-    if(!*functionTable || !newFunc||!newFunc->info)
-        return -1;
-    char *id = newFunc->info->name;
-    Tree *newParams = newFunc->hi;
-    // Buscar función existente
-    FunctionsList *curr = *functionTable;
-    while (curr) {
-        Function *f = curr->currentFunction;
-        if (strcmp(f->id, id) == 0) {            // Ya existe una función con ese nombre
-            // Comparar parámetros
-            ParamsList *existingParams = f->params;
-            ParamsList *incomingParams = treeToParamsList(newParams);
-            if (!compareParams(existingParams, incomingParams)) {
-                fprintf(stderr, "Error: redefinición de %s\n", id);
-                return 0;
-            }
-        }   
-        curr = curr->next;
-    }
-    // No existe: insertar la nueva función
-    Function *newEntry = malloc(sizeof(Function));
-    newEntry->id = strdup(id);
-    newEntry->params = treeToParamsList(newParams);
-
-    FunctionsList *node = malloc(sizeof(FunctionsList));
-    node->currentFunction = newEntry;
-    node->next = *functionTable;
-    *functionTable = node;
-
-    return true;
-}
-
-ParamsList* treeToParamsList(Tree *tree) {
-    if (!tree || !tree->info) 
-        return NULL;
-    if (tree->info->type == T_PARAMS) {
-        ParamsList *leftList = treeToParamsList(tree->hi);
-        ParamsList *rightList = treeToParamsList(tree->hd);
-        // Concatenar listas
-        ParamsList *last = leftList;
-        if (!last) return rightList;
-        while (last->next) last = last->next;
-        last->next = rightList;
-        return leftList;
-    } else if (tree->info->type == T_PARAM) {
-        ParamsList *node = malloc(sizeof(ParamsList));
-        Param *p = malloc(sizeof(Param));
-        p->id = strdup(tree->info->name);
-        p->type = tree->info->type;
-        node->param = p;
-        node->next = NULL;
-        return node;
-    }
+TData *LookupInTableAux(char * name, TData *symTable){
+  TData *head = symTable->table;
+  if(name == NULL) {
     return NULL;
+  }
+  while(head != NULL) {
+    if(strcmp(name, head->varname)==0){
+      return head;
+    }
+    head = head->next;
+  }
+  return NULL;
 }
 
-int compareParams(ParamsList *a, ParamsList *b) {
-    while (a && b) {
-        if (a->param->type != b->param->type) {
-            return 0;
-        }
-        a = a->next;
-        b = b->next;
-    }
-    return a == NULL && b == NULL;
-}
-
-int isParemeter(char* id, Type type) {
-    if(!inFunction) {
-        perror("Illegal call");
-        exit(1);
-    }
-    ParamsList * auxParams = currentFunction->params;
-    while(auxParams) {
-        Param *currentParam = auxParams->param;
-        if(strcmp(currentParam->id, id) == 0 && currentParam->type == type) {
-            return 1;
-        }
-        auxParams = auxParams->next;
-    }
-    return 0;
-
-}
-void setCurrentFunction(char* id, Tree *paremeters) {
-    ParamsList *params = treeToParamsList(paremeters);
-    FunctionsList *aux = functionTable;
-    while(aux && aux->currentFunction) {
-        Function *currentFun = aux->currentFunction;
-        if(strcmp(currentFun->id, id) == 0) {
-            currentFunction->id = id;
-            currentFunction->params = params;
-        }
-        aux = aux->next;
-    }
-    perror("illegal call");
+void InstallInCurrentScope (TData *symbol){
+  TData *head = table;
+  if(LookupInCurrentLevel(symbol->varname) == NULL) {
+    symbol->next =  head->table;
+    head->table = symbol;
+  } else {
+    printf("Simbolo existente, linea de error: %d", symbol->line);
     exit(1);
+  }
+}
+
+void PopScope(){
+  TData* elim = table;
+  table = table -> next;
+  numScope--;
+  free(elim);
+}
+
+void InstallParam (TData *param,TData *tablaFunc){
+  TData *head = tablaFunc;
+  if(LookupInTableAux(param->varname,head) == NULL) {
+    param->next =  head->table;
+    head->table = param;
+  } else {
+    printf("Simbolo existente, linea de error: %d", param->line);
+    exit(1);
+  }
+}
+
+TData *LookupExternVar(char * name) {
+  TData *head = table;
+  if(LookupInTableAux(name,head) == NULL){
+    while(head != NULL) {
+      TData *aux = LookupInTableAux(name, head);
+      if(aux){
+        return aux;
+      }
+      head = head->next;
+    }
+  }
+}
+
+void setValue(TData* symbol, int valor){
+    if(symbol != NULL) {
+      symbol->value = valor;
+    } else {
+        printf("Error: simbolo es NULL\n");
+    }
+}
+
+int* typeParam(TData* symTabla){
+  int index = cantArguments(symTabla);
+  int* types = (int*) malloc(index * sizeof(int));
+  index -= 1;
+  TData *aux = symTabla->table;
+  while(aux != NULL) {
+    if (aux->token == PARAMINT || aux->token == PARAMBOOL) {
+      types[index] = aux->token;
+      index -= 1;
+    }
+    aux = aux->next;
+  }
+  return types;
+}
+
+int cantArguments(TData* symTabla){
+  int cant = 0;
+  TData *aux = symTabla->table;
+  while(aux != NULL) {
+    if (aux->token == PARAMBOOL || aux->token == PARAMINT) {
+      cant += 1;
+    }
+    aux = aux->next;
+  }
+  return cant;
+}
+
+void prinTable(){
+    TData *aux = table;
+    printf("TABLA DE SIMBOLOS\n");
+    printf("| nam   |    typ   | prof | valor \n");
+    while(aux != NULL) {
+        //printf("Func\n");
+        printf("| %s |", aux->varname);
+        printf(" %s |", string[aux->token]);
+        printf(" %d |", aux->offset);
+        printf(" %d |\n", aux->value);
+        if(aux->table != NULL) {
+            TData *aux1 = aux->table;
+            while(aux1 != NULL) {
+              printf("| %s |", aux1->varname);
+              printf(" %s |", string[aux1->token]);
+              printf(" %d |", aux1->offset);
+              printf(" %d |\n", aux1->value);
+              aux1 = aux1->next;
+            }
+        }
+        aux = aux->next;
+    }
+}
+
+void addOffset(TData* symbol, int offset) {
+  symbol->offset = offset;
 }

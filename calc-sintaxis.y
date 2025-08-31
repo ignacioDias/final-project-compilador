@@ -56,7 +56,6 @@ int blockNum = 0;
 %token RETURN
 %token MAIN
 
-
 /* presedencias */
 %left OR AND                // ||, &&
 %left EQ                    // ==
@@ -137,8 +136,6 @@ dec_parametro : TYPE_INT ID  {char * name = $2->varname; $$ = createTreeWhitSymb
               | TYPE_BOOL ID  {char * name = $2->varname;$$ = createTreeWhitSymbol(name,PARAMBOOL,blockNum,yylineno,NULL, NULL);}
               ;
 
-
-
 list_func: declare_funcion                  {char * name = "LIS_FUNCION";$$ = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$1, NULL);}                //modificar esto
          | list_func declare_funcion        {char * name = "LIS_FUNCION";$$ = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$1, $2);}                //modificar esto
          ;
@@ -150,7 +147,6 @@ declare_funcion: TYPE_INT ID TPAR_OP parametros TPAR_CL block           { char *
                | TYPE_BOOL ID TPAR_OP parametros TPAR_CL EXTERN ';'     { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTBOL,blockNum-1,yylineno,$4, NULL);}
                | TYPE_VOID ID TPAR_OP parametros TPAR_CL EXTERN ';'     { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTVOID,blockNum-1,yylineno,$4, NULL);}
                ;
-
 
 expr: valor                     {$$ = $1;}
     | call_func                 {$$ = $1;}
@@ -167,7 +163,6 @@ expr: valor                     {$$ = $1;}
     | NOT expr                  {char * name = "!"; $$ = createTreeWhitSymbol(name,ENOT,blockNum,yylineno,$2, NULL);}
     | TPAR_OP expr TPAR_CL      {$$ = $2;}
     ;
-
 
 valor: INT                      {$$ = createTree($1, NULL, NULL);}
      | ID                       {$$ = createTree($1, NULL, NULL);}
@@ -195,7 +190,6 @@ while: WHILE TPAR_OP expr TPAR_CL block {char * name = "while"; $$ = createTreeW
 %%
 
 void compilador(Tree* ar){
-    printDot(ar,"output/Arbol.dot");
     createTable(ar);
     retError();
     if(getError()) {
@@ -213,4 +207,3 @@ Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l,
     TData* aux = CreateSymbol(name,token,0,yylineno);
     return createTree(aux,l,r);
 }
-

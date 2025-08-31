@@ -1,6 +1,7 @@
-program {
+Program {
     void main() {
-        integer a = 3;
+        int a;
+        a = 3;
     }
 }
 
