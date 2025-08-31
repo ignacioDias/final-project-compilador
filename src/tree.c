@@ -17,171 +17,182 @@ int cantWhileIf = 0;
 bool errRet = false;
 
 Tree* createTree(TData* symbol, Tree *l, Tree *r) {
-    Tree *tree = (Tree *)malloc(sizeof(Tree));
+    Tree *tree = malloc(sizeof(Tree));
+    if (!tree) return NULL;
     tree->symbol = symbol;
     tree->left = l;
     tree->right = r;
     return tree;
 }
 
-void updateNodeTree(Tree* tree, TData* symbol){
-    tree->symbol = symbol;
+void updateNodeTree(Tree* tree, TData* symbol) {
+    if (tree) tree->symbol = symbol;
 }
 
 void elimArbol(Tree* tree) {
-    if(!tree)
-        return;
-    if (tree->symbol != NULL) {
+    if (!tree) return;
+    if (tree->symbol) {
         free(tree->symbol);
         tree->symbol = NULL;
     }
-    if (tree->left != NULL) {
-        elimArbol(tree->left);
-    }
-    if (tree->right != NULL) {
-        elimArbol(tree->right);
-    }
+    elimArbol(tree->left);
+    elimArbol(tree->right);
     free(tree);
-    tree = NULL;
 }
 
-void showTreeDot(Tree* tree,FILE* file) {
-    if(!tree) 
-        return;
-    if(tree->left && tree->right ) {
-        fprintf(file, "\"%d|  %s\" -> \"%d|  %s\", \"%d|  %s\";\n",(tree->symbol)->id,(tree->symbol)->varname,((tree->left)->symbol)->id, ((tree->left)->symbol)->varname,((tree->right)->symbol)->id,((tree->right)->symbol)->varname);
+void showTreeDot(Tree* tree, FILE* file) {
+    if (!tree) return;
+    if (tree->left && tree->right) {
+        fprintf(file, "\"%d|  %s\" -> \"%d|  %s\", \"%d|  %s\";\n",
+            tree->symbol->id, tree->symbol->varname,
+            tree->left->symbol->id, tree->left->symbol->varname,
+            tree->right->symbol->id, tree->right->symbol->varname);
         showTreeDot(tree->left, file);
         showTreeDot(tree->right, file);
-    }else {
+    } else {
         if (tree->left) {
-            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",(tree->symbol)->id,(tree->symbol)->varname,((tree->left)->symbol)->id, ((tree->left)->symbol)->varname);
+            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",
+                tree->symbol->id, tree->symbol->varname,
+                tree->left->symbol->id, tree->left->symbol->varname);
             showTreeDot(tree->left, file);
         }
         if (tree->right) {
-            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",(tree->symbol)->id,(tree->symbol)->varname,((tree->right)->symbol)->id, ((tree->right)->symbol)->varname);
+            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",
+                tree->symbol->id, tree->symbol->varname,
+                tree->right->symbol->id, tree->right->symbol->varname);
             showTreeDot(tree->right, file);
         }
     }
 }
 
-
 void createTable(Tree* tree) {
-    TOKENS currentToken = (tree->symbol)->token;
-    if(currentToken == EPROGRAM){
-       InstallScope();
-       InstallInCurrentScope(tree->symbol);
+    if (!tree) return;
+
+    TOKENS currentToken = tree->symbol->token;
+
+    // Scope and function/extern handling
+    if (currentToken == EPROGRAM) {
+        InstallScope();
+        InstallInCurrentScope(tree->symbol);
     }
-    if(currentToken == RETINT || currentToken == RETBOL || currentToken == RETVOID) {
+    if (currentToken == RETINT || currentToken == RETBOL || currentToken == RETVOID) {
         cantReturns = 0;
         offset = -16;
         cantBloq++;
         auxFunc = tree->symbol;
         InstallInCurrentScope(tree->symbol);
         InstallScope();
-    }else if(currentToken == EXTVOID || currentToken == EXTINT || currentToken == EXTBOL){
+    } else if (currentToken == EXTVOID || currentToken == EXTINT || currentToken == EXTBOL) {
         auxFunc = tree->symbol;
         InstallInCurrentScope(tree->symbol);
         InstallScope();
     }
-    if( currentToken == EIF || currentToken == EWHILE || currentToken == EELSE){
+    if (currentToken == EIF || currentToken == EWHILE || currentToken == EELSE) {
         cantWhileIf++;
         inBlockIf = true;
         cantBloq++;
         InstallScope();
         InstallInCurrentScope(tree->symbol);
     }
-    if (currentToken == VARBOOL || currentToken == VARINT){
+
+    // Variable and parameter handling
+    if (currentToken == VARBOOL || currentToken == VARINT) {
         if (getScope() != 1) {
             tree->symbol->offset = offset;
-            offset += -16;
+            offset -= 16;
         }
         InstallInCurrentScope(tree->symbol);
     }
-    if(currentToken == PARAMINT || currentToken == PARAMBOOL)  {
+    if (currentToken == PARAMINT || currentToken == PARAMBOOL) {
         tree->symbol->offset = offset;
-        offset += -16;
+        offset -= 16;
         InstallInCurrentScope(tree->symbol);
         InstallParam(tree->symbol, auxFunc);
     }
     if (currentToken == EID) {
         TData* symbolStack = LookupExternVar(tree->symbol->varname);
-        if (symbolStack != NULL) {
+        if (symbolStack) {
             tree->symbol->offset = symbolStack->offset;
         }
     }
-    if(currentToken == BLOCK_FIN) {
-        if (cantBloq > 0)
-            cantBloq--;
+
+    // Block and return handling
+    if (currentToken == BLOCK_FIN) {
+        if (cantBloq > 0) cantBloq--;
         if (cantBloq == 0 && !inBlockIf) {
             auxFunc->offset = offset;
-            offset =  -16;
+            offset = -16;
         }
-        if(inBlockIf && cantWhileIf == 1){
+        if (inBlockIf && cantWhileIf == 1) {
             inBlockIf = false;
             cantWhileIf--;
-        }else if(inBlockIf && cantWhileIf > 1) {
+        } else if (inBlockIf && cantWhileIf > 1) {
             cantWhileIf--;
-        }else if(errRet && cantReturns != 2){
-            printf("\033[31mTe falta un return en la linea \033[0m %d\n",(tree->symbol)->line-1);
+        } else if (errRet && cantReturns != 2) {
+            printf("\033[31mTe falta un return en la linea \033[0m %d\n", tree->symbol->line - 1);
             err = true;
-        }else if(errRet && cantReturns == 2) {
+        } else if (errRet && cantReturns == 2) {
             errRet = false;
         }
         PopScope();
         cantRetBlock = 0;
-
     }
+
+    // Binary operations and error checking
     if (tree->right && tree->left) {
-        TOKENS currentToken = (tree->symbol)->token;
-        bool operArit = (currentToken == PLUS || currentToken == MINUS || currentToken == PROD || currentToken == EDIV || currentToken == EMOD);
-        bool operBool = (currentToken == EOR || currentToken == EAND || currentToken == ENOT );
-        bool operCondi = (currentToken == T_GREATER_THAN || currentToken == T_LESS_THAN || currentToken == EEQ);
-        if (currentToken == ASIGN) {
+        TOKENS t = tree->symbol->token;
+        bool operArit = (t == PLUS || t == MINUS || t == PROD || t == EDIV || t == EMOD);
+        bool operBool = (t == EOR || t == EAND || t == ENOT);
+        bool operCondi = (t == T_GREATER_THAN || t == T_LESS_THAN || t == EEQ);
+        if (t == ASIGN) {
             errorAsign(tree, &err);
-        } else if(operArit || operBool || operCondi) {
-              tree->symbol->offset = offset;
-              offset += -16;
-             errorOperation(tree, currentToken, &err);
-        }else if(currentToken == EIF || currentToken == EWHILE) {
+        } else if (operArit || operBool || operCondi) {
+            tree->symbol->offset = offset;
+            offset -= 16;
+            errorOperation(tree, t, &err);
+        } else if (t == EIF || t == EWHILE) {
             errorCondition(tree, &err);
         }
     }
-    if((tree->symbol->token == RETVOID)){
+
+    // Return and call handling
+    if (tree->symbol->token == RETVOID) {
         aux = tree->symbol->token;
         errRet = false;
     }
-    if(tree->symbol->token == RETINT || tree->symbol->token == RETBOL || tree->symbol->token == EXTBOL || tree->symbol->token == RETINT){
+    if (tree->symbol->token == RETINT || tree->symbol->token == RETBOL ||
+        tree->symbol->token == EXTBOL || tree->symbol->token == RETINT) {
         aux = tree->symbol->token;
         errRet = true;
     }
-    if(tree->symbol->token == CALL_F) {
+    if (tree->symbol->token == CALL_F) {
         TData* exist = LookupExternVar(tree->left->symbol->varname);
-        if(exist){
+        if (exist) {
             tree->symbol->offset = offset;
-            offset += -16;
+            offset -= 16;
             errorCall(tree, &err);
-        }else {
-           printf("\033[31mLa funcion no existe\033[0m, error en linea:%d\n",tree->left->symbol->line);
-           err = true;
+        } else {
+            printf("\033[31mLa funcion no existe\033[0m, error en linea:%d\n", tree->left->symbol->line);
+            err = true;
         }
     }
+
+    // Left and right recursion
     if (tree->left) {
-        if(tree->symbol->token == ERETURN && inBlockIf){
-            if(cantRetBlock == 0){
-                cantReturns +=1;
-            }
-            cantRetBlock +=1;
+        if (tree->symbol->token == ERETURN && inBlockIf) {
+            if (cantRetBlock == 0) cantReturns++;
+            cantRetBlock++;
             errorReturn(tree, aux, &err);
-        }else if(tree->symbol->token == ERETURN && cantReturns == 2){
+        } else if (tree->symbol->token == ERETURN && cantReturns == 2) {
             errRet = false;
             errorReturn(tree, aux, &err);
-        }else if(tree->symbol->token == ERETURN){
+        } else if (tree->symbol->token == ERETURN) {
             errRet = false;
             errorReturn(tree, aux, &err);
         }
-        if(tree->symbol->token == ENOT){
+        if (tree->symbol->token == ENOT) {
             tree->symbol->offset = offset;
-            offset += -16;
+            offset -= 16;
             errorNot(tree, &err);
         }
         createTable(tree->left);
@@ -191,13 +202,13 @@ void createTable(Tree* tree) {
     }
 }
 
-void retError() {
-    if(errRet){
-       printf("\033[31mTe falta un return \033[0m\n");
-       err = true;
+void retError(void) {
+    if (errRet) {
+        printf("\033[31mTe falta un return \033[0m\n");
+        err = true;
     }
 }
 
-bool getError() {
+bool getError(void) {
     return err;
 }

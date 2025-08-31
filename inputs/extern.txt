@@ -1,7 +1,7 @@
-program {
-    integer add(integer a, integer b) extern;
-    integer main() {
-        integer result = add(3,4);
+Program {
+    int add(int a, int b) extern;
+    int main() {
+        int result = add(3,4);
         return 0;
     }
 }

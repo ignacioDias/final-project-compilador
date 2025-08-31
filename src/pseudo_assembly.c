@@ -35,7 +35,7 @@ void operComparate(TOKENS tag,TData* op1, TData* op2, TData* res){
         }
 }
 
-void operBoolean(TOKENS tag,TData* op1, TData* op2, TData* res){
+void opBoolean(TOKENS tag,TData* op1, TData* op2, TData* res){
     TData *auxLeft = LookupVar(op1->varname);
     TData *auxRigth = LookupVar(op2->varname);
     switch(tag){
@@ -141,7 +141,7 @@ void traslate(TOKENS tag, Tree* op1, Tree* op2, Tree* res) {
             operAritmetic(tag,op1Symbol,op2Symbol,resSymbol);
             break;
         case  EAND: case  EOR:
-            operBoolean(tag,op1Symbol,op2Symbol,resSymbol);
+            opBoolean(tag,op1Symbol,op2Symbol,resSymbol);
             break;
         case  T_GREATER_THAN: case  T_LESS_THAN: case  EEQ:
             operComparate(tag,op1Symbol,op2Symbol,resSymbol);
