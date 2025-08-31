@@ -110,7 +110,7 @@ sentencia: asignacion                               {$$ = $1;}
          ;
 
 asignacion: ID TASIGN expr ';' {char * name = $1->varname;Tree* aux3 = createTreeWhitSymbol(name,EID,blockNum,yylineno,NULL, NULL);
-                                    char * nameAsig = "asignacion";$$ = createTreeWhitSymbol(nameAsig,ASIG,1,yylineno,aux3, $3);}
+                                    char * nameAsig = "asignacion";$$ = createTreeWhitSymbol(nameAsig,ASIGN,1,yylineno,aux3, $3);}
           ;
 
 call_func : ID TPAR_OP argumento TPAR_CL {char * name = $1->varname;Tree* aux3 = createTreeWhitSymbol(name,EFUNC,blockNum,yylineno,NULL, NULL);

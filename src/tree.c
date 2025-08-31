@@ -1,164 +1,224 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include "../calc-sintaxis.tab.h"
 #include "../include/tree.h"
-#define MAX_QUEUE_SIZE 100
+#include "../include/symbols_table.h"
+#include "../include/errors_manager.h"
 
-TData* newData(Token token, Type type, int value, char* name) {
-    TData *newData = (TData*)malloc(sizeof(TData)); 
-    newData->token = token;
-    newData->type = type;
-    newData->name = (char*)malloc(sizeof(char) * strlen(name) + 1);
-    strcpy(newData->name, name);
-    newData->value = value;
-    return newData;
+
+bool err = false;
+TOKENS aux = RETVOID;
+
+TData *auxFunc = NULL;
+int offset = -16;
+int cantBloq = -1;
+
+bool inBlockIf = false;
+int cantReturns = 0;
+int cantRetBlock = 0;
+int cantWhileIf = 0;
+
+bool errRet = false;
+
+Tree* createTree(TData* symbol, Tree *l, Tree *r) {
+    Tree *arbol = (Tree *)malloc(sizeof(Tree));
+    arbol->symbol = symbol;
+    arbol->left = l;
+    arbol->right = r;
+    return arbol;
 }
 
-Tree* newTree(TData *data, Tree *leftChild, Tree *rightChild) {
-    Tree *tree = (Tree*)malloc(sizeof(Tree));
-    tree->info = data;
-    tree->hi = leftChild;
-    tree->hd = rightChild; 
-    return tree;
+void updateNodeTree(Tree* tree, TData* symbol){
+    tree->symbol = symbol;
 }
 
-void printBranch(int level, bool isLast[]) {
-    for (int i = 0; i < level; i++) {
-        printf("    ");  // Simula una rama a la izquierda
+void elimArbol(Tree* tree) {
+    if (tree != NULL) {
+        if (tree->symbol != NULL) {
+            free(tree->symbol);
+            tree->symbol = NULL;
+        }
+        if (tree->left != NULL) {
+            elimArbol(tree->left);
+        }
+        if (tree->right != NULL) {
+            elimArbol(tree->right);
+        }
+        free(tree);
+        tree = NULL;
     }
 }
-void auxiliarPrintInfo(Tree *tree, int level, bool isLast[]) {
-    printBranch(level - 1, isLast);
-    if (level > 0) {
-        if (isLast[level - 1]) {
-            printf("└── ");  // Si es el último hijo
-        } else {
-            printf("├── ");  // Si no es el último hijo
+
+void showTreeDot(Tree* tree,FILE* file) {
+    if (tree == NULL) return;
+    if(tree->left && tree->right ) {
+        fprintf(file, "\"%d|  %s\" -> \"%d|  %s\", \"%d|  %s\";\n",(tree->symbol)->id,(tree->symbol)->varname,((tree->left)->symbol)->id, ((tree->left)->symbol)->varname,((tree->right)->symbol)->id,((tree->right)->symbol)->varname);
+        showTreeDot(tree->left, file);
+        showTreeDot(tree->right, file);
+    }else {
+        if (tree->left) {
+            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",(tree->symbol)->id,(tree->symbol)->varname,((tree->left)->symbol)->id, ((tree->left)->symbol)->varname);
+            showTreeDot(tree->left, file);
+        }
+        if (tree->right) {
+            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",(tree->symbol)->id,(tree->symbol)->varname,((tree->right)->symbol)->id, ((tree->right)->symbol)->varname);
+            showTreeDot(tree->right, file);
         }
     }
-    // Mostrar información del nodo
-    if (tree->info->token == T_YYUNDEF) {
-        printf("UNDEF");
-    } else if (tree->info->token == T_INTV) {
-        printf("INTEGER");
-    } else if (tree->info->token == T_DECL) {
-        printf("DECL");
-    } else if (tree->info->token == T_RET) {
-        printf("RETURN");
-    } else if (tree->info->token == T_VOID) {
-        printf("VOID");
-    } else if (tree->info->token == T_MAIN) {
-        printf("MAIN");
-    } else if (tree->info->token == T_TRUE) {
-        printf("TRUE");
-    } else if (tree->info->token == T_FAL) {
-        printf("FALSE");
-    } else if (tree->info->token == T_ID) {
-        printf("ID");
-    } else if (tree->info->token == T_MENOR) {
-        printf("LESS");
-    } else if (tree->info->token == T_MAYOR) {
-        printf("MORE");
-    } else if (tree->info->token == T_IGUAL) {
-        printf("EQUALS");
-    } else if (tree->info->token == T_MENOS) {
-        printf("MINUS");
-    } else if (tree->info->token == T_MAS) {
-        printf("PLUS");
-    } else if (tree->info->token == T_MULT) {
-        printf("PRODUCT");
-    } else if (tree->info->token == T_DIV) {
-        printf("DIVITION");
-    } else if (tree->info->token == T_MOD) {
-        printf("MODULE");
-    } else if (tree->info->token == T_ASIGN) {
-        printf("ASIGN");
-    } else if (tree->info->token == T_PROGRAM) {
-        printf("PROGRAM");
-    } else if (tree->info->token == T_OR) {
-        printf("OR");
-    } else if (tree->info->token == T_NEG) {
-        printf("NEGATION");
-    } else if (tree->info->token == T_AND) {
-        printf("AND");
-    } else if (tree->info->token == T_EXTERN) {
-        printf("EXTERN");
-    } else if (tree->info->token == T_WHILE) {
-        printf("WHILE");
-    } else if (tree->info->token == T_IF) {
-        printf("IF");
-    } else if (tree->info->token == T_THEN) {
-        printf("THEN");
-    } else if (tree->info->token == T_ELSE) {
-        printf("ELSE");
-    } else if (tree->info->token == T_BOOL) {
-        printf("BOOL");
-    } else if (tree->info->token == T_INT) {
-        printf("INT");
-    } else if (tree->info->token == T_UMINUS) {
-        printf("UMINUS");
-    }
-    if(tree->info->type == INTEGER){
-        printf(" - Type: INTEGER");
-    } else if(tree->info->type == BOOL){
-        printf("- Type: BOOL");
-    } else if(tree->info->type == VOID) {
-        printf("- Type: VOID");
-    } else {
-        printf(" - NO TYPE");
-    }
-    printf(" (%s, %d)\n", tree->info->name, tree->info->value);
+
 }
 
-// Función bfs que respeta el formato tree
-void printTree(Tree *root) {
-    Queue q;
-    q.front = -1;
-    q.rear = -1;
-    // Arreglo auxiliar para llevar el seguimiento de los nodos que son últimos
-    bool isLast[MAX_QUEUE_SIZE][MAX_QUEUE_SIZE] = {false};
-    // Encolar el nodo raíz con level 0 y marcando que es el único y último
-    enqueue(&q, root);
-    int actualLevel[MAX_QUEUE_SIZE] = {0};
-    isLast[0][0] = true;
-    while (!is_empty(&q)) {
-        Tree *actualNode = dequeue(&q);
-        int level = actualLevel[q.front];
-        // Mostrar la información del nodo
-        auxiliarPrintInfo(actualNode, level, isLast[q.front]);
-        // Encolar los hijos
-        if (actualNode->hi != NULL) {
-            enqueue(&q, actualNode->hi);
-            actualLevel[q.rear] = level + 1;
-            isLast[q.rear][level] = actualNode->hd == NULL;  // Si no hay hijo derecho, es el último
+void printDot(Tree* tree, const char* filename) {
+    if (tree == NULL) {
+        printf("arbol borrado");
+        exit(1);
+    }
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        fprintf(stderr, "Error al abrir el archivo %s\n", filename);
+        return;
+    }
+    fprintf(file, "digraph{\n\n");
+    fprintf(file, "rankdir=TB;\n\n");
+    fprintf(file, "node[shape=box];\n");
+    showTreeDot(tree, file);
+    fprintf(file, "}\n");
+    fclose(file);
+}
+
+void createTable(Tree* tree) {
+    TOKENS tipoActual = (tree->symbol)->token;
+    if(tipoActual == EPROGRAM){
+       InstallScope();
+       InstallInCurrentScope(tree->symbol);
+    }
+    if(tipoActual == RETINT || tipoActual == RETBOL || tipoActual == RETVOID) {
+
+        cantReturns = 0;
+        offset = -16;
+        cantBloq++;
+        auxFunc = tree->symbol;
+        InstallInCurrentScope(tree->symbol);
+        InstallScope();
+    }else if(tipoActual == EXTVOID || tipoActual == EXTINT || tipoActual == EXTBOL){
+        auxFunc = tree->symbol;
+        InstallInCurrentScope(tree->symbol);
+        InstallScope();
+    }
+    if( tipoActual == EIF || tipoActual == EWHILE || tipoActual == EELSE){
+        cantWhileIf++;
+        inBlockIf = true;
+        cantBloq++;
+        InstallScope();
+        InstallInCurrentScope(tree->symbol);
+    }
+    if (tipoActual == VARBOOL || tipoActual == VARINT){
+        //Esto es para las variables globales, no tengan un scope  Ya que pertenecen al scope 1. (DESPUES FIJARNOS QUE M**** HACER CON ESTOS.)
+        if (getScope() != 1) {
+            tree->symbol->offset = offset;
+            offset += -16;
         }
-        if (actualNode->hd != NULL) {
-            enqueue(&q, actualNode->hd);
-            actualLevel[q.rear] = level + 1;
-            isLast[q.rear][level] = true;  // El hijo derecho siempre es el último
+        InstallInCurrentScope(tree->symbol);
+    }
+    if(tipoActual == PARAMINT || tipoActual == PARAMBOOL)  {
+        tree->symbol->offset = offset;
+        offset += -16;
+        InstallInCurrentScope(tree->symbol);
+        InstallParam(tree->symbol, auxFunc);
+    }
+    if (tipoActual == EID) {
+        TData* symbolStack = LookupExternVar(tree->symbol->varname);
+        if (symbolStack != NULL) {
+            tree->symbol->offset = symbolStack->offset;
         }
     }
+    if(tipoActual == BLOCK_FIN) {
+        if (cantBloq > 0)
+            cantBloq--;
+        if (cantBloq == 0 && !inBlockIf) {
+            auxFunc->offset = offset;
+            offset =  -16;
+        }
+        if(inBlockIf && cantWhileIf == 1){
+            inBlockIf = false;
+            cantWhileIf--;
+        }else if(inBlockIf && cantWhileIf > 1) {
+            cantWhileIf--;
+        }else if(errRet && cantReturns != 2){
+            printf("\033[31mTe falta un return en la linea \033[0m %d\n",(tree->symbol)->line-1);
+            err = true;
+        }else if(errRet && cantReturns == 2) {
+            errRet = false;
+        }
+        PopScope();
+        cantRetBlock = 0;
+        // printf("FIN BLOQUE  \n\n");
+
+    }
+    if (tree->right != NULL && tree->left != NULL) {
+        TOKENS tipoActual = (tree->symbol)->token;
+        bool operArit = (tipoActual == PLUS || tipoActual == MINUS || tipoActual == PROD || tipoActual == EDIV || tipoActual == EMOD);
+        bool operBool = (tipoActual == EOR || tipoActual == EAND || tipoActual == ENOT );
+        bool operCondi = (tipoActual == GREATER_THAN || tipoActual == LESS_THAN || tipoActual == EEQ);
+        if (tipoActual == ASIGN) {
+            errorAsig(tree, &err);
+        } else if(operArit || operBool || operCondi) {
+              tree->symbol->offset = offset;
+              offset += -16;
+             errorOpera(tree, tipoActual, &err);
+        }else if(tipoActual == EIF || tipoActual == EWHILE) {
+            errorCond(tree, &err);
+        }
+    }
+    if((tree->symbol->token == RETVOID)){
+        aux = tree->symbol->token;
+        errRet = false;
+    }
+    if(tree->symbol->token == RETINT || tree->symbol->token == RETBOL || tree->symbol->token == EXTBOL || tree->symbol->token == RETINT){
+        aux = tree->symbol->token;
+        errRet = true;
+    }
+    if(tree->symbol->token == CALL_F) {
+        TData* exist = LookupExternVar(tree->left->symbol->varname);
+        if(exist){
+            tree->symbol->offset = offset;
+            offset += -16;
+            errorCall(tree, &err);
+        }else {
+           printf("\033[31mLa funcion no existe\033[0m, error en linea:%d\n",tree->left->symbol->line);
+           err = true;
+        }
+    }
+    if (tree->left != NULL) {
+        if(tree->symbol->token == ERETURN && inBlockIf){
+            if(cantRetBlock == 0){
+                cantReturns +=1;
+            }
+            cantRetBlock +=1;
+            errorRet(tree, aux, &err);
+        }else if(tree->symbol->token == ERETURN && cantReturns == 2){
+            errRet = false;
+            errorRet(tree, aux, &err);
+        }else if(tree->symbol->token == ERETURN){
+            errRet = false;
+            errorRet(tree, aux, &err);
+        }
+        if(tree->symbol->token == ENOT){
+            tree->symbol->offset = offset;
+            offset += -16;
+            errorNot(tree, &err);
+        }
+        createTable(tree->left);
+    }
+    if (tree->right != NULL) {
+        createTable(tree->right);
+    }
 }
 
-void enqueue (Queue *q, Tree *item) {
-    if (q->rear == MAX_QUEUE_SIZE - 1) {
-        printf ("Queue Overflow\n");
-        exit (EXIT_FAILURE);
+void retError(){
+    if(errRet){
+       printf("\033[31mTe falta un return \033[0m\n");
+       err = true;
     }
-    q->rear++;
-    q->items[q->rear] = item;
 }
 
-Tree* dequeue (Queue *q) {
-    if (q->front == q->rear) {
-        printf ("Queue Underflow\n");
-        exit (EXIT_FAILURE);
-    }
-    q->front++;
-    return q->items[q->front];
-}
-int is_empty (Queue *q) {
-    return q->front == q->rear;
+bool getError() {
+    return err;
 }

@@ -1335,7 +1335,7 @@ yyreduce:
   case 20: /* asignacion: ID TASIGN expr ';'  */
 #line 112 "calc-sintaxis.y"
                                {char * name = (yyvsp[-3].symbol)->varname;Tree* aux3 = createTreeWhitSymbol(name,EID,blockNum,yylineno,NULL, NULL);
-                                    char * nameAsig = "asignacion";(yyval.tree) = createTreeWhitSymbol(nameAsig,ASIG,1,yylineno,aux3, (yyvsp[-1].tree));}
+                                    char * nameAsig = "asignacion";(yyval.tree) = createTreeWhitSymbol(nameAsig,ASIGN,1,yylineno,aux3, (yyvsp[-1].tree));}
 #line 1340 "calc-sintaxis.tab.c"
     break;
 
