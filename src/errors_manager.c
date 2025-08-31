@@ -54,7 +54,7 @@ void errorReturn(Tree* tree, TOKENS token, bool* err) {
     TData* auxLeft = LookupInCurrentLevel(tree->left->symbol->varname);
     TData* auxIzqGlob = LookupExternVar(tree->left->symbol->varname);
     if (!auxLeft && auxIzqGlob) auxLeft = auxIzqGlob;
-    TOKENS tipoActualIzq = tree->left->symbol->token;
+    TOKENS currentTokenLeft = tree->left->symbol->token;
 
     if (token == RETVOID) {
         printf("\033[31mError de tipo de retorno \033[0m, error en la linea: %d\n", tree->left->symbol->line);
@@ -63,7 +63,7 @@ void errorReturn(Tree* tree, TOKENS token, bool* err) {
     }
 
     if (!auxLeft) {
-        if (tipoActualIzq == CALL_F) {
+        if (currentTokenLeft == CALL_F) {
             TData *typeFunc = LookupExternVar(tree->left->left->symbol->varname);
             if (typeFunc) {
                 bool badInt = (token == RETINT || token == EXTINT) && typeFunc->token != RETINT;
@@ -73,8 +73,8 @@ void errorReturn(Tree* tree, TOKENS token, bool* err) {
                     *err = true;
                 }
             }
-        } else if (((token == RETINT || token == EXTINT) && !isTypeAritmetic(tipoActualIzq)) ||
-                   ((token == RETBOL || token == EXTBOL) && !isTypeBool(tipoActualIzq) && !esComparador(tipoActualIzq))) {
+        } else if (((token == RETINT || token == EXTINT) && !isTypeAritmetic(currentTokenLeft)) ||
+                   ((token == RETBOL || token == EXTBOL) && !isTypeBool(currentTokenLeft) && !esComparador(currentTokenLeft))) {
             printf("\033[31mError de tipo de retorno, valor esperado de tipo incorrecto \033[0m, error en la linea: %d\n", tree->left->symbol->line);
             *err = true;
         }
@@ -86,29 +86,29 @@ void errorReturn(Tree* tree, TOKENS token, bool* err) {
 }
 
 void errorAsign(Tree *tree, bool *err) {
-    TData* auxDer = LookupInCurrentLevel(tree->right->symbol->varname);
-    TData* auxDerGlob = LookupExternVar(tree->right->symbol->varname);
-    if (!auxDer && auxDerGlob) auxDer = auxDerGlob;
+    TData* auxRight = LookupInCurrentLevel(tree->right->symbol->varname);
+    TData* auxRightGlob = LookupExternVar(tree->right->symbol->varname);
+    if (!auxRight && auxRightGlob) auxRight = auxRightGlob;
     TData* auxLeft = LookupInCurrentLevel(tree->left->symbol->varname);
     TData* auxIzqGlob = LookupExternVar(tree->left->symbol->varname);
     if (!auxLeft && auxIzqGlob) auxLeft = auxIzqGlob;
 
-    TOKENS tipoDer = tree->right->symbol->token;
+    TOKENS tokenRight = tree->right->symbol->token;
     TOKENS tokenLeft = tree->left->symbol->token;
-    bool errorIntDer = !isTypeAritmetic(tipoDer);
-    bool errorBoolDer = !isTypeBool(tipoDer);
+    bool errorIntRight = !isTypeAritmetic(tokenRight);
+    bool errorBoolRight = !isTypeBool(tokenRight);
 
     if (!auxLeft && tokenLeft == EID) {
         printf("\033[33mVariable en asignacion no declarada \033[0m, error en la linea: %d\n", tree->left->symbol->line);
         *err = true;
-    } else if (auxLeft && auxDer && auxLeft->token != auxDer->token && !isVarCompatibleASIGN(auxLeft->token, auxDer->token)) {
+    } else if (auxLeft && auxRight && auxLeft->token != auxRight->token && !isVarCompatibleASIGN(auxLeft->token, auxRight->token)) {
         printf("\033[31mError de tipo en la asignacion, tipo incompatible \033[0m, error en la linea: %d\n", tree->left->symbol->line);
         *err = true;
-    } else if (auxLeft && !auxDer) {
-        if (tipoDer == EID) {
+    } else if (auxLeft && !auxRight) {
+        if (tokenRight == EID) {
             printf("\033[33mVariable a asignar no declarada \033[0m, error en la linea: %d\n", tree->left->symbol->line);
             *err = true;
-        } else if (tipoDer == CALL_F) {
+        } else if (tokenRight == CALL_F) {
             TData *typeFunc = LookupExternVar(tree->right->left->symbol->varname);
             if (typeFunc) {
                 bool badInt = (auxLeft->token == VARINT || auxLeft->token == PARAMINT) && (typeFunc->token != RETINT && typeFunc->token != EXTINT);
@@ -118,83 +118,83 @@ void errorAsign(Tree *tree, bool *err) {
                     *err = true;
                 }
             }
-        } else if (((auxLeft->token == VARINT || auxLeft->token == PARAMINT) && errorIntDer) ||
-                   ((auxLeft->token == VARBOOL || auxLeft->token == PARAMBOOL) && errorBoolDer)) {
+        } else if (((auxLeft->token == VARINT || auxLeft->token == PARAMINT) && errorIntRight) ||
+                   ((auxLeft->token == VARBOOL || auxLeft->token == PARAMBOOL) && errorBoolRight)) {
             printf("\033[31mError de tipo, error de tipo en la asignacion \033[0m, error en la linea: %d\n", tree->right->symbol->line);
             *err = true;
         }
     }
 }
 
-bool isVarCompatibleASIGN(TOKENS tokenLeft, TOKENS tipoDer) {
+bool isVarCompatibleASIGN(TOKENS tokenLeft, TOKENS tokenRight) {
     return
-        (tokenLeft == PARAMBOOL && tipoDer == PARAMBOOL) ||
-        (tokenLeft == PARAMBOOL && tipoDer == VARBOOL) ||
-        (tokenLeft == VARBOOL && tipoDer == PARAMBOOL) ||
-        (tokenLeft == PARAMINT && tipoDer == VARINT) ||
-        (tokenLeft == VARINT && tipoDer == PARAMINT) ||
-        (tokenLeft == PARAMINT && tipoDer == PARAMINT);
+        (tokenLeft == PARAMBOOL && tokenRight == PARAMBOOL) ||
+        (tokenLeft == PARAMBOOL && tokenRight == VARBOOL) ||
+        (tokenLeft == VARBOOL && tokenRight == PARAMBOOL) ||
+        (tokenLeft == PARAMINT && tokenRight == VARINT) ||
+        (tokenLeft == VARINT && tokenRight == PARAMINT) ||
+        (tokenLeft == PARAMINT && tokenRight == PARAMINT);
 }
 
 void errorOperation(Tree *tree, TOKENS token, bool* err) {
-    TData* auxDer = LookupInCurrentLevel(tree->right->symbol->varname);
-    TData* auxDerGlob = LookupExternVar(tree->right->symbol->varname);
-    if (!auxDer && auxDerGlob) auxDer = auxDerGlob;
+    TData* auxRight = LookupInCurrentLevel(tree->right->symbol->varname);
+    TData* auxRightGlob = LookupExternVar(tree->right->symbol->varname);
+    if (!auxRight && auxRightGlob) auxRight = auxRightGlob;
     TData* auxLeft = LookupInCurrentLevel(tree->left->symbol->varname);
     TData* auxIzqGlob = LookupExternVar(tree->left->symbol->varname);
     if (!auxLeft && auxIzqGlob) auxLeft = auxIzqGlob;
 
     if (token == PLUS || token == MINUS || token == PROD || token == EMOD || token == EDIV) {
-        evaluate_op_aritmetics(tree, auxLeft, auxDer, err);
+        evaluate_op_aritmetics(tree, auxLeft, auxRight, err);
     } else if (token == EOR || token == EAND || token == ENOT) {
-        evaluate_op_booleans(tree, auxLeft, auxDer, err);
+        evaluate_op_booleans(tree, auxLeft, auxRight, err);
     } else {
-        evaluate_op_cond(tree, auxLeft, auxDer, err);
+        evaluate_op_cond(tree, auxLeft, auxRight, err);
     }
 }
 
-void evaluate_op_cond(Tree* tree, TData* auxLeft, TData* auxDer, bool* err) {
+void evaluate_op_cond(Tree* tree, TData* auxLeft, TData* auxRight, bool* err) {
     int lineErrLeft = tree->left->symbol->line;
-    TOKENS tipoDer = tree->right->symbol->token;
+    TOKENS tokenRight = tree->right->symbol->token;
     TOKENS tokenLeft = tree->left->symbol->token;
-    bool errorIntDer = !isTypeAritmetic(tipoDer);
-    bool errorSintacticoDer = esComparador(tipoDer);
+    bool errorIntRight = !isTypeAritmetic(tokenRight);
+    bool sintaticErrRight = esComparador(tokenRight);
     bool errorIntIzq = !isTypeAritmetic(tokenLeft);
     bool errorSintacticoIzq = esComparador(tokenLeft);
 
-    if (auxLeft && auxDer) {
+    if (auxLeft && auxRight) {
         if ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) ||
-            (auxDer->token != VARINT && auxDer->token != PARAMINT)) {
+            (auxRight->token != VARINT && auxRight->token != PARAMINT)) {
             printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
         return;
     }
 
-    if ((auxLeft && !auxDer) ^ (!auxLeft && auxDer)) {
-        if ((!auxDer && tipoDer == EID) ^ (!auxLeft && tokenLeft == EID)) {
+    if ((auxLeft && !auxRight) ^ (!auxLeft && auxRight)) {
+        if ((!auxRight && tokenRight == EID) ^ (!auxLeft && tokenLeft == EID)) {
             printf("\033[33mVariable no declarada \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
-        } else if ((!auxDer && tipoDer == CALL_F) ^ (!auxLeft && tokenLeft == CALL_F)) {
-            if (tipoDer == CALL_F) {
-                TData *typeFuncDer = LookupExternVar(tree->right->left->symbol->varname);
-                if (typeFuncDer &&
+        } else if ((!auxRight && tokenRight == CALL_F) ^ (!auxLeft && tokenLeft == CALL_F)) {
+            if (tokenRight == CALL_F) {
+                TData *dataFunLeft = LookupExternVar(tree->right->left->symbol->varname);
+                if (dataFunLeft &&
                     ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) ||
-                     (typeFuncDer->token != RETINT && typeFuncDer->token != EXTINT))) {
+                     (dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT))) {
                     printf("\033[31mError de tipo, funcion invocada es de tipo incorrecto \033[0m, error en la linea: %d\n", lineErrLeft);
                     *err = true;
                 }
             } else {
-                TData *typeFuncIzq = LookupExternVar(tree->left->left->symbol->varname);
-                if ((auxDer->token != VARINT && auxDer->token != PARAMINT) ||
-                    (typeFuncIzq->token != RETINT && typeFuncIzq->token != EXTINT)) {
+                TData *dataFunLeft = LookupExternVar(tree->left->left->symbol->varname);
+                if ((auxRight->token != VARINT && auxRight->token != PARAMINT) ||
+                    (dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT)) {
                     printf("\033[31mError de tipo, funcion invocada es de tipo incorrecto \033[0m, error en la linea: %d\n", lineErrLeft);
                     *err = true;
                 }
             }
-        } else if ((!auxDer && ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) || errorIntDer)) ^
-                   (!auxLeft && ((auxDer->token != VARINT && auxDer->token != PARAMINT) || errorIntIzq))) {
-            if ((!auxDer && errorSintacticoDer) || (!auxLeft && errorSintacticoIzq)) {
+        } else if ((!auxRight && ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) || errorIntRight)) ^
+                   (!auxLeft && ((auxRight->token != VARINT && auxRight->token != PARAMINT) || errorIntIzq))) {
+            if ((!auxRight && sintaticErrRight) || (!auxLeft && errorSintacticoIzq)) {
                 printf("\033[31mError Sintactico \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             } else {
@@ -205,27 +205,27 @@ void evaluate_op_cond(Tree* tree, TData* auxLeft, TData* auxDer, bool* err) {
         return;
     }
 
-    if (!auxLeft && !auxDer) {
-        if (tokenLeft == EID || tipoDer == EID) {
+    if (!auxLeft && !auxRight) {
+        if (tokenLeft == EID || tokenRight == EID) {
             printf("\033[33mVariable no declarada \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
-        if (tipoDer == CALL_F) {
-            TData *typeFuncDer = LookupExternVar(tree->right->left->symbol->varname);
-            if (typeFuncDer && typeFuncDer->token != RETINT && typeFuncDer->token != EXTINT) {
+        if (tokenRight == CALL_F) {
+            TData *dataFunLeft = LookupExternVar(tree->right->left->symbol->varname);
+            if (dataFunLeft && dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT) {
                 printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             }
         }
         if (tokenLeft == CALL_F) {
-            TData *typeFuncIzq = LookupExternVar(tree->left->left->symbol->varname);
-            if (typeFuncIzq && typeFuncIzq->token != RETINT && typeFuncIzq->token != EXTINT) {
+            TData *dataFunLeft = LookupExternVar(tree->left->left->symbol->varname);
+            if (dataFunLeft && dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT) {
                 printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             }
         }
-        if ((errorIntIzq && tokenLeft != CALL_F) || (errorIntDer && tipoDer != CALL_F)) {
-            if (errorSintacticoIzq || errorSintacticoDer) {
+        if ((errorIntIzq && tokenLeft != CALL_F) || (errorIntRight && tokenRight != CALL_F)) {
+            if (errorSintacticoIzq || sintaticErrRight) {
                 printf("\033[31mError Sintactico \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             } else {
@@ -236,142 +236,142 @@ void evaluate_op_cond(Tree* tree, TData* auxLeft, TData* auxDer, bool* err) {
     }
 }
 
-void evaluate_op_booleans(Tree* tree, TData* auxLeft, TData* auxDer, bool* err) {
+void evaluate_op_booleans(Tree* tree, TData* auxLeft, TData* auxRight, bool* err) {
     int lineErrLeft = tree->left->symbol->line;
-    TOKENS tipoDer = tree->right->symbol->token;
+    TOKENS tokenRight = tree->right->symbol->token;
     TOKENS tokenLeft = tree->left->symbol->token;
-    bool errorBoolDer = !isTypeBool(tipoDer) && !esComparador(tipoDer);
-    bool errorBoolIzq = !isTypeBool(tokenLeft) && !esComparador(tipoDer);
+    bool errorBoolRight = !isTypeBool(tokenRight) && !esComparador(tokenRight);
+    bool errorBoolLeft = !isTypeBool(tokenLeft) && !esComparador(tokenRight);
 
-    if (auxLeft && auxDer) {
+    if (auxLeft && auxRight) {
         if ((auxLeft->token != VARBOOL && auxLeft->token != PARAMBOOL) ||
-            (auxDer->token != VARBOOL && auxDer->token != PARAMBOOL)) {
+            (auxRight->token != VARBOOL && auxRight->token != PARAMBOOL)) {
             printf("\033[31mError de tipo en operacion booleana \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
         return;
     }
 
-    if ((auxLeft && !auxDer) ^ (!auxLeft && auxDer)) {
-        if ((!auxDer && tipoDer == EID) || (!auxLeft && tokenLeft == EID)) {
+    if ((auxLeft && !auxRight) ^ (!auxLeft && auxRight)) {
+        if ((!auxRight && tokenRight == EID) || (!auxLeft && tokenLeft == EID)) {
             printf("\033[33mVariable no declarada \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
-        } else if ((!auxDer && tipoDer == CALL_F) ^ (!auxLeft && tokenLeft == CALL_F)) {
-            if (tipoDer == CALL_F) {
-                TData *typeFuncDer = LookupExternVar(tree->right->left->symbol->varname);
-                if (typeFuncDer &&
+        } else if ((!auxRight && tokenRight == CALL_F) ^ (!auxLeft && tokenLeft == CALL_F)) {
+            if (tokenRight == CALL_F) {
+                TData *dataFunLeft = LookupExternVar(tree->right->left->symbol->varname);
+                if (dataFunLeft &&
                     ((auxLeft->token != VARBOOL && auxLeft->token != PARAMBOOL) ||
-                     (typeFuncDer->token != RETBOL && typeFuncDer->token != EXTBOL))) {
+                     (dataFunLeft->token != RETBOL && dataFunLeft->token != EXTBOL))) {
                     printf("\033[31mError de tipo, funcion invocada es de tipo incorrecto \033[0m, error en la linea: %d\n", lineErrLeft);
                     *err = true;
                 }
             } else {
-                TData *typeFuncIzq = LookupExternVar(tree->left->left->symbol->varname);
-                if ((auxDer->token != VARBOOL && auxDer->token != PARAMBOOL) ||
-                    (typeFuncIzq->token != RETBOL && typeFuncIzq->token != EXTBOL)) {
+                TData *dataFunLeft = LookupExternVar(tree->left->left->symbol->varname);
+                if ((auxRight->token != VARBOOL && auxRight->token != PARAMBOOL) ||
+                    (dataFunLeft->token != RETBOL && dataFunLeft->token != EXTBOL)) {
                     printf("\033[31mError de tipo, funcion invocada es de tipo incorrecto \033[0m, error en la linea: %d\n", lineErrLeft);
                     *err = true;
                 }
             }
-        } else if ((!auxDer && ((auxLeft->token != VARBOOL && auxLeft->token != PARAMBOOL) || errorBoolDer)) ^
-                   (!auxLeft && ((auxDer->token != VARBOOL && auxDer->token != PARAMBOOL) || errorBoolIzq))) {
+        } else if ((!auxRight && ((auxLeft->token != VARBOOL && auxLeft->token != PARAMBOOL) || errorBoolRight)) ^
+                   (!auxLeft && ((auxRight->token != VARBOOL && auxRight->token != PARAMBOOL) || errorBoolLeft))) {
             printf("\033[31mError de tipo, valores de condicion incompatibles \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
         return;
     }
 
-    if (!auxLeft && !auxDer) {
-        if (tokenLeft == EID || tipoDer == EID) {
+    if (!auxLeft && !auxRight) {
+        if (tokenLeft == EID || tokenRight == EID) {
             printf("\033[33mVariable no declarada \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
-        if (tipoDer == CALL_F) {
-            TData *typeFuncDer = LookupExternVar(tree->right->left->symbol->varname);
-            if (typeFuncDer && typeFuncDer->token != RETBOL && typeFuncDer->token != EXTBOL) {
+        if (tokenRight == CALL_F) {
+            TData *dataFunLeft = LookupExternVar(tree->right->left->symbol->varname);
+            if (dataFunLeft && dataFunLeft->token != RETBOL && dataFunLeft->token != EXTBOL) {
                 printf("\033[31mError de tipo, funcion de tipo incorrecto \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             }
         }
         if (tokenLeft == CALL_F) {
-            TData *typeFuncIzq = LookupExternVar(tree->left->left->symbol->varname);
-            if (typeFuncIzq && typeFuncIzq->token != RETBOL && typeFuncIzq->token != EXTBOL) {
+            TData *dataFunLeft = LookupExternVar(tree->left->left->symbol->varname);
+            if (dataFunLeft && dataFunLeft->token != RETBOL && dataFunLeft->token != EXTBOL) {
                 printf("\033[31mError de tipo, funcion de tipo incorrecto \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             }
         }
-        if ((errorBoolIzq && tokenLeft != CALL_F) || (errorBoolDer && tipoDer != CALL_F)) {
+        if ((errorBoolLeft && tokenLeft != CALL_F) || (errorBoolRight && tokenRight != CALL_F)) {
             printf("\033[31mError de tipo, tipos de valores incompatibles \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
     }
 }
 
-void evaluate_op_aritmetics(Tree* tree, TData* auxLeft, TData* auxDer, bool* err) {
-    TOKENS tipoDer = tree->right->symbol->token;
+void evaluate_op_aritmetics(Tree* tree, TData* auxLeft, TData* auxRight, bool* err) {
+    TOKENS tokenRight = tree->right->symbol->token;
     TOKENS tokenLeft = tree->left->symbol->token;
-    bool errorIntDer = !isTypeAritmetic(tipoDer);
-    bool errorIzq = !isTypeAritmetic(tokenLeft);
+    bool errorIntRight = !isTypeAritmetic(tokenRight);
+    bool errorLeft = !isTypeAritmetic(tokenLeft);
     int lineErrLeft = tree->left->symbol->line;
 
-    if (auxLeft && auxDer) {
+    if (auxLeft && auxRight) {
         if ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) ||
-            (auxDer->token != VARINT && auxDer->token != PARAMINT)) {
+            (auxRight->token != VARINT && auxRight->token != PARAMINT)) {
             printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
         return;
     }
 
-    if (!auxLeft && !auxDer) {
-        if (tokenLeft == EID || tipoDer == EID) {
+    if (!auxLeft && !auxRight) {
+        if (tokenLeft == EID || tokenRight == EID) {
             printf("\033[33mVariablexxx no declarada \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
-        if (tipoDer == CALL_F) {
-            TData *typeFuncDer = LookupExternVar(tree->right->left->symbol->varname);
-            if (typeFuncDer && typeFuncDer->token != RETINT && typeFuncDer->token != EXTINT) {
+        if (tokenRight == CALL_F) {
+            TData *dataFunLeft = LookupExternVar(tree->right->left->symbol->varname);
+            if (dataFunLeft && dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT) {
                 printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             }
         }
         if (tokenLeft == CALL_F) {
-            TData *typeFuncIzq = LookupExternVar(tree->left->left->symbol->varname);
-            if (typeFuncIzq && typeFuncIzq->token != RETINT && typeFuncIzq->token != EXTINT) {
+            TData *dataFunLeft = LookupExternVar(tree->left->left->symbol->varname);
+            if (dataFunLeft && dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT) {
                 printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
                 *err = true;
             }
         }
-        if ((errorIzq && tokenLeft != CALL_F) || (errorIntDer && tipoDer != CALL_F)) {
+        if ((errorLeft && tokenLeft != CALL_F) || (errorIntRight && tokenRight != CALL_F)) {
             printf("\033[31mError de tipo \033[0m, error en la linea: %d\n", lineErrLeft);
             *err = true;
         }
         return;
     }
 
-    if ((auxLeft && !auxDer) ^ (!auxLeft && auxDer)) {
-        if ((!auxDer && tipoDer == EID) ^ (!auxLeft && tokenLeft == EID)) {
+    if ((auxLeft && !auxRight) ^ (!auxLeft && auxRight)) {
+        if ((!auxRight && tokenRight == EID) ^ (!auxLeft && tokenLeft == EID)) {
             printf("\033[33mVariable no declarada \033[0m, linea de error: %d\n", lineErrLeft);
             *err = true;
-        } else if ((!auxDer && tipoDer == CALL_F) ^ (!auxLeft && tokenLeft == CALL_F)) {
-            if (tipoDer == CALL_F) {
-                TData *typeFuncDer = LookupExternVar(tree->right->left->symbol->varname);
-                if (typeFuncDer &&
+        } else if ((!auxRight && tokenRight == CALL_F) ^ (!auxLeft && tokenLeft == CALL_F)) {
+            if (tokenRight == CALL_F) {
+                TData *dataFunLeft = LookupExternVar(tree->right->left->symbol->varname);
+                if (dataFunLeft &&
                     ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) ||
-                     (typeFuncDer->token != RETINT && typeFuncDer->token != EXTINT))) {
+                     (dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT))) {
                     printf("\033[31mError de tipo \033[0m, linea de error: %d\n", lineErrLeft);
                     *err = true;
                 }
             } else {
-                TData *typeFuncIzq = LookupExternVar(tree->left->left->symbol->varname);
-                if ((auxDer->token != VARINT && auxDer->token != PARAMINT) ||
-                    (typeFuncIzq->token != RETINT && typeFuncIzq->token != EXTINT)) {
+                TData *dataFunLeft = LookupExternVar(tree->left->left->symbol->varname);
+                if ((auxRight->token != VARINT && auxRight->token != PARAMINT) ||
+                    (dataFunLeft->token != RETINT && dataFunLeft->token != EXTINT)) {
                     printf("\033[31mError de tipo \033[0m, linea de error: %d\n", lineErrLeft);
                     *err = true;
                 }
             }
-        } else if ((!auxDer && ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) || errorIntDer)) ^
-                   (!auxLeft && ((auxDer->token != VARINT && auxDer->token != PARAMINT) || errorIzq))) {
+        } else if ((!auxRight && ((auxLeft->token != VARINT && auxLeft->token != PARAMINT) || errorIntRight)) ^
+                   (!auxLeft && ((auxRight->token != VARINT && auxRight->token != PARAMINT) || errorLeft))) {
             printf("\033[31mError de tipo \033[0m, linea de error: %d\n", lineErrLeft);
             *err = true;
         }
