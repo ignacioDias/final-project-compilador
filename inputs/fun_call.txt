@@ -1,8 +1,8 @@
-program {
-    integer suma(integer x, integer y) {
+Program {
+    int suma(int x, int y) {
         return x + y;
     }
-    integer main() {
-        integer a = suma(2,3);
+    int main() {
+        int a = suma(2,3);
     }
 }

@@ -1,15 +1,15 @@
-program { 
-  integer x;
-  integer a;
-  integer suma(integer a, integer a){
+PRogram { 
+  int x;
+  int a;
+  int suma(int a, int a){
     return a + b;
   }
-  integer main(){
+  int main(){
       if(true) then {
-        integer x;
+        int x;
         x = 7;
       } else {
-        integer x;
+        int x;
         x = suma(3);
       }
     }

@@ -1,5 +1,6 @@
-program {
-    integer main() {
-        integer c = 2;
+Program {
+    int main() {
+        int c;
+         = 2;
     }
 }

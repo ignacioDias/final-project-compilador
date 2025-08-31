@@ -1,8 +1,8 @@
-program {
-    integer inc1(integer x) {
+Program {
+    int inc1(int x) {
         return x + 1;
     }
-    integer inc1(bool y) {
+    int inc1(bool y) {
         return 3;
     }
 }

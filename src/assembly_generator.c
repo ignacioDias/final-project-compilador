@@ -12,16 +12,16 @@ int paramExtra = 0;
 int positiveMaxOffset = 0;
 
 void createFile() {
-    file = fopen("result.s", "w");
+    file = fopen("output.s", "w");
     if (file == NULL) {
-        printf("Error al crear el archivo result.s\n");
+        printf("Error al crear el archivo output.s\n");
         return;
     }
     fclose(file);
 }
 
 void writeArchive(char* string) {
-    file = fopen("result.s","a");
+    file = fopen("output.s","a");
     if (file == NULL) {
         printf("Error Escribir archivo");
         return;
@@ -341,7 +341,7 @@ void writeCallFunc(PseudoAssembly* instruction) {
 
 
 void writeOperation(TData* op1, TData* op2, TData* final, ASM tag){
-    file = fopen("result.s","a");
+    file = fopen("output.s","a");
     if (file == NULL) {
         printf("Error Escribir archivo");
         return;

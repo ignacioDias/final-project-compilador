@@ -1,16 +1,16 @@
-program {
+Program {
     bool xd = true;
-    integer x = -1;
-    integer pruebaNoInicializado;
-    integer y = 3 * x;
-    integer y2 = 3 / x;
-    integer y3 = 3 - x;
-    integer y4 = x % 3;
-    integer y5 = -x;
+    int x = -1;
+    int pruebaNoInicializado;
+    int y = 3 * x;
+    int y2 = 3 / x;
+    int y3 = 3 - x;
+    int y4 = x % 3;
+    int y5 = -x;
     bool prueba = !(true && true);
     bool intento = !prueba; 
     void main() {
-        integer xx = x;
+        int xx = x;
         bool c = true && xd; 
     }
 }
