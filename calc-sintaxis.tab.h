@@ -44,15 +44,6 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
-/* "%code requires" blocks.  */
-#line 25 "calc-sintaxis.y"
-#include "include/tree.h"
-#line 26 "calc-sintaxis.y"
-#include "include/pseudo_assembly.h"
-#line 27 "calc-sintaxis.y"
-#include "include/symbols_table.h"
-
-#line 56 "calc-sintaxis.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -63,35 +54,37 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    INTV = 258,                    /* INTV  */
-    TRET = 259,                    /* TRET  */
-    TDECL = 260,                   /* TDECL  */
-    TVOID = 261,                   /* TVOID  */
-    TMAIN = 262,                   /* TMAIN  */
-    TR = 263,                      /* TR  */
-    FAL = 264,                     /* FAL  */
-    TID = 265,                     /* TID  */
-    TMENOR = 266,                  /* TMENOR  */
-    TMAYOR = 267,                  /* TMAYOR  */
-    TIGUAL = 268,                  /* TIGUAL  */
-    TMENOS = 269,                  /* TMENOS  */
-    TMAS = 270,                    /* TMAS  */
-    TMULT = 271,                   /* TMULT  */
-    TDIV = 272,                    /* TDIV  */
-    TMOD = 273,                    /* TMOD  */
-    TOR = 274,                     /* TOR  */
-    TNEG = 275,                    /* TNEG  */
-    TAND = 276,                    /* TAND  */
-    EXTERN = 277,                  /* EXTERN  */
-    TWHILE = 278,                  /* TWHILE  */
-    TIF = 279,                     /* TIF  */
-    THEN = 280,                    /* THEN  */
-    TELSE = 281,                   /* TELSE  */
-    TINT = 282,                    /* TINT  */
-    TBOOL = 283,                   /* TBOOL  */
-    TASIGN = 284,                  /* TASIGN  */
-    TPROGRAM = 285,                /* TPROGRAM  */
-    UMINUS = 286                   /* UMINUS  */
+    ID = 258,                      /* ID  */
+    INT = 259,                     /* INT  */
+    TTRUE = 260,                   /* TTRUE  */
+    TFALSE = 261,                  /* TFALSE  */
+    TYPE_INT = 262,                /* TYPE_INT  */
+    TYPE_BOOL = 263,               /* TYPE_BOOL  */
+    TYPE_VOID = 264,               /* TYPE_VOID  */
+    TPLUS = 265,                   /* TPLUS  */
+    TTIMES = 266,                  /* TTIMES  */
+    TMINUS = 267,                  /* TMINUS  */
+    TDIV = 268,                    /* TDIV  */
+    TMOD = 269,                    /* TMOD  */
+    TASIGN = 270,                  /* TASIGN  */
+    TPAR_OP = 271,                 /* TPAR_OP  */
+    TPAR_CL = 272,                 /* TPAR_CL  */
+    TBRACE_OP = 273,               /* TBRACE_OP  */
+    TBRACE_CL = 274,               /* TBRACE_CL  */
+    OR = 275,                      /* OR  */
+    AND = 276,                     /* AND  */
+    NOT = 277,                     /* NOT  */
+    GREATER_THAN = 278,            /* GREATER_THAN  */
+    LESS_THAN = 279,               /* LESS_THAN  */
+    EQ = 280,                      /* EQ  */
+    PROGRAM = 281,                 /* PROGRAM  */
+    EXTERN = 282,                  /* EXTERN  */
+    THEN = 283,                    /* THEN  */
+    IF = 284,                      /* IF  */
+    ELSE = 285,                    /* ELSE  */
+    WHILE = 286,                   /* WHILE  */
+    RETURN = 287,                  /* RETURN  */
+    MAIN = 288                     /* MAIN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -100,10 +93,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 29 "calc-sintaxis.y"
-int i; int b; Tree *tree; char *s; TData *data;
+#line 15 "calc-sintaxis.y"
 
-#line 107 "calc-sintaxis.tab.h"
+    TData* symbol;
+    Tree *tree;
+
+#line 102 "calc-sintaxis.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

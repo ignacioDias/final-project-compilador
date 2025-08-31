@@ -4,22 +4,23 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../include/tree.h"
-#include "../include/pseudo_Assembly.h"
+#include "include/tree.h"
+#include "include/pseudo_assembly.h"
 void compilador(Tree *tree);
-Tree* createTreeWhitSymbol(char * name, TOKENS token,int size, int line, Tree *l, Tree *r);
+Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r);
 extern int yylineno;
 int blockNum = 0;
 %}
 
 %union {
-    struct Tsymbol* symbol;
+    TData* symbol;
     Tree *tree;
 }
 
+/*declaraciones*/
 %token <symbol> ID
 
-/* tipos */
+/* tipos de datos */
 %token <symbol> INT
 %token <symbol> TTRUE
 %token <symbol> TFALSE
@@ -36,14 +37,14 @@ int blockNum = 0;
 %token TASIGN
 %token TPAR_OP
 %token TPAR_CL
-%token TBRAC_OP
-%token TBRAC_CL
+%token TBRACE_OP
+%token TBRACE_CL
 %token OR
 %token AND
 %token NOT
 %token GREATER_THAN
 %token LESS_THAN
-%token EQUAL
+%token EQ
 
 /* palabras reservadas */
 %token PROGRAM
@@ -55,13 +56,14 @@ int blockNum = 0;
 %token RETURN
 %token MAIN
 
+
 /* presedencias */
-%left OR AND                
-%left EQUAL                   
-%left GREATER_THAN LESS_THAN     
-%left TPLUS TMINUS         
-%left TTIMES TDIV TMOD
-%right NOT                  
+%left OR AND                // ||, &&
+%left EQ                    // ==
+%left GREATER_THAN LESS_THAN     // >,<
+%left TPLUS TMINUS           // +, -
+%left TTIMES TDIV TMOD // *, /, %
+%right NOT                  // La negación es asociativa a la derecha
 
 /*Types*/
 %type <tree> prog main retorno
@@ -73,11 +75,11 @@ int blockNum = 0;
 
 %%
 
-prog: PROGRAM TBRAC_OP list_decls list_func main TBRAC_CL  { char * name = "PROGRAM_BLOCK"; Tree* aux= createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$4, $5);
+prog: PROGRAM TBRACE_OP list_decls list_func main TBRACE_CL  { char * name = "PROGRAM_BLOCK"; Tree* aux= createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$4, $5);
                                                               char * name1 = "PROGRAM"; compilador(createTreeWhitSymbol(name1,EPROGRAM,blockNum,yylineno,$3, aux));}
-    | PROGRAM TBRAC_OP  main TBRAC_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,NULL, $3));}
-    | PROGRAM TBRAC_OP  list_func main TBRAC_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
-    | PROGRAM TBRAC_OP list_decls  main TBRAC_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
+    | PROGRAM TBRACE_OP  main TBRACE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,NULL, $3));}
+    | PROGRAM TBRACE_OP  list_func main TBRACE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
+    | PROGRAM TBRACE_OP list_decls  main TBRACE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
     ;
 
 main: TYPE_BOOL MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTreeWhitSymbol(name,RETBOL,blockNum,yylineno,$5, NULL);}
@@ -93,10 +95,10 @@ list_sents:                                     {$$ = NULL;}
           |list_sents sentencia                 {char * name = "SENTENCIA"; $$ = createTreeWhitSymbol(name,SENTEN,blockNum,yylineno,$1, $2);}
           ;
 
-block: TBRAC_OP list_decls list_sents TBRAC_CL  { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
+block: TBRACE_OP list_decls list_sents TBRACE_CL  { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
                                                     char *name2 = "BLOCK_INTERNO"; Tree*aux2 = createTreeWhitSymbol(name2,OTHERS,blockNum,yylineno,$2, $3);
                                                     char *name = "BLOCK"; $$ = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,aux2, aux); }
-     | TBRAC_OP list_sents TBRAC_CL             { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
+     | TBRACE_OP list_sents TBRACE_CL             { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
                                                     char *name = "BLOCK"; $$ = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,$2, aux); }
      ;
 
@@ -157,9 +159,9 @@ expr: valor                     {$$ = $1;}
     | expr TTIMES expr            {char * name = "*"; $$ = createTreeWhitSymbol(name,PROD,blockNum,yylineno,$1, $3);}
     | expr TDIV expr       {char * name = "/"; $$ = createTreeWhitSymbol(name,EDIV,blockNum,yylineno,$1, $3);}
     | expr TMOD expr          {char * name = "%"; $$ = createTreeWhitSymbol(name,ERESTO,blockNum,yylineno,$1, $3);}
-    | expr GREATER_THAN expr        {char * name = ">"; $$ = createTreeWhitSymbol(name,EGREATER_THAN,blockNum,yylineno,$1, $3);}
-    | expr LESS_THAN expr        {char * name = "<"; $$ = createTreeWhitSymbol(name,ELESS_THAN,blockNum,yylineno,$1, $3);}
-    | expr EQUAL expr              {char * name = "=="; $$ = createTreeWhitSymbol(name,EEQUAL,blockNum,yylineno,$1, $3);}
+    | expr GREATER_THAN expr        {char * name = ">"; $$ = createTreeWhitSymbol(name,EMAYORQUE,blockNum,yylineno,$1, $3);}
+    | expr LESS_THAN expr        {char * name = "<"; $$ = createTreeWhitSymbol(name,EMENORQUE,blockNum,yylineno,$1, $3);}
+    | expr EQ expr              {char * name = "=="; $$ = createTreeWhitSymbol(name,EEQ,blockNum,yylineno,$1, $3);}
     | expr AND expr             {char * name = "&&"; $$ = createTreeWhitSymbol(name,EAND,blockNum,yylineno,$1, $3);}
     | expr OR expr              {char * name = "||"; $$ = createTreeWhitSymbol(name,EOR,blockNum,yylineno,$1, $3);}
     | NOT expr                  {char * name = "!"; $$ = createTreeWhitSymbol(name,ENOT,blockNum,yylineno,$2, NULL);}
@@ -208,7 +210,7 @@ void compilador(Tree* ar){
 }
 
 Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){
-    struct Tsymbol* aux = CreateSymbol(name,token,0,yylineno);
+    TData* aux = CreateSymbol(name,token,0,yylineno);
     return createTree(aux,l,r);
 }
 
