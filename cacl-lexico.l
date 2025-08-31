@@ -8,7 +8,7 @@
 
 int yyparse();
 void yyerror();
-void current_token(enum TYPES type_sym);
+void current_token(TOKEN token_symbol);
 
 %}
 
@@ -33,7 +33,7 @@ digito [0-9]
 
 
 "void"                      { return TYPE_VOID; }
-"int"                       { return TYPE_INT;  } /** [int => integer] **/
+"int"                       { return TYPE_INT;  } 
 "bool"                      { return TYPE_BOOL; }
 "true"						{ current_token(CONSBOOL); return TTRUE;  }
 "false"						{ current_token(CONSBOOL); return TFALSE; }
@@ -47,38 +47,38 @@ digito [0-9]
 "||"                        { return OR;  }
 "&&"                        { return AND; }
 "!"                   		{ return NOT; }
-"=="                   		{ return EQ;  }
-">"                   		{ return MAYORQUE; }
-"<"                   		{ return MENORQUE; }
+"=="                   		{ return EQUAL;  }
+">"                   		{ return GREATER_THAN; }
+"<"                   		{ return LESS_THAN; }
 
 
-"="                         { return ASIGNACION; }
-"-"                         { return TMENOS;     }
-"+"                         { return TMAS;       }
-"*"                         { return TPOR;       }
-"/"                         { return TDIVISION;  }
-"%"                         { return TRESTO;     }
+"="                         { return TASIGN; }
+"-"                         { return TMINUS;     }
+"+"                         { return TPLUS;       }
+"*"                         { return TTIMES;       }
+"/"                         { return TDIV;  }
+"%"                         { return TMOD;     }
 
 "("                         { return TPAR_OP;   }
 ")"                         { return TPAR_CL;   }
-"{"                         { return TLLAVE_OP; }
-"}"                         { return TLLAVE_CL; }
+"{"                         { return TBRAC_OP; }
+"}"                         { return TBRAC_CL; }
 
-"//".*						/** Comentario de linea **/
-"/*"([^*]|[*][^/])*"*/"  	/**  Comentario bloque  **/
+"//".*						
+"/*"([^*]|[*][^/])*"*/"  	
 
 
 [;,]                        { return *yytext; }
 
 [#\$]                       { return -1; }
 
-.|\n                      ; /** ignore all the rest **/
+.|\n                      ; /** ignore **/
 
 %%
 
-void current_token(enum TYPES type_sym) {
-	yylval.symbol = CreateSymbol(strdup(yytext),type_sym,1,yylineno);
-	if (type_sym == CONSINT)
+void current_token(TOKEN token_symbol) {
+	yylval.symbol = CreateSymbol(strdup(yytext),token_symbol,1,yylineno);
+	if (token_symbol == CONSINT)
 		setValue(yylval.symbol, atoi(yytext));
 	else
 		if(strcmp("true",strdup(yytext)) == 0){
