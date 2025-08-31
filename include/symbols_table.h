@@ -1,63 +1,92 @@
-#ifndef SYMBOLS_TABLE_H
-#define SYMBOLS_TABLE_H
-#include "tree.h"
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
-typedef struct List {
-    TData *info; 
-    struct List *next;
-} LSE;
+#ifndef SYMBOL_H
+#define SYMBOL_H
+typedef enum TOKENS {
+    VAR,
+    EMAIN,
+    VARINT,
+    VARBOOL,
+    CONSINT,
+    CONSBOOL,
+    PLUS,
+    MINUS,
+    PROD,
+    EDIV,
+    EMOD,
+    EOR,
+    EAND,
+    ENOT,
+    ASIGN,
+    DECLARATION,
+    SENTEN,
+    EID,
+    ERETURN,
+    RETINT,
+    RETBOL,
+    RETVOID,
+    EXTINT,
+    EXTBOL,
+    EXTVOID,
+    EIF,
+    ETHEN,
+    EELSE,
+    EWHILE,
+    T_GREATER_THAN,
+    T_LESS_THAN,
+    EEQ,
+    EFUNC,
+    EFUNCEXTERN,
+    EPROGRAM,
+    EBLOQ,
+    CALL_F,
+    ARGS,
+    PARAMINT,
+    PARAMBOOL,
+    OTHERS,
+    BLOCK,
+    BLOCK_FIN
+} TOKENS;
 
-typedef struct Stack {
-    LSE *info;
-    struct Stack *next;   
-} SymbolsTable;
+char static string[45][41] = {"VAR","EMAIN","VARINT","VARBOOL","CONSINT","CONSBOOL","SUMA","RESTA","PROD","EDIV","EMOD","EOR","EAND","ENOT","ASIG","DECLARATION","SENTEN","EID","ERETURN","RETINT","RETBOL","RETVOID", "EXTINT",
+    "EXTBOL", "EXTVOID","EIF","ETHEN","EELSE","EWHILE","T_GREATER_THAN","T_LESS_THAN","EEQ","EFUNC","EFUNCEXTERN","EPROGRAM","EBLOQ","CALL_F","ARGS", "PARAMINT", "PARAMBOOL","OTHERS","BLOCK","BLOCK_FIN"};
 
-typedef struct Parameter {
-    char *id;
-    Type type;
-} Param;
+typedef struct TData {
+    int id;
+    TOKENS token;
+    char* varname;     
+    struct TData *next;
+    int line;
+    int value;
+    int offset;
+    struct TData *table;
+} TData;
 
-typedef struct Params {
-    Param *param;
-    struct Params *next;
-} ParamsList;
-typedef struct Func {
-    char* id;
-    ParamsList *params;
-} Function;
+struct TData *Lookup(char * name);  
+void Install(TData *symbol);  
+void DeleteList();
+void prinTable();
+TData* CreateSymbol(char *name, TOKENS token, int size, int line);
+void setValue(TData* symbol, int value);
+void addOffset(TData* symbol, int offset);
+int getScope();
 
-typedef struct MethodsList {
-    Function *currentFunction;
-    struct MethodsList *next;   
-} FunctionsList;
+struct TData * getTable();
+void InstallInCurrentScope (TData *symbol);
 
-extern FunctionsList** functionTable;  
-extern int inFunction;
-extern Function* currentFunction;
+void PopScope();
 
-int insertElem(SymbolsTable **SymbolsTable, TData *elem);
-int insertLevel(SymbolsTable **symbolsTable, LSE *level);
-TData *getNode(LSE *level, char* nom, Type type);
-TData *findVariable(SymbolsTable *symbolsTable, char* nom, Type type);
-int doesExist(SymbolsTable *symbolsTable, char *name); //checks for the first occurrence of a id, if exists then returns the type
+void InstallParam (TData *param,TData *tablaFunc);
+void InstallScope();
 
-int removeLevel(SymbolsTable **symbolsTable);
-int removeNode(LSE **list, TData *node);
+struct TData *LookupInCurrentLevel(char * name);
+struct TData *LookupInTableAux(char * name, TData *symTable);
+struct TData *LookupExternVar(char * name);
 
-int setValueToNode(LSE *list, char* name, Type type, int val);
-
-int evalType(Tree* bt);
-int evalValue(int a, int b, Token token);
-
-void showTable(SymbolsTable *symbolsTable);
-void showLevel(LSE *list);
-
-int insertFunction(FunctionsList **table, Tree *newFunc);
-ParamsList* treeToParamsList(Tree *tree);
-int compareParams(ParamsList *a, ParamsList *b);
-int isParemeter(char* id, Type type);
-void setCurrentFunction(char* id, Tree *paremeters);
+int cantArguments(TData* symTabla);
+int* typeParam(TData* symTabla);
 
 #endif

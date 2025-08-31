@@ -48,7 +48,7 @@ digito [0-9]
 "||"                        { return OR;  }
 "&&"                        { return AND; }
 "!"                   		{ return NOT; }
-"=="                   		{ return EQUAL;  }
+"=="                   		{ return EQ;  }
 ">"                   		{ return GREATER_THAN; }
 "<"                   		{ return LESS_THAN; }
 
@@ -62,8 +62,8 @@ digito [0-9]
 
 "("                         { return TPAR_OP;   }
 ")"                         { return TPAR_CL;   }
-"{"                         { return TBRAC_OP; }
-"}"                         { return TBRAC_CL; }
+"{"                         { return TBRACE_OP; }
+"}"                         { return TBRACE_CL; }
 
 "//".*						
 "/*"([^*]|[*][^/])*"*/"  	

@@ -921,7 +921,7 @@ YY_RULE_SETUP
 case 19:
 YY_RULE_SETUP
 #line 51 "cacl-lexico.l"
-{ return EQUAL;  }
+{ return EQ;  }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
@@ -976,12 +976,12 @@ YY_RULE_SETUP
 case 30:
 YY_RULE_SETUP
 #line 65 "cacl-lexico.l"
-{ return TBRAC_OP; }
+{ return TBRACE_OP; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 66 "cacl-lexico.l"
-{ return TBRAC_CL; }
+{ return TBRACE_CL; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
