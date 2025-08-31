@@ -61,7 +61,6 @@ void createCodRequiredParam(TData* param);
 void generateVarGlobals();
 
 void operComparate(TOKENS tag,TData* op1, TData* op2, TData* res);
-void operBoolean(TOKENS tag,TData* op1, TData* op2, TData* res);
 void operAritmetic(TOKENS tag,TData* op1, TData* op2, TData* res);
 
 void  traslate(TOKENS tag, Tree* op1, Tree* op2, Tree* res);

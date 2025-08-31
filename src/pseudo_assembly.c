@@ -58,7 +58,7 @@ void operAritmetic(TOKENS tag, TData* op1, TData* op2, TData* res) {
     }
 }
 
-void traslate(TOKENS tag, Tree* op1, Tree* op2, Tree* res) {
+void translate(TOKENS tag, Tree* op1, Tree* op2, Tree* res) {
     TData *op1Symbol = op1->symbol;
     TData *op2Symbol = op2 ? op2->symbol : NULL;
     TData *resSymbol = res->symbol;
@@ -308,14 +308,14 @@ void handleGenerateBinaryOperation(Tree* tree) {
     bool isAsignBool = currentToken == ASIGN || currentToken == EAND || currentToken == EOR || currentToken == EEQ || currentToken == T_GREATER_THAN || currentToken == T_LESS_THAN;
     bool isAritmet = currentToken == PLUS || currentToken == MINUS || currentToken == PROD || currentToken == EMOD || currentToken == EDIV;
     if (isAsignBool || isAritmet) {
-        traslate(currentToken, tree->left, tree->right, tree);
+        translate(currentToken, tree->left, tree->right, tree);
     }
 }
 
 void handleUnaryOp(Tree* tree) {
     generateCode(tree->left);
     if (tree->symbol->token == ENOT) {
-        traslate(tree->symbol->token, tree->left, NULL, tree);
+        translate(tree->symbol->token, tree->left, NULL, tree);
     }
 }
 
