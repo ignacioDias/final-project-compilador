@@ -87,8 +87,8 @@ main: TYPE_BOOL MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTr
     | TYPE_VOID MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTreeWhitSymbol(name,RETVOID,blockNum,yylineno,$5, NULL);}
     ;
 
-list_decls: declaracion              {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,$1, NULL);}
-          | list_decls declaracion   {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,$1, $2);}
+list_decls: declaracion              {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,$1, NULL);}
+          | list_decls declaracion   {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,$1, $2);}
           ;
 
 list_sents:                                     {$$ = NULL;}
@@ -130,7 +130,7 @@ argumento:                         {$$ = NULL;}
 
 parametros:                                 {$$ = NULL;}
           | dec_parametro                   {$$ = $1;}
-          | dec_parametro ',' parametros    {char * name = "PARAMETROS"; $$ = createTreeWhitSymbol(name,DECLA,blockNum,yylineno,$1, $3);}
+          | dec_parametro ',' parametros    {char * name = "PARAMETROS"; $$ = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,$1, $3);}
           ;
 
 dec_parametro : TYPE_INT ID  {char * name = $2->varname; $$ = createTreeWhitSymbol(name,PARAMINT,blockNum,yylineno,NULL, NULL);}
@@ -154,13 +154,13 @@ declare_funcion: TYPE_INT ID TPAR_OP parametros TPAR_CL block           { char *
 
 expr: valor                     {$$ = $1;}
     | call_func                 {$$ = $1;}
-    | expr TPLUS expr            {char * name = "+"; $$ = createTreeWhitSymbol(name,SUMA,blockNum,yylineno,$1, $3);}
-    | expr TMINUS expr          {char * name = "-"; $$ = createTreeWhitSymbol(name,RESTA,blockNum,yylineno,$1, $3);}
+    | expr TPLUS expr            {char * name = "+"; $$ = createTreeWhitSymbol(name,PLUS,blockNum,yylineno,$1, $3);}
+    | expr TMINUS expr          {char * name = "-"; $$ = createTreeWhitSymbol(name,MINUS,blockNum,yylineno,$1, $3);}
     | expr TTIMES expr            {char * name = "*"; $$ = createTreeWhitSymbol(name,PROD,blockNum,yylineno,$1, $3);}
     | expr TDIV expr       {char * name = "/"; $$ = createTreeWhitSymbol(name,EDIV,blockNum,yylineno,$1, $3);}
-    | expr TMOD expr          {char * name = "%"; $$ = createTreeWhitSymbol(name,ERESTO,blockNum,yylineno,$1, $3);}
-    | expr GREATER_THAN expr        {char * name = ">"; $$ = createTreeWhitSymbol(name,EMAYORQUE,blockNum,yylineno,$1, $3);}
-    | expr LESS_THAN expr        {char * name = "<"; $$ = createTreeWhitSymbol(name,EMENORQUE,blockNum,yylineno,$1, $3);}
+    | expr TMOD expr          {char * name = "%"; $$ = createTreeWhitSymbol(name,EMOD,blockNum,yylineno,$1, $3);}
+    | expr GREATER_THAN expr        {char * name = ">"; $$ = createTreeWhitSymbol(name,GREATER_THAN,blockNum,yylineno,$1, $3);}
+    | expr LESS_THAN expr        {char * name = "<"; $$ = createTreeWhitSymbol(name,LESS_THAN,blockNum,yylineno,$1, $3);}
     | expr EQ expr              {char * name = "=="; $$ = createTreeWhitSymbol(name,EEQ,blockNum,yylineno,$1, $3);}
     | expr AND expr             {char * name = "&&"; $$ = createTreeWhitSymbol(name,EAND,blockNum,yylineno,$1, $3);}
     | expr OR expr              {char * name = "||"; $$ = createTreeWhitSymbol(name,EOR,blockNum,yylineno,$1, $3);}
