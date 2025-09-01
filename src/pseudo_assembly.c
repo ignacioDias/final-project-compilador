@@ -2,7 +2,7 @@
 #include "../include/assembly_generator.h"
 #include <string.h>
 
-PseudoAssembly* ParamsMayorSeis = NULL;
+PseudoAssembly* MoreThanSixParams = NULL;
 PseudoAssembly* instructions = NULL;
 
 int labID = 1;
@@ -235,9 +235,9 @@ void handleGenerateFunc(Tree* tree) {
     createSentenThreeDir(T_FUNC, tree->symbol);
     if (tree->left) {
         requireParams(tree->left);
-        invertASM(&ParamsMayorSeis);
-        concatLists(instructions, ParamsMayorSeis);
-        ParamsMayorSeis = NULL;
+        invertASM(&MoreThanSixParams);
+        concatLists(instructions, MoreThanSixParams);
+        MoreThanSixParams = NULL;
     }
     if (tree->right) generateCode(tree->right);
     if (tree->symbol->token == RETVOID) {
@@ -414,8 +414,8 @@ void createCodRequiredParam(TData* param) {
         seq->op1 = CreateSymbol(name1, OTHERS, 0, 0);
         seq->op2 = CreateSymbol(name1, OTHERS, 0, 0);
         seq->result = param;
-        seq->next = ParamsMayorSeis;
-        ParamsMayorSeis = seq;
+        seq->next = MoreThanSixParams;
+        MoreThanSixParams = seq;
     } else {
         createInstallSequence(T_REQUIRED_PARAM, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), param);
     }
