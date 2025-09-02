@@ -1,0 +1,10 @@
+Program {
+    int main() {
+        int a;
+        a = 3;
+        if(false) then { //acá se rompe al poner una operación booleana
+            return a;
+        }
+        return a;
+    }
+}

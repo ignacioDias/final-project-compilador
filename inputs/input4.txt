@@ -1,0 +1,9 @@
+Program {
+    void main() {
+        int a;
+        a = 3;
+        while(true) {
+            a = a + 1;
+        }
+    }
+}

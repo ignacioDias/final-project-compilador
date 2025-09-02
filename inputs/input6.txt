@@ -1,0 +1,8 @@
+Program {
+    int prinInt(int a) extern;
+    void main() {
+        int a;
+        a = 3;
+        prinInt(a);
+    }
+}

@@ -1,0 +1,11 @@
+Program {
+    int main() {
+        int a;
+        a = 3;
+        if(true) then {
+            return a;
+        } else {
+            return a;
+        }
+    }
+}
