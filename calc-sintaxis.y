@@ -189,18 +189,18 @@ while: WHILE TPAR_OP expr TPAR_CL block {char * name = "while"; $$ = createTreeW
 
 %%
 
-void compilador(Tree* ar){
-    buildSymbolTable(ar);
+void compilador(Tree* tree){
+    buildSymbolTable(tree);
     checkMissingReturnError();
     if(hasSemanticError()) {
-       freeTree(ar);
+       freeTree(tree);
        exit(1);
     }
-    generateThreeDir(ar);
+    generateThreeAddressCode(tree);
     printPseudoAssemblyInstructions();
-    generateAssembler();
+    generateAssemblerOutput();
     freePseudoAssemblyInstructions();
-    freeTree(ar);
+    freeTree(tree);
 }
 
 Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){

@@ -1795,18 +1795,18 @@ yyreturnlab:
 #line 190 "calc-sintaxis.y"
 
 
-void compilador(Tree* ar){
-    buildSymbolTable(ar);
+void compilador(Tree* tree){
+    buildSymbolTable(tree);
     checkMissingReturnError();
     if(hasSemanticError()) {
-       freeTree(ar);
+       freeTree(tree);
        exit(1);
     }
-    generateThreeDir(ar);
-    printAsembler();
+    generateThreeAddressCode(tree);
+    printPseudoAssemblyInstructions();
     generateAssembler();
-    deleteInstructions();
-    freeTree(ar);
+    freePseudoAssemblyInstructions();
+    freeTree(tree);
 }
 
 Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){

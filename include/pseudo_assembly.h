@@ -136,7 +136,7 @@ void createReturnInstruction(TData* functionSymbol);
 void createRequiredParameterInstruction(TData* paramSymbol);
 
 // Generate the final assembler output from pseudo-assembly instructions
-void generateAssembler(void);
+void generateAssemblerOutput(void);
 
 
 #endif
