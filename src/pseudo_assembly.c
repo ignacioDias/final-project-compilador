@@ -535,6 +535,6 @@ void createRequiredParameterInstruction(TData* paramSymbol) {
  * Generate the final assembler output from pseudo-assembly instructions.
  */
 void generateAssemblerOutput() {
-    createFile();
-    createWriteASM(instructionList);
+    createOutputFile();
+    generateAssemblyFromPseudo(instructionList);
 }

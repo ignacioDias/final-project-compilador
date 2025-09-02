@@ -1804,7 +1804,7 @@ void compilador(Tree* tree){
     }
     generateThreeAddressCode(tree);
     printPseudoAssemblyInstructions();
-    generateAssembler();
+    generateAssemblerOutput();
     freePseudoAssemblyInstructions();
     freeTree(tree);
 }
