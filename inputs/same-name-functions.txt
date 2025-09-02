@@ -1,8 +1,0 @@
-Program {
-    int inc1(int x) {
-        return x + 1;
-    }
-    int inc1(bool y) {
-        return 3;
-    }
-}

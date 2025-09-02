@@ -1,1 +1,14 @@
-*.s
+# Archivos generados por Bison/Flex
+calc-sintaxis.tab.c
+calc-sintaxis.tab.h
+lex.yy.c
+calc-sintaxis.output
+
+# Binarios y ejecutables
+a.out
+project
+output.s
+
+# Archivos temporales / notas
+TODO.txt
+
