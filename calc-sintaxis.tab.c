@@ -1796,20 +1796,20 @@ yyreturnlab:
 
 
 void compilador(Tree* ar){
-    createTable(ar);
-    retError();
-    if(getError()) {
-       elimArbol(ar);
+    buildSymbolTable(ar);
+    checkMissingReturnError();
+    if(hasSemanticError()) {
+       freeTree(ar);
        exit(1);
     }
     generateThreeDir(ar);
     printAsembler();
     generateAssembler();
     deleteInstructions();
-    elimArbol(ar);
+    freeTree(ar);
 }
 
 Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){
-    TData* aux = CreateSymbol(name,token,0,yylineno);
+    TData* aux = createSymbol(name,token,0,yylineno);
     return createTree(aux,l,r);
 }

@@ -112,13 +112,13 @@ void generateThreeDir(Tree* tree) {
 }
 
 void generateVarGlobals() {
-    TData *aux = getTable();
+    TData *aux = getSymbolTable();
     while(aux) {
         TData *rec = aux->table;
         while(rec) {
             if(rec->token == VARINT || rec->token == VARBOOL) {
                 char *name1 = "_";
-                createInstallSequence(T_GLOBAL, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), rec);
+                createInstallSequence(T_GLOBAL, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), rec);
             }
             rec = rec->next;
         }
@@ -175,7 +175,7 @@ void handleGenerateMain(Tree* tree) {
     if (tree->right) generateCode(tree->right);
     if (tree->symbol->token == RETVOID) {
         char *name1 = " ";
-        createInstallSequence(T_RETURN, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0));
+        createInstallSequence(T_RETURN, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0));
     }
 }
 
@@ -220,7 +220,7 @@ void generateLoadParams(Tree* tree) {
 
 void createTagLoad(TData* symbol) {
     char *name1 = "_";
-    createInstallSequence(T_LOAD_PARAM, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), symbol);
+    createInstallSequence(T_LOAD_PARAM, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), symbol);
 }
 
 void concatLists(PseudoAssembly *list1, PseudoAssembly *list2) {
@@ -242,7 +242,7 @@ void handleGenerateFunc(Tree* tree) {
     if (tree->right) generateCode(tree->right);
     if (tree->symbol->token == RETVOID) {
         char *name1 = " ";
-        createInstallSequence(T_RETURN, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0));
+        createInstallSequence(T_RETURN, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0));
     }
 }
 
@@ -258,12 +258,12 @@ void requireParams(Tree* tree) {
 
 void createCall_Func(TData* nameFunc, TData* tempResult) {
     char *name1 = "_";
-    createInstallSequence(T_CALL, nameFunc, CreateSymbol(name1, OTHERS, 0, 0), tempResult);
+    createInstallSequence(T_CALL, nameFunc, createSymbol(name1, OTHERS, 0, 0), tempResult);
 }
 
 void createSentenThreeDir(ASM tag, TData* func) {
     char *name1 = "_";
-    createInstallSequence(tag, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), func);
+    createInstallSequence(tag, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), func);
 }
 
 void handleGenerateIF(Tree* tree) {
@@ -371,9 +371,9 @@ PseudoAssembly* createTagForFalse(ASM tag, TData* condition) {
     seq->tag = tag;
     seq->op1 = condition;
     char *name1 = "_";
-    seq->op2 = CreateSymbol(name1, OTHERS, 0, 0);
+    seq->op2 = createSymbol(name1, OTHERS, 0, 0);
     char* name = generateNameLabel();
-    seq->result = CreateSymbol(name, OTHERS, 0, 0);
+    seq->result = createSymbol(name, OTHERS, 0, 0);
     seq->next = NULL;
     return seq;
 }
@@ -382,10 +382,10 @@ PseudoAssembly* createJump() {
     PseudoAssembly* jump = (PseudoAssembly*)malloc(sizeof(PseudoAssembly));
     jump->tag = T_JUMP;
     char *name1 = "_";
-    jump->op1 = CreateSymbol(name1, OTHERS, 0, 0);
-    jump->op2 = CreateSymbol(name1, OTHERS, 0, 0);
+    jump->op1 = createSymbol(name1, OTHERS, 0, 0);
+    jump->op2 = createSymbol(name1, OTHERS, 0, 0);
     char* name = generateNameLabel();
-    jump->result = CreateSymbol(name, OTHERS, 0, 0);
+    jump->result = createSymbol(name, OTHERS, 0, 0);
     jump->next = NULL;
     return jump;
 }
@@ -398,12 +398,12 @@ char* generateNameLabel() {
 
 void createAndAppendTagLabel(char* nameLabel) {
     char *name1 = "_";
-    createInstallSequence(T_LABEL, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(nameLabel, OTHERS, 0, 0));
+    createInstallSequence(T_LABEL, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), createSymbol(nameLabel, OTHERS, 0, 0));
 }
 
 void createRetTag(TData* func) {
     char *name1 = " ";
-    createInstallSequence(T_RETURN, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), func);
+    createInstallSequence(T_RETURN, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), func);
 }
 
 void createCodRequiredParam(TData* param) {
@@ -411,13 +411,13 @@ void createCodRequiredParam(TData* param) {
     if (paramReq > 6) {
         PseudoAssembly* seq = (PseudoAssembly*)malloc(sizeof(PseudoAssembly));
         seq->tag = T_REQUIRED_PARAM;
-        seq->op1 = CreateSymbol(name1, OTHERS, 0, 0);
-        seq->op2 = CreateSymbol(name1, OTHERS, 0, 0);
+        seq->op1 = createSymbol(name1, OTHERS, 0, 0);
+        seq->op2 = createSymbol(name1, OTHERS, 0, 0);
         seq->result = param;
         seq->next = MoreThanSixParams;
         MoreThanSixParams = seq;
     } else {
-        createInstallSequence(T_REQUIRED_PARAM, CreateSymbol(name1, OTHERS, 0, 0), CreateSymbol(name1, OTHERS, 0, 0), param);
+        createInstallSequence(T_REQUIRED_PARAM, createSymbol(name1, OTHERS, 0, 0), createSymbol(name1, OTHERS, 0, 0), param);
     }
 }
 

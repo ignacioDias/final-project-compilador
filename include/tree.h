@@ -12,14 +12,21 @@ typedef struct BinaryTree {
     struct BinaryTree *right;
 } Tree;
 
-Tree* createTree(TData* symbol, Tree *l, Tree *r);
+// Create a new tree node
+Tree* createTree(TData* symbol, Tree *left, Tree *right);
 
-void showTreeDot(Tree* tree,FILE* file);
-void elimArbol(Tree* tree);
+// Update the symbol of a tree node
+void updateTreeNode(Tree* node, TData* symbol);
 
-void createTable(Tree* tree);
+// Recursively free the tree and its symbols
+void freeTree(Tree* node);
 
-bool getError();
-void retError();
+// Build the symbol table and perform semantic analysis
+void buildSymbolTable(Tree* node);
 
+// Print error if a return statement is missing in a function
+void checkMissingReturnError(void);
+
+// Returns true if a semantic error was detected
+bool hasSemanticError(void);
 #endif

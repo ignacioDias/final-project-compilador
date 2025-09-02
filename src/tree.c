@@ -2,213 +2,208 @@
 #include "../include/symbols_table.h"
 #include "../include/errors_manager.h"
 
-bool err = false;
-TOKENS aux = RETVOID;
+// Error flag for semantic analysis
+bool semanticError = false;
 
-TData *auxFunc = NULL;
-int offset = -16;
-int cantBloq = -1;
+// Tracks the expected return type for functions
+TOKENS expectedReturnType = RETVOID;
 
-bool inBlockIf = false;
-int cantReturns = 0;
-int cantRetBlock = 0;
-int cantWhileIf = 0;
+// Pointer to the current function symbol
+TData *currentFunctionSymbol = NULL;
 
-bool errRet = false;
+// Stack offset for local variables
+int localVarOffset = -16;
 
-Tree* createTree(TData* symbol, Tree *l, Tree *r) {
-    Tree *tree = malloc(sizeof(Tree));
-    if (!tree) return NULL;
-    tree->symbol = symbol;
-    tree->left = l;
-    tree->right = r;
-    return tree;
+// Block and scope counters
+int blockCount = -1;
+bool insideConditionalBlock = false;
+int returnCount = 0;
+int returnCountInBlock = 0;
+int conditionalBlockCount = 0;
+
+// Tracks if a return error has occurred
+bool missingReturnError = false;
+
+// Create a new tree node
+Tree* createTree(TData* symbol, Tree *left, Tree *right) {
+    Tree *node = malloc(sizeof(Tree));
+    if (!node) return NULL;
+    node->symbol = symbol;
+    node->left = left;
+    node->right = right;
+    return node;
 }
 
-void updateNodeTree(Tree* tree, TData* symbol) {
-    if (tree) tree->symbol = symbol;
+// Update the symbol of a tree node
+void updateTreeNode(Tree* node, TData* symbol) {
+    if (node) node->symbol = symbol;
 }
 
-void elimArbol(Tree* tree) {
-    if (!tree) return;
-    if (tree->symbol) {
-        free(tree->symbol);
-        tree->symbol = NULL;
+// Recursively free the tree and its symbols
+void freeTree(Tree* node) {
+    if (!node) return;
+    if (node->symbol) {
+        free(node->symbol);
+        node->symbol = NULL;
     }
-    elimArbol(tree->left);
-    elimArbol(tree->right);
-    free(tree);
+    freeTree(node->left);
+    freeTree(node->right);
+    free(node);
 }
 
-void showTreeDot(Tree* tree, FILE* file) {
-    if (!tree) return;
-    if (tree->left && tree->right) {
-        fprintf(file, "\"%d|  %s\" -> \"%d|  %s\", \"%d|  %s\";\n",
-            tree->symbol->id, tree->symbol->varname,
-            tree->left->symbol->id, tree->left->symbol->varname,
-            tree->right->symbol->id, tree->right->symbol->varname);
-        showTreeDot(tree->left, file);
-        showTreeDot(tree->right, file);
-    } else {
-        if (tree->left) {
-            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",
-                tree->symbol->id, tree->symbol->varname,
-                tree->left->symbol->id, tree->left->symbol->varname);
-            showTreeDot(tree->left, file);
+// Build the symbol table and perform semantic analysis
+void buildSymbolTable(Tree* node) {
+    if (!node) return;
+
+    TOKENS token = node->symbol->token;
+
+    // Handle program scope
+    if (token == EPROGRAM) {
+        pushScope();
+        installInCurrentScope(node->symbol);
+    }
+
+    // Handle function and extern declarations
+    if (token == RETINT || token == RETBOL || token == RETVOID) {
+        returnCount = 0;
+        localVarOffset = -16;
+        blockCount++;
+        currentFunctionSymbol = node->symbol;
+        installInCurrentScope(node->symbol);
+        pushScope();
+    } else if (token == EXTVOID || token == EXTINT || token == EXTBOL) {
+        currentFunctionSymbol = node->symbol;
+        installInCurrentScope(node->symbol);
+        pushScope();
+    }
+
+    // Handle conditional and loop blocks
+    if (token == EIF || token == EWHILE || token == EELSE) {
+        conditionalBlockCount++;
+        insideConditionalBlock = true;
+        blockCount++;
+        pushScope();
+        installInCurrentScope(node->symbol);
+    }
+
+    // Handle variable and parameter declarations
+    if (token == VARBOOL || token == VARINT) {
+        if (getScopeDepth() != 1) {
+            node->symbol->offset = localVarOffset;
+            localVarOffset -= 16;
         }
-        if (tree->right) {
-            fprintf(file, "\"%d|  %s\" -> \"%d|  %s\" ;\n",
-                tree->symbol->id, tree->symbol->varname,
-                tree->right->symbol->id, tree->right->symbol->varname);
-            showTreeDot(tree->right, file);
-        }
+        installInCurrentScope(node->symbol);
     }
-}
-
-void createTable(Tree* tree) {
-    if (!tree) return;
-
-    TOKENS currentToken = tree->symbol->token;
-
-    // Scope and function/extern handling
-    if (currentToken == EPROGRAM) {
-        InstallScope();
-        InstallInCurrentScope(tree->symbol);
+    if (token == PARAMINT || token == PARAMBOOL) {
+        node->symbol->offset = localVarOffset;
+        localVarOffset -= 16;
+        installInCurrentScope(node->symbol);
+        installParameter(node->symbol, currentFunctionSymbol);
     }
-    if (currentToken == RETINT || currentToken == RETBOL || currentToken == RETVOID) {
-        cantReturns = 0;
-        offset = -16;
-        cantBloq++;
-        auxFunc = tree->symbol;
-        InstallInCurrentScope(tree->symbol);
-        InstallScope();
-    } else if (currentToken == EXTVOID || currentToken == EXTINT || currentToken == EXTBOL) {
-        auxFunc = tree->symbol;
-        InstallInCurrentScope(tree->symbol);
-        InstallScope();
-    }
-    if (currentToken == EIF || currentToken == EWHILE || currentToken == EELSE) {
-        cantWhileIf++;
-        inBlockIf = true;
-        cantBloq++;
-        InstallScope();
-        InstallInCurrentScope(tree->symbol);
-    }
-
-    // Variable and parameter handling
-    if (currentToken == VARBOOL || currentToken == VARINT) {
-        if (getScope() != 1) {
-            tree->symbol->offset = offset;
-            offset -= 16;
-        }
-        InstallInCurrentScope(tree->symbol);
-    }
-    if (currentToken == PARAMINT || currentToken == PARAMBOOL) {
-        tree->symbol->offset = offset;
-        offset -= 16;
-        InstallInCurrentScope(tree->symbol);
-        InstallParam(tree->symbol, auxFunc);
-    }
-    if (currentToken == EID) {
-        TData* symbolStack = LookupExternVar(tree->symbol->varname);
-        if (symbolStack) {
-            tree->symbol->offset = symbolStack->offset;
+    if (token == EID) {
+        TData* foundSymbol = lookupInAllScopes(node->symbol->varname);
+        if (foundSymbol) {
+            node->symbol->offset = foundSymbol->offset;
         }
     }
 
-    // Block and return handling
-    if (currentToken == BLOCK_FIN) {
-        if (cantBloq > 0) cantBloq--;
-        if (cantBloq == 0 && !inBlockIf) {
-            auxFunc->offset = offset;
-            offset = -16;
+    // Handle block end and return error checking
+    if (token == BLOCK_FIN) {
+        if (blockCount > 0) blockCount--;
+        if (blockCount == 0 && !insideConditionalBlock) {
+            currentFunctionSymbol->offset = localVarOffset;
+            localVarOffset = -16;
         }
-        if (inBlockIf && cantWhileIf == 1) {
-            inBlockIf = false;
-            cantWhileIf--;
-        } else if (inBlockIf && cantWhileIf > 1) {
-            cantWhileIf--;
-        } else if (errRet && cantReturns != 2) {
-            printf("\033[31mTe falta un return en la linea \033[0m %d\n", tree->symbol->line - 1);
-            err = true;
-        } else if (errRet && cantReturns == 2) {
-            errRet = false;
+        if (insideConditionalBlock && conditionalBlockCount == 1) {
+            insideConditionalBlock = false;
+            conditionalBlockCount--;
+        } else if (insideConditionalBlock && conditionalBlockCount > 1) {
+            conditionalBlockCount--;
+        } else if (missingReturnError && returnCount != 2) {
+            printf("\033[31mMissing return statement at line \033[0m %d\n", node->symbol->line - 1);
+            semanticError = true;
+        } else if (missingReturnError && returnCount == 2) {
+            missingReturnError = false;
         }
-        PopScope();
-        cantRetBlock = 0;
+        popScope();
+        returnCountInBlock = 0;
     }
 
-    // Binary operations and error checking
-    if (tree->right && tree->left) {
-        TOKENS t = tree->symbol->token;
-        bool operArit = (t == PLUS || t == MINUS || t == PROD || t == EDIV || t == EMOD);
-        bool operBool = (t == EOR || t == EAND || t == ENOT);
-        bool operCondi = (t == T_GREATER_THAN || t == T_LESS_THAN || t == EEQ);
-        if (t == ASIGN) {
-            errorAsign(tree, &err);
-        } else if (operArit || operBool || operCondi) {
-            tree->symbol->offset = offset;
-            offset -= 16;
-            errorOperation(tree, t, &err);
-        } else if (t == EIF || t == EWHILE) {
-            errorCondition(tree, &err);
+    // Handle binary operations and semantic checks
+    if (node->right && node->left) {
+        TOKENS opToken = node->symbol->token;
+        bool isArithmetic = (opToken == PLUS || opToken == MINUS || opToken == PROD || opToken == EDIV || opToken == EMOD);
+        bool isBoolean = (opToken == EOR || opToken == EAND || opToken == ENOT);
+        bool isComparison = (opToken == T_GREATER_THAN || opToken == T_LESS_THAN || opToken == EEQ);
+        if (opToken == ASIGN) {
+            validateAssignment(node, &semanticError);
+        } else if (isArithmetic || isBoolean || isComparison) {
+            node->symbol->offset = localVarOffset;
+            localVarOffset -= 16;
+            validateOperation(node, opToken, &semanticError);
+        } else if (opToken == EIF || opToken == EWHILE) {
+            validateCondition(node, &semanticError);
         }
     }
 
-    // Return and call handling
-    if (tree->symbol->token == RETVOID) {
-        aux = tree->symbol->token;
-        errRet = false;
+    // Track expected return type for functions
+    if (node->symbol->token == RETVOID) {
+        expectedReturnType = node->symbol->token;
+        missingReturnError = false;
     }
-    if (tree->symbol->token == RETINT || tree->symbol->token == RETBOL ||
-        tree->symbol->token == EXTBOL || tree->symbol->token == RETINT) {
-        aux = tree->symbol->token;
-        errRet = true;
+    if (node->symbol->token == RETINT || node->symbol->token == RETBOL ||
+        node->symbol->token == EXTBOL || node->symbol->token == RETINT) {
+        expectedReturnType = node->symbol->token;
+        missingReturnError = true;
     }
-    if (tree->symbol->token == CALL_F) {
-        TData* exist = LookupExternVar(tree->left->symbol->varname);
-        if (exist) {
-            tree->symbol->offset = offset;
-            offset -= 16;
-            errorCall(tree, &err);
+
+    // Handle function calls and argument checks
+    if (node->symbol->token == CALL_F) {
+        TData* foundFunc = lookupInAllScopes(node->left->symbol->varname);
+        if (foundFunc) {
+            node->symbol->offset = localVarOffset;
+            localVarOffset -= 16;
+            validateFunctionCall(node, &semanticError);
         } else {
-            printf("\033[31mLa funcion no existe\033[0m, error en linea:%d\n", tree->left->symbol->line);
-            err = true;
+            printf("\033[31mFunction does not exist\033[0m, error at line:%d\n", node->left->symbol->line);
+            semanticError = true;
         }
     }
 
-    // Left and right recursion
-    if (tree->left) {
-        if (tree->symbol->token == ERETURN && inBlockIf) {
-            if (cantRetBlock == 0) cantReturns++;
-            cantRetBlock++;
-            errorReturn(tree, aux, &err);
-        } else if (tree->symbol->token == ERETURN && cantReturns == 2) {
-            errRet = false;
-            errorReturn(tree, aux, &err);
-        } else if (tree->symbol->token == ERETURN) {
-            errRet = false;
-            errorReturn(tree, aux, &err);
+    // Recursively process left and right subtrees
+    if (node->left) {
+        if (node->symbol->token == ERETURN && insideConditionalBlock) {
+            if (returnCountInBlock == 0) returnCount++;
+            returnCountInBlock++;
+            validateReturn(node, expectedReturnType, &semanticError);
+        } else if (node->symbol->token == ERETURN && returnCount == 2) {
+            missingReturnError = false;
+            validateReturn(node, expectedReturnType, &semanticError);
+        } else if (node->symbol->token == ERETURN) {
+            missingReturnError = false;
+            validateReturn(node, expectedReturnType, &semanticError);
         }
-        if (tree->symbol->token == ENOT) {
-            tree->symbol->offset = offset;
-            offset -= 16;
-            errorNot(tree, &err);
+        if (node->symbol->token == ENOT) {
+            node->symbol->offset = localVarOffset;
+            localVarOffset -= 16;
+            validateNotOperation(node, &semanticError);
         }
-        createTable(tree->left);
+        buildSymbolTable(node->left);
     }
-    if (tree->right) {
-        createTable(tree->right);
+    if (node->right) {
+        buildSymbolTable(node->right);
     }
 }
 
-void retError(void) {
-    if (errRet) {
-        printf("\033[31mTe falta un return \033[0m\n");
-        err = true;
+// Print error if a return statement is missing in a function
+void checkMissingReturnError(void) {
+    if (missingReturnError) {
+        printf("\033[31mMissing return statement\033[0m\n");
+        semanticError = true;
     }
 }
 
-bool getError(void) {
-    return err;
+// Returns true if a semantic error was detected
+bool hasSemanticError(void) {
+    return semanticError;
 }

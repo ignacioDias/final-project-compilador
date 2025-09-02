@@ -42,7 +42,7 @@ digito [0-9]
 
 {digito}+     				{ current_token(CONSINT); return INT; }
 
-{letra}({letra}|{digito})*  { yylval.symbol = CreateSymbol(strdup(yytext),EID,0,yylineno); return ID; }
+{letra}({letra}|{digito})*  { yylval.symbol = createSymbol(strdup(yytext),EID,0,yylineno); return ID; }
 
 
 "||"                        { return OR;  }
@@ -78,14 +78,14 @@ digito [0-9]
 %%
 
 void current_token(TOKENS token_symbol) {
-	yylval.symbol = CreateSymbol(strdup(yytext),token_symbol,1,yylineno);
+	yylval.symbol = createSymbol(strdup(yytext),token_symbol,1,yylineno);
 	if (token_symbol == CONSINT)
-		setValue(yylval.symbol, atoi(yytext));
+		setSymbolValue(yylval.symbol, atoi(yytext));
 	else
 		if(strcmp("true",strdup(yytext)) == 0){
-			setValue(yylval.symbol, 1);
+			setSymbolValue(yylval.symbol, 1);
 		}else {
-			setValue(yylval.symbol, 0);
+			setSymbolValue(yylval.symbol, 0);
 		}
 }
 

@@ -6,17 +6,45 @@
 #ifndef ERRORS_MANAGER_H
 #define ERRORS_MANAGER_H
 
-void errorAsign(Tree *ar, bool* err);
-void errorNot(Tree* ar, bool* err);
-void errorCondition(Tree *ar, bool* err);
-void errorOperation(Tree *ar, TOKENS type, bool* err);
-void errorReturn(Tree* ar, TOKENS type, bool* err);
-void evaluate_op_cond(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
-void evaluate_op_booleans(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
-void evaluate_op_aritmetics(Tree* ar, TData* auxIzq, TData* auxDer, bool* err);
+// Checks if a token is an arithmetic operator
+bool isArithmeticToken(TOKENS token);
 
-bool isVarCompatibleASIGN (TOKENS tipoIzq, TOKENS tipoDer);
+// Checks if a token is a boolean operator
+bool isBooleanToken(TOKENS token);
 
-void errorCall(Tree *ar,  bool *err);
-void recorrer(Tree *ar, int tipos[], int* index, int maxArg, int size, bool *err);
+// Checks if a token is a comparison operator
+bool isComparisonToken(TOKENS token);
+
+// Validates that a condition expression is boolean
+void validateCondition(Tree *node, bool* errorFlag);
+
+// Validates that a NOT operation is applied to a boolean
+void validateNotOperation(Tree* node, bool* errorFlag);
+
+// Validates that a return statement matches the expected type
+void validateReturn(Tree* node, TOKENS expectedType, bool* errorFlag);
+
+// Validates that an assignment is type-compatible
+void validateAssignment(Tree *node, bool *errorFlag);
+
+// Checks if assignment types are compatible (parameter/variable INT/BOOL)
+bool isAssignmentTypeCompatible(TOKENS leftToken, TOKENS rightToken);
+
+// Validates that an operation is type-compatible
+void validateOperation(Tree *node, TOKENS operationToken, bool* errorFlag);
+
+// Validates that a comparison operation is type-compatible
+void validateComparisonOperation(Tree* node, TData* leftSymbol, TData* rightSymbol, bool* errorFlag);
+
+// Validates that a boolean operation is type-compatible
+void validateBooleanOperation(Tree* node, TData* leftSymbol, TData* rightSymbol, bool* errorFlag);
+
+// Validates that an arithmetic operation is type-compatible
+void validateArithmeticOperation(Tree* node, TData* leftSymbol, TData* rightSymbol, bool* errorFlag);
+
+// Validates that function call arguments match parameter types
+void validateFunctionCall(Tree *node, bool *errorFlag);
+
+// Recursively collects argument types for function call validation
+void collectArgumentTypes(Tree *node, int types[], int* index, int maxArgs, int size, bool *errorFlag);
 #endif

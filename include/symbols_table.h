@@ -65,25 +65,49 @@ typedef struct TData {
     struct TData *table;
 } TData;
 
-void prinTable();
-TData* CreateSymbol(char *name, TOKENS token, int size, int line);
-void setValue(TData* symbol, int value);
-void addOffset(TData* symbol, int offset);
-int getScope();
+// Create and initialize a new symbol table entry
+TData *createSymbol(char *name, TOKENS token, int size, int line);
 
-struct TData * getTable();
-void InstallInCurrentScope (TData *symbol);
+// Get the current symbol table (scope stack head)
+TData *getSymbolTable(void);
 
-void PopScope();
+// Get the current scope depth
+int getScopeDepth(void);
 
-void InstallParam (TData *param,TData *tablaFunc);
-void InstallScope();
+// Create a new scope and push it onto the scope stack
+void pushScope(void);
 
-struct TData *LookupInCurrentLevel(char * name);
-struct TData *LookupInTableAux(char * name, TData *symTable);
-struct TData *LookupExternVar(char * name);
+// Look up a symbol by name in the current scope
+TData *lookupInCurrentScope(char *name);
 
-int cantArguments(TData* symTabla);
-int* typeParam(TData* symTabla);
+// Look up a symbol by name in a given symbol table (scope)
+TData *lookupInScope(char *name, TData *scope);
+
+// Install a symbol in the current scope
+void installInCurrentScope(TData *symbol);
+
+// Pop the current scope from the scope stack
+void popScope(void);
+
+// Install a parameter symbol in a function's symbol table
+void installParameter(TData *param, TData *functionSymbol);
+
+// Look up a symbol by name in all scopes (from innermost to outermost)
+TData *lookupInAllScopes(char *name);
+
+// Set the value of a symbol
+void setSymbolValue(TData *symbol, int value);
+
+// Get an array of parameter types for a function symbol
+int *getParameterTypes(TData *functionSymbol);
+
+// Count the number of parameters for a function symbol
+int countFunctionArguments(TData *functionSymbol);
+
+// Print the entire symbol table (all scopes and their entries)
+void printSymbolTable(void);
+
+// Set the stack offset for a symbol
+void setSymbolOffset(TData *symbol, int offset);
 
 #endif
