@@ -197,9 +197,9 @@ void compilador(Tree* ar){
        exit(1);
     }
     generateThreeDir(ar);
-    printAsembler();
+    printPseudoAssemblyInstructions();
     generateAssembler();
-    deleteInstructions();
+    freePseudoAssemblyInstructions();
     freeTree(ar);
 }
 

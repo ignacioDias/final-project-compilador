@@ -32,42 +32,111 @@ typedef struct PseudoAssembly {
     TData* result;
     struct PseudoAssembly* next;
 } PseudoAssembly;
-void createInstallSequence(ASM tag, TData* op1, TData* op2, TData* result);
-void invertASM(PseudoAssembly ** list);
-void printAsembler();
-void deleteInstructions();
-void generateCode(Tree* tree);
-void handleGenerateIF(Tree* tree);
-void handleGenerateWhile(Tree* tree);
-void handleGenerateBinaryOperation(Tree* tree);
-void handleUnaryOp(Tree* tree);
-void handleGenerateFunc(Tree* tree);
-void generateThreeDir(Tree* tree);
-void createRetTag(TData* func);
-void generateLoadParams(Tree* tree);
-void has_Call_Func(Tree* tree);
-void has_Operation(Tree* tree);
-void createSentenThreeDir(ASM tag , TData* func);
-void handleGenerateMain(Tree* tree);
-void createTagLoad(TData* symbol);
-void createCall_Func(TData* nameFunc, TData* tempResult);
-PseudoAssembly* createTagForFalse(ASM tag, TData* condition);
-PseudoAssembly* createJump();
-void createAndAppendTagLabel(char* nameLabel);
-char* generateNameLabel();
-void handleGenerateOpReturn(Tree* tree);
-void requireParams(Tree* tree);
-void createCodRequiredParam(TData* param);
-void generateVarGlobals();
 
-void operComparate(TOKENS tag,TData* op1, TData* op2, TData* res);
-void operAritmetic(TOKENS tag,TData* op1, TData* op2, TData* res);
+// Add a new pseudo-assembly instruction to the instruction list
+void addPseudoAssemblyInstruction(ASM opcode, TData* operand1, TData* operand2, TData* result);
 
-void  traslate(TOKENS tag, Tree* op1, Tree* op2, Tree* res);
-struct TData *LookupVar(char * name);
+// Add a comparison operation instruction
+void addComparisonOperation(TOKENS operation, TData* operand1, TData* operand2, TData* result);
 
+// Add a boolean operation instruction
+void addBooleanOperation(TOKENS operation, TData* operand1, TData* operand2, TData* result);
 
+// Add an arithmetic operation instruction
+void addArithmeticOperation(TOKENS operation, TData* operand1, TData* operand2, TData* result);
 
-void generateAssembler();
+// Translate an AST operation to pseudo-assembly instructions
+void translateASTOperation(TOKENS operation, Tree* leftNode, Tree* rightNode, Tree* resultNode);
+
+// Find a result symbol in the instruction list by name
+TData *findInstructionResult(char *name);
+
+// Generate pseudo-assembly instructions from an AST and reverse the instruction list
+void generateThreeAddressCode(Tree* astRoot);
+
+// Generate pseudo-assembly instructions for global variables
+void generateGlobalVariableInstructions(void);
+
+// Recursively generate pseudo-assembly instructions from an AST
+void generateCode(Tree* node);
+
+// Handle code generation for return operations
+void handleReturnOperation(Tree* node);
+
+// Handle code generation for the main function
+void handleMainFunction(Tree* node);
+
+// Recursively process arithmetic, boolean, and comparison operations in the AST
+void processOperations(Tree* node);
+
+// Recursively process function calls in the AST
+void processFunctionCalls(Tree* node);
+
+// Recursively generate parameter load instructions for function calls
+void generateParameterLoadInstructions(Tree* node);
+
+// Create a pseudo-assembly instruction for loading a parameter
+void createParameterLoadInstruction(TData* symbol);
+
+// Concatenate two pseudo-assembly instruction lists
+void concatenateInstructionLists(PseudoAssembly *list1, PseudoAssembly *list2);
+
+// Handle code generation for function definitions
+void handleFunctionDefinition(Tree* node);
+
+// Recursively process required parameters for a function
+void processRequiredParameters(Tree* node);
+
+// Create a pseudo-assembly instruction for a function call
+void createFunctionCallInstruction(TData* functionName, TData* tempResult);
+
+// Create a pseudo-assembly instruction for function start
+void createFunctionStartInstruction(TData* functionSymbol);
+
+// Create a pseudo-assembly instruction for function end
+void createFunctionEndInstruction(TData* functionSymbol);
+
+// Handle code generation for IF statements
+void handleIfStatement(Tree* node);
+
+// Handle code generation for WHILE statements
+void handleWhileStatement(Tree* node);
+
+// Handle code generation for binary operations
+void handleBinaryOperation(Tree* node);
+
+// Handle code generation for unary operations
+void handleUnaryOperation(Tree* node);
+
+// Reverse the pseudo-assembly instruction list
+void invertASM(PseudoAssembly **list);
+
+// Free all pseudo-assembly instructions
+void freePseudoAssemblyInstructions(void);
+
+// Print all pseudo-assembly instructions for debugging
+void printPseudoAssemblyInstructions(void);
+
+// Create a pseudo-assembly instruction for a false branch label (used in IF/WHILE)
+PseudoAssembly* createFalseBranchLabel(ASM opcode, TData* condition);
+
+// Create a pseudo-assembly jump instruction
+PseudoAssembly* createJumpInstruction(void);
+
+// Generate a unique label name for pseudo-assembly instructions
+char* generateUniqueLabelName(void);
+
+// Create and append a label instruction to the instruction list
+void createLabelInstruction(char* labelName);
+
+// Create a pseudo-assembly return instruction
+void createReturnInstruction(TData* functionSymbol);
+
+// Create a pseudo-assembly instruction for required parameters
+void createRequiredParameterInstruction(TData* paramSymbol);
+
+// Generate the final assembler output from pseudo-assembly instructions
+void generateAssembler(void);
+
 
 #endif
