@@ -76,12 +76,17 @@
 #include <stdbool.h>
 #include "include/tree.h"
 #include "include/pseudo_assembly.h"
-void compilador(Tree *tree);
-Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r);
-extern int yylineno;
-int blockNum = 0;
 
-#line 85 "calc-sintaxis.tab.c"
+// Compiler entry point: builds symbol table, checks errors, generates code
+void compile(Tree *syntaxTree);
+
+// Helper to create a tree node with a symbol
+Tree* createTreeWithSymbol(char *name, TOKENS token, int size, int line, Tree *left, Tree *right);
+
+extern int yylineno; // Current line number from lexer
+int blockCounter = 0; // Tracks block nesting for unique IDs
+
+#line 90 "calc-sintaxis.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -146,25 +151,25 @@ enum yysymbol_kind_t
   YYSYMBOL_34_ = 34,                       /* ';'  */
   YYSYMBOL_35_ = 35,                       /* ','  */
   YYSYMBOL_YYACCEPT = 36,                  /* $accept  */
-  YYSYMBOL_prog = 37,                      /* prog  */
+  YYSYMBOL_program = 37,                   /* program  */
   YYSYMBOL_main = 38,                      /* main  */
-  YYSYMBOL_list_decls = 39,                /* list_decls  */
-  YYSYMBOL_list_sents = 40,                /* list_sents  */
+  YYSYMBOL_declaration_list = 39,          /* declaration_list  */
+  YYSYMBOL_statement_list = 40,            /* statement_list  */
   YYSYMBOL_block = 41,                     /* block  */
-  YYSYMBOL_sentencia = 42,                 /* sentencia  */
-  YYSYMBOL_asignacion = 43,                /* asignacion  */
-  YYSYMBOL_call_func = 44,                 /* call_func  */
-  YYSYMBOL_declaracion = 45,               /* declaracion  */
-  YYSYMBOL_argumento = 46,                 /* argumento  */
-  YYSYMBOL_parametros = 47,                /* parametros  */
-  YYSYMBOL_dec_parametro = 48,             /* dec_parametro  */
-  YYSYMBOL_list_func = 49,                 /* list_func  */
-  YYSYMBOL_declare_funcion = 50,           /* declare_funcion  */
-  YYSYMBOL_expr = 51,                      /* expr  */
-  YYSYMBOL_valor = 52,                     /* valor  */
-  YYSYMBOL_retorno = 53,                   /* retorno  */
-  YYSYMBOL_if_else = 54,                   /* if_else  */
-  YYSYMBOL_while = 55                      /* while  */
+  YYSYMBOL_statement = 42,                 /* statement  */
+  YYSYMBOL_assignment = 43,                /* assignment  */
+  YYSYMBOL_function_call = 44,             /* function_call  */
+  YYSYMBOL_declaration = 45,               /* declaration  */
+  YYSYMBOL_argument = 46,                  /* argument  */
+  YYSYMBOL_parameters = 47,                /* parameters  */
+  YYSYMBOL_parameter_declaration = 48,     /* parameter_declaration  */
+  YYSYMBOL_function_list = 49,             /* function_list  */
+  YYSYMBOL_function_declaration = 50,      /* function_declaration  */
+  YYSYMBOL_expression = 51,                /* expression  */
+  YYSYMBOL_value = 52,                     /* value  */
+  YYSYMBOL_return_stmt = 53,               /* return_stmt  */
+  YYSYMBOL_if_else_stmt = 54,              /* if_else_stmt  */
+  YYSYMBOL_while_stmt = 55                 /* while_stmt  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -551,15 +556,15 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    77,    77,    79,    80,    81,    84,    85,    86,    89,
-      90,    93,    94,    97,   100,   104,   105,   106,   107,   108,
-     111,   115,   119,   120,   124,   125,   126,   130,   131,   132,
-     135,   136,   139,   140,   143,   144,   145,   146,   147,   148,
-     151,   152,   153,   154,   155,   156,   157,   158,   159,   160,
-     161,   162,   163,   164,   167,   168,   169,   173,   174,   177,
-     180,   181,   187
+       0,    84,    84,    90,    94,    98,   106,   110,   114,   122,
+     126,   134,   135,   143,   151,   161,   162,   163,   164,   165,
+     170,   180,   190,   194,   202,   203,   204,   212,   213,   214,
+     222,   226,   234,   238,   246,   250,   254,   258,   262,   266,
+     274,   275,   276,   280,   284,   288,   292,   296,   300,   304,
+     308,   312,   316,   320,   325,   326,   327,   336,   337,   342,
+     350,   354,   366
 };
 #endif
 
@@ -580,10 +585,11 @@ static const char *const yytname[] =
   "TMINUS", "TDIV", "TMOD", "TASIGN", "TPAR_OP", "TPAR_CL", "TBRACE_OP",
   "TBRACE_CL", "OR", "AND", "NOT", "GREATER_THAN", "LESS_THAN", "EQ",
   "PROGRAM", "EXTERN", "THEN", "IF", "ELSE", "WHILE", "RETURN", "MAIN",
-  "';'", "','", "$accept", "prog", "main", "list_decls", "list_sents",
-  "block", "sentencia", "asignacion", "call_func", "declaracion",
-  "argumento", "parametros", "dec_parametro", "list_func",
-  "declare_funcion", "expr", "valor", "retorno", "if_else", "while", YY_NULLPTR
+  "';'", "','", "$accept", "program", "main", "declaration_list",
+  "statement_list", "block", "statement", "assignment", "function_call",
+  "declaration", "argument", "parameters", "parameter_declaration",
+  "function_list", "function_declaration", "expression", "value",
+  "return_stmt", "if_else_stmt", "while_stmt", YY_NULLPTR
 };
 
 static const char *
@@ -1220,386 +1226,527 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2: /* prog: PROGRAM TBRACE_OP list_decls list_func main TBRACE_CL  */
-#line 77 "calc-sintaxis.y"
-                                                             { char * name = "PROGRAM_BLOCK"; Tree* aux= createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[-1].tree));
-                                                              char * name1 = "PROGRAM"; compilador(createTreeWhitSymbol(name1,EPROGRAM,blockNum,yylineno,(yyvsp[-3].tree), aux));}
-#line 1228 "calc-sintaxis.tab.c"
+  case 2: /* program: PROGRAM TBRACE_OP declaration_list function_list main TBRACE_CL  */
+#line 84 "calc-sintaxis.y"
+                                                                      {
+          char *blockName = "PROGRAM_BLOCK";
+          Tree* blockTree = createTreeWithSymbol(blockName, OTHERS, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[-1].tree));
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, (yyvsp[-3].tree), blockTree));
+      }
+#line 1238 "calc-sintaxis.tab.c"
     break;
 
-  case 3: /* prog: PROGRAM TBRACE_OP main TBRACE_CL  */
-#line 79 "calc-sintaxis.y"
-                                         {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,NULL, (yyvsp[-1].tree)));}
-#line 1234 "calc-sintaxis.tab.c"
+  case 3: /* program: PROGRAM TBRACE_OP main TBRACE_CL  */
+#line 90 "calc-sintaxis.y"
+                                       {
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, NULL, (yyvsp[-1].tree)));
+      }
+#line 1247 "calc-sintaxis.tab.c"
     break;
 
-  case 4: /* prog: PROGRAM TBRACE_OP list_func main TBRACE_CL  */
-#line 80 "calc-sintaxis.y"
-                                                   {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[-1].tree)));}
-#line 1240 "calc-sintaxis.tab.c"
+  case 4: /* program: PROGRAM TBRACE_OP function_list main TBRACE_CL  */
+#line 94 "calc-sintaxis.y"
+                                                     {
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[-1].tree)));
+      }
+#line 1256 "calc-sintaxis.tab.c"
     break;
 
-  case 5: /* prog: PROGRAM TBRACE_OP list_decls main TBRACE_CL  */
-#line 81 "calc-sintaxis.y"
-                                                    {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[-1].tree)));}
-#line 1246 "calc-sintaxis.tab.c"
+  case 5: /* program: PROGRAM TBRACE_OP declaration_list main TBRACE_CL  */
+#line 98 "calc-sintaxis.y"
+                                                        {
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[-1].tree)));
+      }
+#line 1265 "calc-sintaxis.tab.c"
     break;
 
   case 6: /* main: TYPE_BOOL MAIN TPAR_OP TPAR_CL block  */
-#line 84 "calc-sintaxis.y"
-                                            { char * name = "main";(yyval.tree) = createTreeWhitSymbol(name,RETBOL,blockNum,yylineno,(yyvsp[0].tree), NULL);}
-#line 1252 "calc-sintaxis.tab.c"
+#line 106 "calc-sintaxis.y"
+                                           {
+          char *mainName = "main";
+          (yyval.tree) = createTreeWithSymbol(mainName, RETBOL, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+      }
+#line 1274 "calc-sintaxis.tab.c"
     break;
 
   case 7: /* main: TYPE_INT MAIN TPAR_OP TPAR_CL block  */
-#line 85 "calc-sintaxis.y"
-                                            { char * name = "main";(yyval.tree) = createTreeWhitSymbol(name,RETINT,blockNum,yylineno,(yyvsp[0].tree), NULL);}
-#line 1258 "calc-sintaxis.tab.c"
+#line 110 "calc-sintaxis.y"
+                                          {
+          char *mainName = "main";
+          (yyval.tree) = createTreeWithSymbol(mainName, RETINT, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+      }
+#line 1283 "calc-sintaxis.tab.c"
     break;
 
   case 8: /* main: TYPE_VOID MAIN TPAR_OP TPAR_CL block  */
-#line 86 "calc-sintaxis.y"
-                                            { char * name = "main";(yyval.tree) = createTreeWhitSymbol(name,RETVOID,blockNum,yylineno,(yyvsp[0].tree), NULL);}
-#line 1264 "calc-sintaxis.tab.c"
+#line 114 "calc-sintaxis.y"
+                                           {
+          char *mainName = "main";
+          (yyval.tree) = createTreeWithSymbol(mainName, RETVOID, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+      }
+#line 1292 "calc-sintaxis.tab.c"
     break;
 
-  case 9: /* list_decls: declaracion  */
-#line 89 "calc-sintaxis.y"
-                                     {char * name = "DECLARACION"; (yyval.tree) = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,(yyvsp[0].tree), NULL);}
-#line 1270 "calc-sintaxis.tab.c"
+  case 9: /* declaration_list: declaration  */
+#line 122 "calc-sintaxis.y"
+                  {
+          char *declName = "DECLARATION";
+          (yyval.tree) = createTreeWithSymbol(declName, DECLARATION, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+      }
+#line 1301 "calc-sintaxis.tab.c"
     break;
 
-  case 10: /* list_decls: list_decls declaracion  */
-#line 90 "calc-sintaxis.y"
-                                     {char * name = "DECLARACION"; (yyval.tree) = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,(yyvsp[-1].tree), (yyvsp[0].tree));}
-#line 1276 "calc-sintaxis.tab.c"
-    break;
-
-  case 11: /* list_sents: %empty  */
-#line 93 "calc-sintaxis.y"
-                                                {(yyval.tree) = NULL;}
-#line 1282 "calc-sintaxis.tab.c"
-    break;
-
-  case 12: /* list_sents: list_sents sentencia  */
-#line 94 "calc-sintaxis.y"
-                                                {char * name = "SENTENCIA"; (yyval.tree) = createTreeWhitSymbol(name,SENTEN,blockNum,yylineno,(yyvsp[-1].tree), (yyvsp[0].tree));}
-#line 1288 "calc-sintaxis.tab.c"
-    break;
-
-  case 13: /* block: TBRACE_OP list_decls list_sents TBRACE_CL  */
-#line 97 "calc-sintaxis.y"
-                                                  { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
-                                                    char *name2 = "BLOCK_INTERNO"; Tree*aux2 = createTreeWhitSymbol(name2,OTHERS,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[-1].tree));
-                                                    char *name = "BLOCK"; (yyval.tree) = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,aux2, aux); }
-#line 1296 "calc-sintaxis.tab.c"
-    break;
-
-  case 14: /* block: TBRACE_OP list_sents TBRACE_CL  */
-#line 100 "calc-sintaxis.y"
-                                                  { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
-                                                    char *name = "BLOCK"; (yyval.tree) = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,(yyvsp[-1].tree), aux); }
-#line 1303 "calc-sintaxis.tab.c"
-    break;
-
-  case 15: /* sentencia: asignacion  */
-#line 104 "calc-sintaxis.y"
-                                                    {(yyval.tree) = (yyvsp[0].tree);}
-#line 1309 "calc-sintaxis.tab.c"
-    break;
-
-  case 16: /* sentencia: retorno  */
-#line 105 "calc-sintaxis.y"
-                                                    {(yyval.tree) = (yyvsp[0].tree);}
-#line 1315 "calc-sintaxis.tab.c"
-    break;
-
-  case 17: /* sentencia: if_else  */
-#line 106 "calc-sintaxis.y"
-                                                    {(yyval.tree) = (yyvsp[0].tree);}
-#line 1321 "calc-sintaxis.tab.c"
-    break;
-
-  case 18: /* sentencia: while  */
-#line 107 "calc-sintaxis.y"
-                                                    {(yyval.tree) = (yyvsp[0].tree);}
-#line 1327 "calc-sintaxis.tab.c"
-    break;
-
-  case 19: /* sentencia: call_func ';'  */
-#line 108 "calc-sintaxis.y"
-                                                    {(yyval.tree) = (yyvsp[-1].tree);}
-#line 1333 "calc-sintaxis.tab.c"
-    break;
-
-  case 20: /* asignacion: ID TASIGN expr ';'  */
-#line 111 "calc-sintaxis.y"
-                               {char * name = (yyvsp[-3].symbol)->varname;Tree* aux3 = createTreeWhitSymbol(name,EID,blockNum,yylineno,NULL, NULL);
-                                    char * nameAsig = "asignacion";(yyval.tree) = createTreeWhitSymbol(nameAsig,ASIGN,1,yylineno,aux3, (yyvsp[-1].tree));}
-#line 1340 "calc-sintaxis.tab.c"
-    break;
-
-  case 21: /* call_func: ID TPAR_OP argumento TPAR_CL  */
-#line 115 "calc-sintaxis.y"
-                                         {char * name = (yyvsp[-3].symbol)->varname;Tree* aux3 = createTreeWhitSymbol(name,EFUNC,blockNum,yylineno,NULL, NULL);
-                                    char * nameCall = "LLAMADA_FUNC";(yyval.tree) = createTreeWhitSymbol(nameCall,CALL_F,blockNum,yylineno,aux3, (yyvsp[-1].tree));}
-#line 1347 "calc-sintaxis.tab.c"
-    break;
-
-  case 22: /* declaracion: TYPE_INT ID ';'  */
-#line 119 "calc-sintaxis.y"
-                              {char * name = (yyvsp[-1].symbol)->varname; (yyval.tree) = createTreeWhitSymbol(name,VARINT,blockNum,yylineno,NULL, NULL);}
-#line 1353 "calc-sintaxis.tab.c"
-    break;
-
-  case 23: /* declaracion: TYPE_BOOL ID ';'  */
-#line 120 "calc-sintaxis.y"
-                              {char * name = (yyvsp[-1].symbol)->varname;(yyval.tree) = createTreeWhitSymbol(name,VARBOOL,blockNum,yylineno,NULL, NULL);}
-#line 1359 "calc-sintaxis.tab.c"
-    break;
-
-  case 24: /* argumento: %empty  */
-#line 124 "calc-sintaxis.y"
-                                   {(yyval.tree) = NULL;}
-#line 1365 "calc-sintaxis.tab.c"
-    break;
-
-  case 25: /* argumento: expr  */
-#line 125 "calc-sintaxis.y"
-                                   {(yyval.tree) = (yyvsp[0].tree);}
-#line 1371 "calc-sintaxis.tab.c"
-    break;
-
-  case 26: /* argumento: argumento ',' expr  */
+  case 10: /* declaration_list: declaration_list declaration  */
 #line 126 "calc-sintaxis.y"
-                                   {char * name = "arguments"; (yyval.tree) = createTreeWhitSymbol(name,ARGS, blockNum, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1377 "calc-sintaxis.tab.c"
+                                   {
+          char *declName = "DECLARATION";
+          (yyval.tree) = createTreeWithSymbol(declName, DECLARATION, blockCounter, yylineno, (yyvsp[-1].tree), (yyvsp[0].tree));
+      }
+#line 1310 "calc-sintaxis.tab.c"
     break;
 
-  case 27: /* parametros: %empty  */
-#line 130 "calc-sintaxis.y"
-                                            {(yyval.tree) = NULL;}
-#line 1383 "calc-sintaxis.tab.c"
+  case 11: /* statement_list: %empty  */
+#line 134 "calc-sintaxis.y"
+                  { (yyval.tree) = NULL; }
+#line 1316 "calc-sintaxis.tab.c"
     break;
 
-  case 28: /* parametros: dec_parametro  */
-#line 131 "calc-sintaxis.y"
-                                            {(yyval.tree) = (yyvsp[0].tree);}
-#line 1389 "calc-sintaxis.tab.c"
-    break;
-
-  case 29: /* parametros: dec_parametro ',' parametros  */
-#line 132 "calc-sintaxis.y"
-                                            {char * name = "PARAMETROS"; (yyval.tree) = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1395 "calc-sintaxis.tab.c"
-    break;
-
-  case 30: /* dec_parametro: TYPE_INT ID  */
+  case 12: /* statement_list: statement_list statement  */
 #line 135 "calc-sintaxis.y"
-                             {char * name = (yyvsp[0].symbol)->varname; (yyval.tree) = createTreeWhitSymbol(name,PARAMINT,blockNum,yylineno,NULL, NULL);}
+                               {
+          char *stmtName = "STATEMENT";
+          (yyval.tree) = createTreeWithSymbol(stmtName, SENTEN, blockCounter, yylineno, (yyvsp[-1].tree), (yyvsp[0].tree));
+      }
+#line 1325 "calc-sintaxis.tab.c"
+    break;
+
+  case 13: /* block: TBRACE_OP declaration_list statement_list TBRACE_CL  */
+#line 143 "calc-sintaxis.y"
+                                                          {
+          char *blockEndName = "BLOCK_END";
+          Tree* blockEnd = createTreeWithSymbol(blockEndName, BLOCK_FIN, blockCounter, yylineno, NULL, NULL);
+          char *internalBlockName = "BLOCK_INTERNAL";
+          Tree* internalBlock = createTreeWithSymbol(internalBlockName, OTHERS, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[-1].tree));
+          char *blockName = "BLOCK";
+          (yyval.tree) = createTreeWithSymbol(blockName, BLOCK, blockCounter, yylineno, internalBlock, blockEnd);
+      }
+#line 1338 "calc-sintaxis.tab.c"
+    break;
+
+  case 14: /* block: TBRACE_OP statement_list TBRACE_CL  */
+#line 151 "calc-sintaxis.y"
+                                         {
+          char *blockEndName = "BLOCK_END";
+          Tree* blockEnd = createTreeWithSymbol(blockEndName, BLOCK_FIN, blockCounter, yylineno, NULL, NULL);
+          char *blockName = "BLOCK";
+          (yyval.tree) = createTreeWithSymbol(blockName, BLOCK, blockCounter, yylineno, (yyvsp[-1].tree), blockEnd);
+      }
+#line 1349 "calc-sintaxis.tab.c"
+    break;
+
+  case 15: /* statement: assignment  */
+#line 161 "calc-sintaxis.y"
+                 { (yyval.tree) = (yyvsp[0].tree); }
+#line 1355 "calc-sintaxis.tab.c"
+    break;
+
+  case 16: /* statement: return_stmt  */
+#line 162 "calc-sintaxis.y"
+                  { (yyval.tree) = (yyvsp[0].tree); }
+#line 1361 "calc-sintaxis.tab.c"
+    break;
+
+  case 17: /* statement: if_else_stmt  */
+#line 163 "calc-sintaxis.y"
+                   { (yyval.tree) = (yyvsp[0].tree); }
+#line 1367 "calc-sintaxis.tab.c"
+    break;
+
+  case 18: /* statement: while_stmt  */
+#line 164 "calc-sintaxis.y"
+                 { (yyval.tree) = (yyvsp[0].tree); }
+#line 1373 "calc-sintaxis.tab.c"
+    break;
+
+  case 19: /* statement: function_call ';'  */
+#line 165 "calc-sintaxis.y"
+                        { (yyval.tree) = (yyvsp[-1].tree); }
+#line 1379 "calc-sintaxis.tab.c"
+    break;
+
+  case 20: /* assignment: ID TASIGN expression ';'  */
+#line 170 "calc-sintaxis.y"
+                               {
+          char *varName = (yyvsp[-3].symbol)->varname;
+          Tree* idNode = createTreeWithSymbol(varName, EID, blockCounter, yylineno, NULL, NULL);
+          char *assignName = "ASSIGNMENT";
+          (yyval.tree) = createTreeWithSymbol(assignName, ASIGN, 1, yylineno, idNode, (yyvsp[-1].tree));
+      }
+#line 1390 "calc-sintaxis.tab.c"
+    break;
+
+  case 21: /* function_call: ID TPAR_OP argument TPAR_CL  */
+#line 180 "calc-sintaxis.y"
+                                  {
+          char *funcName = (yyvsp[-3].symbol)->varname;
+          Tree* funcNode = createTreeWithSymbol(funcName, EFUNC, blockCounter, yylineno, NULL, NULL);
+          char *callName = "FUNCTION_CALL";
+          (yyval.tree) = createTreeWithSymbol(callName, CALL_F, blockCounter, yylineno, funcNode, (yyvsp[-1].tree));
+      }
 #line 1401 "calc-sintaxis.tab.c"
     break;
 
-  case 31: /* dec_parametro: TYPE_BOOL ID  */
-#line 136 "calc-sintaxis.y"
-                              {char * name = (yyvsp[0].symbol)->varname;(yyval.tree) = createTreeWhitSymbol(name,PARAMBOOL,blockNum,yylineno,NULL, NULL);}
-#line 1407 "calc-sintaxis.tab.c"
+  case 22: /* declaration: TYPE_INT ID ';'  */
+#line 190 "calc-sintaxis.y"
+                      {
+          char *varName = (yyvsp[-1].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(varName, VARINT, blockCounter, yylineno, NULL, NULL);
+      }
+#line 1410 "calc-sintaxis.tab.c"
     break;
 
-  case 32: /* list_func: declare_funcion  */
-#line 139 "calc-sintaxis.y"
-                                            {char * name = "LIS_FUNCION";(yyval.tree) = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,(yyvsp[0].tree), NULL);}
-#line 1413 "calc-sintaxis.tab.c"
-    break;
-
-  case 33: /* list_func: list_func declare_funcion  */
-#line 140 "calc-sintaxis.y"
-                                            {char * name = "LIS_FUNCION";(yyval.tree) = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,(yyvsp[-1].tree), (yyvsp[0].tree));}
+  case 23: /* declaration: TYPE_BOOL ID ';'  */
+#line 194 "calc-sintaxis.y"
+                       {
+          char *varName = (yyvsp[-1].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(varName, VARBOOL, blockCounter, yylineno, NULL, NULL);
+      }
 #line 1419 "calc-sintaxis.tab.c"
     break;
 
-  case 34: /* declare_funcion: TYPE_INT ID TPAR_OP parametros TPAR_CL block  */
-#line 143 "calc-sintaxis.y"
-                                                                        { char * nameAux = (yyvsp[-4].symbol)->varname; (yyval.tree) = createTreeWhitSymbol(nameAux, RETINT, blockNum, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));}
+  case 24: /* argument: %empty  */
+#line 202 "calc-sintaxis.y"
+                  { (yyval.tree) = NULL; }
 #line 1425 "calc-sintaxis.tab.c"
     break;
 
-  case 35: /* declare_funcion: TYPE_BOOL ID TPAR_OP parametros TPAR_CL block  */
-#line 144 "calc-sintaxis.y"
-                                                                        { char * nameAux = (yyvsp[-4].symbol)->varname; (yyval.tree) = createTreeWhitSymbol(nameAux, RETBOL, blockNum, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));}
+  case 25: /* argument: expression  */
+#line 203 "calc-sintaxis.y"
+                 { (yyval.tree) = (yyvsp[0].tree); }
 #line 1431 "calc-sintaxis.tab.c"
     break;
 
-  case 36: /* declare_funcion: TYPE_VOID ID TPAR_OP parametros TPAR_CL block  */
-#line 145 "calc-sintaxis.y"
-                                                                        { char * nameAux = (yyvsp[-4].symbol)->varname; (yyval.tree) = createTreeWhitSymbol(nameAux, RETVOID, blockNum, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1437 "calc-sintaxis.tab.c"
+  case 26: /* argument: argument ',' expression  */
+#line 204 "calc-sintaxis.y"
+                              {
+          char *argsName = "ARGUMENTS";
+          (yyval.tree) = createTreeWithSymbol(argsName, ARGS, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1440 "calc-sintaxis.tab.c"
     break;
 
-  case 37: /* declare_funcion: TYPE_INT ID TPAR_OP parametros TPAR_CL EXTERN ';'  */
-#line 146 "calc-sintaxis.y"
-                                                                        { char * name = (yyvsp[-5].symbol)->varname;(yyval.tree) = createTreeWhitSymbol(name,EXTINT,blockNum-1,yylineno,(yyvsp[-3].tree), NULL);}
-#line 1443 "calc-sintaxis.tab.c"
+  case 27: /* parameters: %empty  */
+#line 212 "calc-sintaxis.y"
+                  { (yyval.tree) = NULL; }
+#line 1446 "calc-sintaxis.tab.c"
     break;
 
-  case 38: /* declare_funcion: TYPE_BOOL ID TPAR_OP parametros TPAR_CL EXTERN ';'  */
-#line 147 "calc-sintaxis.y"
-                                                                        { char * name = (yyvsp[-5].symbol)->varname;(yyval.tree) = createTreeWhitSymbol(name,EXTBOL,blockNum-1,yylineno,(yyvsp[-3].tree), NULL);}
-#line 1449 "calc-sintaxis.tab.c"
+  case 28: /* parameters: parameter_declaration  */
+#line 213 "calc-sintaxis.y"
+                            { (yyval.tree) = (yyvsp[0].tree); }
+#line 1452 "calc-sintaxis.tab.c"
     break;
 
-  case 39: /* declare_funcion: TYPE_VOID ID TPAR_OP parametros TPAR_CL EXTERN ';'  */
-#line 148 "calc-sintaxis.y"
-                                                                        { char * name = (yyvsp[-5].symbol)->varname;(yyval.tree) = createTreeWhitSymbol(name,EXTVOID,blockNum-1,yylineno,(yyvsp[-3].tree), NULL);}
-#line 1455 "calc-sintaxis.tab.c"
-    break;
-
-  case 40: /* expr: valor  */
-#line 151 "calc-sintaxis.y"
-                                {(yyval.tree) = (yyvsp[0].tree);}
+  case 29: /* parameters: parameter_declaration ',' parameters  */
+#line 214 "calc-sintaxis.y"
+                                           {
+          char *paramsName = "PARAMETERS";
+          (yyval.tree) = createTreeWithSymbol(paramsName, DECLARATION, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
 #line 1461 "calc-sintaxis.tab.c"
     break;
 
-  case 41: /* expr: call_func  */
-#line 152 "calc-sintaxis.y"
-                                {(yyval.tree) = (yyvsp[0].tree);}
-#line 1467 "calc-sintaxis.tab.c"
+  case 30: /* parameter_declaration: TYPE_INT ID  */
+#line 222 "calc-sintaxis.y"
+                  {
+          char *paramName = (yyvsp[0].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(paramName, PARAMINT, blockCounter, yylineno, NULL, NULL);
+      }
+#line 1470 "calc-sintaxis.tab.c"
     break;
 
-  case 42: /* expr: expr TPLUS expr  */
-#line 153 "calc-sintaxis.y"
-                                 {char * name = "+"; (yyval.tree) = createTreeWhitSymbol(name,PLUS,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1473 "calc-sintaxis.tab.c"
-    break;
-
-  case 43: /* expr: expr TMINUS expr  */
-#line 154 "calc-sintaxis.y"
-                                {char * name = "-"; (yyval.tree) = createTreeWhitSymbol(name,MINUS,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+  case 31: /* parameter_declaration: TYPE_BOOL ID  */
+#line 226 "calc-sintaxis.y"
+                   {
+          char *paramName = (yyvsp[0].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(paramName, PARAMBOOL, blockCounter, yylineno, NULL, NULL);
+      }
 #line 1479 "calc-sintaxis.tab.c"
     break;
 
-  case 44: /* expr: expr TTIMES expr  */
-#line 155 "calc-sintaxis.y"
-                                  {char * name = "*"; (yyval.tree) = createTreeWhitSymbol(name,PROD,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1485 "calc-sintaxis.tab.c"
+  case 32: /* function_list: function_declaration  */
+#line 234 "calc-sintaxis.y"
+                           {
+          char *funcListName = "FUNCTION_LIST";
+          (yyval.tree) = createTreeWithSymbol(funcListName, OTHERS, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+      }
+#line 1488 "calc-sintaxis.tab.c"
     break;
 
-  case 45: /* expr: expr TDIV expr  */
-#line 156 "calc-sintaxis.y"
-                           {char * name = "/"; (yyval.tree) = createTreeWhitSymbol(name,EDIV,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1491 "calc-sintaxis.tab.c"
-    break;
-
-  case 46: /* expr: expr TMOD expr  */
-#line 157 "calc-sintaxis.y"
-                              {char * name = "%"; (yyval.tree) = createTreeWhitSymbol(name,EMOD,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+  case 33: /* function_list: function_list function_declaration  */
+#line 238 "calc-sintaxis.y"
+                                         {
+          char *funcListName = "FUNCTION_LIST";
+          (yyval.tree) = createTreeWithSymbol(funcListName, OTHERS, blockCounter, yylineno, (yyvsp[-1].tree), (yyvsp[0].tree));
+      }
 #line 1497 "calc-sintaxis.tab.c"
     break;
 
-  case 47: /* expr: expr GREATER_THAN expr  */
-#line 158 "calc-sintaxis.y"
-                                    {char * name = ">"; (yyval.tree) = createTreeWhitSymbol(name,GREATER_THAN,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1503 "calc-sintaxis.tab.c"
+  case 34: /* function_declaration: TYPE_INT ID TPAR_OP parameters TPAR_CL block  */
+#line 246 "calc-sintaxis.y"
+                                                   {
+          char *funcName = (yyvsp[-4].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(funcName, RETINT, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1506 "calc-sintaxis.tab.c"
     break;
 
-  case 48: /* expr: expr LESS_THAN expr  */
-#line 159 "calc-sintaxis.y"
-                                 {char * name = "<"; (yyval.tree) = createTreeWhitSymbol(name,LESS_THAN,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1509 "calc-sintaxis.tab.c"
-    break;
-
-  case 49: /* expr: expr EQ expr  */
-#line 160 "calc-sintaxis.y"
-                                {char * name = "=="; (yyval.tree) = createTreeWhitSymbol(name,EEQ,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+  case 35: /* function_declaration: TYPE_BOOL ID TPAR_OP parameters TPAR_CL block  */
+#line 250 "calc-sintaxis.y"
+                                                    {
+          char *funcName = (yyvsp[-4].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(funcName, RETBOL, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
 #line 1515 "calc-sintaxis.tab.c"
     break;
 
-  case 50: /* expr: expr AND expr  */
-#line 161 "calc-sintaxis.y"
-                                {char * name = "&&"; (yyval.tree) = createTreeWhitSymbol(name,EAND,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1521 "calc-sintaxis.tab.c"
+  case 36: /* function_declaration: TYPE_VOID ID TPAR_OP parameters TPAR_CL block  */
+#line 254 "calc-sintaxis.y"
+                                                    {
+          char *funcName = (yyvsp[-4].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(funcName, RETVOID, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1524 "calc-sintaxis.tab.c"
     break;
 
-  case 51: /* expr: expr OR expr  */
-#line 162 "calc-sintaxis.y"
-                                {char * name = "||"; (yyval.tree) = createTreeWhitSymbol(name,EOR,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
-#line 1527 "calc-sintaxis.tab.c"
-    break;
-
-  case 52: /* expr: NOT expr  */
-#line 163 "calc-sintaxis.y"
-                                {char * name = "!"; (yyval.tree) = createTreeWhitSymbol(name,ENOT,blockNum,yylineno,(yyvsp[0].tree), NULL);}
+  case 37: /* function_declaration: TYPE_INT ID TPAR_OP parameters TPAR_CL EXTERN ';'  */
+#line 258 "calc-sintaxis.y"
+                                                        {
+          char *funcName = (yyvsp[-5].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(funcName, EXTINT, blockCounter-1, yylineno, (yyvsp[-3].tree), NULL);
+      }
 #line 1533 "calc-sintaxis.tab.c"
     break;
 
-  case 53: /* expr: TPAR_OP expr TPAR_CL  */
-#line 164 "calc-sintaxis.y"
-                                {(yyval.tree) = (yyvsp[-1].tree);}
-#line 1539 "calc-sintaxis.tab.c"
+  case 38: /* function_declaration: TYPE_BOOL ID TPAR_OP parameters TPAR_CL EXTERN ';'  */
+#line 262 "calc-sintaxis.y"
+                                                         {
+          char *funcName = (yyvsp[-5].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(funcName, EXTBOL, blockCounter-1, yylineno, (yyvsp[-3].tree), NULL);
+      }
+#line 1542 "calc-sintaxis.tab.c"
     break;
 
-  case 54: /* valor: INT  */
-#line 167 "calc-sintaxis.y"
-                                {(yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL);}
-#line 1545 "calc-sintaxis.tab.c"
-    break;
-
-  case 55: /* valor: ID  */
-#line 168 "calc-sintaxis.y"
-                                {(yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL);}
+  case 39: /* function_declaration: TYPE_VOID ID TPAR_OP parameters TPAR_CL EXTERN ';'  */
+#line 266 "calc-sintaxis.y"
+                                                         {
+          char *funcName = (yyvsp[-5].symbol)->varname;
+          (yyval.tree) = createTreeWithSymbol(funcName, EXTVOID, blockCounter-1, yylineno, (yyvsp[-3].tree), NULL);
+      }
 #line 1551 "calc-sintaxis.tab.c"
     break;
 
-  case 56: /* valor: TMINUS INT  */
-#line 169 "calc-sintaxis.y"
-                                {int len = strlen((yyvsp[0].symbol)->varname); char* newVarname = (char*)malloc(len + 2);
-                                 newVarname[0] = '-'; strcpy(newVarname + 1, (yyvsp[0].symbol)->varname);
-                                 (yyvsp[0].symbol)->varname = newVarname;
-                                 (yyvsp[0].symbol)->value = (yyvsp[0].symbol)->value * - 1; (yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL);}
-#line 1560 "calc-sintaxis.tab.c"
+  case 40: /* expression: value  */
+#line 274 "calc-sintaxis.y"
+            { (yyval.tree) = (yyvsp[0].tree); }
+#line 1557 "calc-sintaxis.tab.c"
     break;
 
-  case 57: /* valor: TTRUE  */
-#line 173 "calc-sintaxis.y"
-                                {(yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL);}
-#line 1566 "calc-sintaxis.tab.c"
+  case 41: /* expression: function_call  */
+#line 275 "calc-sintaxis.y"
+                    { (yyval.tree) = (yyvsp[0].tree); }
+#line 1563 "calc-sintaxis.tab.c"
     break;
 
-  case 58: /* valor: TFALSE  */
-#line 174 "calc-sintaxis.y"
-                                {(yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL);}
+  case 42: /* expression: expression TPLUS expression  */
+#line 276 "calc-sintaxis.y"
+                                  {
+          char *plusName = "+";
+          (yyval.tree) = createTreeWithSymbol(plusName, PLUS, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
 #line 1572 "calc-sintaxis.tab.c"
     break;
 
-  case 59: /* retorno: RETURN expr ';'  */
-#line 177 "calc-sintaxis.y"
-                         {char * name = "return";(yyval.tree) = createTreeWhitSymbol(name,ERETURN,blockNum,yylineno,(yyvsp[-1].tree), NULL);}
-#line 1578 "calc-sintaxis.tab.c"
+  case 43: /* expression: expression TMINUS expression  */
+#line 280 "calc-sintaxis.y"
+                                   {
+          char *minusName = "-";
+          (yyval.tree) = createTreeWithSymbol(minusName, MINUS, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1581 "calc-sintaxis.tab.c"
     break;
 
-  case 60: /* if_else: IF TPAR_OP expr TPAR_CL THEN block  */
-#line 180 "calc-sintaxis.y"
-                                            {char * name = "if_then"; (yyval.tree) = createTreeWhitSymbol(name,EIF,blockNum,yylineno,(yyvsp[-3].tree), (yyvsp[0].tree));}
-#line 1584 "calc-sintaxis.tab.c"
+  case 44: /* expression: expression TTIMES expression  */
+#line 284 "calc-sintaxis.y"
+                                   {
+          char *timesName = "*";
+          (yyval.tree) = createTreeWithSymbol(timesName, PROD, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1590 "calc-sintaxis.tab.c"
     break;
 
-  case 61: /* if_else: IF TPAR_OP expr TPAR_CL THEN block ELSE block  */
-#line 181 "calc-sintaxis.y"
-                                                       { char * name = "then"; char * name2 = "else";
-                                                         Tree* aux_else = createTreeWhitSymbol(name2,EELSE,blockNum,yylineno,(yyvsp[0].tree), NULL);
-                                                         Tree* aux_then = createTreeWhitSymbol(name,ETHEN,blockNum,yylineno,(yyvsp[-2].tree), aux_else);
-                                                         char * name3 = "if_else"; (yyval.tree) = createTreeWhitSymbol(name3,EIF,blockNum,yylineno,(yyvsp[-5].tree), aux_then);}
-#line 1593 "calc-sintaxis.tab.c"
-    break;
-
-  case 62: /* while: WHILE TPAR_OP expr TPAR_CL block  */
-#line 187 "calc-sintaxis.y"
-                                        {char * name = "while"; (yyval.tree) = createTreeWhitSymbol(name,EWHILE,blockNum,yylineno,(yyvsp[-2].tree), (yyvsp[0].tree));}
+  case 45: /* expression: expression TDIV expression  */
+#line 288 "calc-sintaxis.y"
+                                 {
+          char *divName = "/";
+          (yyval.tree) = createTreeWithSymbol(divName, EDIV, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
 #line 1599 "calc-sintaxis.tab.c"
     break;
 
+  case 46: /* expression: expression TMOD expression  */
+#line 292 "calc-sintaxis.y"
+                                 {
+          char *modName = "%";
+          (yyval.tree) = createTreeWithSymbol(modName, EMOD, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1608 "calc-sintaxis.tab.c"
+    break;
 
-#line 1603 "calc-sintaxis.tab.c"
+  case 47: /* expression: expression GREATER_THAN expression  */
+#line 296 "calc-sintaxis.y"
+                                         {
+          char *gtName = ">";
+          (yyval.tree) = createTreeWithSymbol(gtName, GREATER_THAN, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1617 "calc-sintaxis.tab.c"
+    break;
+
+  case 48: /* expression: expression LESS_THAN expression  */
+#line 300 "calc-sintaxis.y"
+                                      {
+          char *ltName = "<";
+          (yyval.tree) = createTreeWithSymbol(ltName, LESS_THAN, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1626 "calc-sintaxis.tab.c"
+    break;
+
+  case 49: /* expression: expression EQ expression  */
+#line 304 "calc-sintaxis.y"
+                               {
+          char *eqName = "==";
+          (yyval.tree) = createTreeWithSymbol(eqName, EEQ, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1635 "calc-sintaxis.tab.c"
+    break;
+
+  case 50: /* expression: expression AND expression  */
+#line 308 "calc-sintaxis.y"
+                                {
+          char *andName = "&&";
+          (yyval.tree) = createTreeWithSymbol(andName, EAND, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1644 "calc-sintaxis.tab.c"
+    break;
+
+  case 51: /* expression: expression OR expression  */
+#line 312 "calc-sintaxis.y"
+                               {
+          char *orName = "||";
+          (yyval.tree) = createTreeWithSymbol(orName, EOR, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1653 "calc-sintaxis.tab.c"
+    break;
+
+  case 52: /* expression: NOT expression  */
+#line 316 "calc-sintaxis.y"
+                     {
+          char *notName = "!";
+          (yyval.tree) = createTreeWithSymbol(notName, ENOT, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+      }
+#line 1662 "calc-sintaxis.tab.c"
+    break;
+
+  case 53: /* expression: TPAR_OP expression TPAR_CL  */
+#line 320 "calc-sintaxis.y"
+                                 { (yyval.tree) = (yyvsp[-1].tree); }
+#line 1668 "calc-sintaxis.tab.c"
+    break;
+
+  case 54: /* value: INT  */
+#line 325 "calc-sintaxis.y"
+          { (yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL); }
+#line 1674 "calc-sintaxis.tab.c"
+    break;
+
+  case 55: /* value: ID  */
+#line 326 "calc-sintaxis.y"
+         { (yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL); }
+#line 1680 "calc-sintaxis.tab.c"
+    break;
+
+  case 56: /* value: TMINUS INT  */
+#line 327 "calc-sintaxis.y"
+                 {
+          int len = strlen((yyvsp[0].symbol)->varname);
+          char* newVarname = (char*)malloc(len + 2);
+          newVarname[0] = '-';
+          strcpy(newVarname + 1, (yyvsp[0].symbol)->varname);
+          (yyvsp[0].symbol)->varname = newVarname;
+          (yyvsp[0].symbol)->value = (yyvsp[0].symbol)->value * -1;
+          (yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL);
+      }
+#line 1694 "calc-sintaxis.tab.c"
+    break;
+
+  case 57: /* value: TTRUE  */
+#line 336 "calc-sintaxis.y"
+            { (yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL); }
+#line 1700 "calc-sintaxis.tab.c"
+    break;
+
+  case 58: /* value: TFALSE  */
+#line 337 "calc-sintaxis.y"
+             { (yyval.tree) = createTree((yyvsp[0].symbol), NULL, NULL); }
+#line 1706 "calc-sintaxis.tab.c"
+    break;
+
+  case 59: /* return_stmt: RETURN expression ';'  */
+#line 342 "calc-sintaxis.y"
+                            {
+          char *returnName = "return";
+          (yyval.tree) = createTreeWithSymbol(returnName, ERETURN, blockCounter, yylineno, (yyvsp[-1].tree), NULL);
+      }
+#line 1715 "calc-sintaxis.tab.c"
+    break;
+
+  case 60: /* if_else_stmt: IF TPAR_OP expression TPAR_CL THEN block  */
+#line 350 "calc-sintaxis.y"
+                                               {
+          char *ifThenName = "if_then";
+          (yyval.tree) = createTreeWithSymbol(ifThenName, EIF, blockCounter, yylineno, (yyvsp[-3].tree), (yyvsp[0].tree));
+      }
+#line 1724 "calc-sintaxis.tab.c"
+    break;
+
+  case 61: /* if_else_stmt: IF TPAR_OP expression TPAR_CL THEN block ELSE block  */
+#line 354 "calc-sintaxis.y"
+                                                          {
+          char *thenName = "then";
+          char *elseName = "else";
+          Tree* elseNode = createTreeWithSymbol(elseName, EELSE, blockCounter, yylineno, (yyvsp[0].tree), NULL);
+          Tree* thenNode = createTreeWithSymbol(thenName, ETHEN, blockCounter, yylineno, (yyvsp[-2].tree), elseNode);
+          char *ifElseName = "if_else";
+          (yyval.tree) = createTreeWithSymbol(ifElseName, EIF, blockCounter, yylineno, (yyvsp[-5].tree), thenNode);
+      }
+#line 1737 "calc-sintaxis.tab.c"
+    break;
+
+  case 62: /* while_stmt: WHILE TPAR_OP expression TPAR_CL block  */
+#line 366 "calc-sintaxis.y"
+                                             {
+          char *whileName = "while";
+          (yyval.tree) = createTreeWithSymbol(whileName, EWHILE, blockCounter, yylineno, (yyvsp[-2].tree), (yyvsp[0].tree));
+      }
+#line 1746 "calc-sintaxis.tab.c"
+    break;
+
+
+#line 1750 "calc-sintaxis.tab.c"
 
       default: break;
     }
@@ -1792,24 +1939,32 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 190 "calc-sintaxis.y"
+#line 372 "calc-sintaxis.y"
 
 
-void compilador(Tree* tree){
-    buildSymbolTable(tree);
+/**
+ * Compiler entry point: builds symbol table, checks for semantic errors,
+ * generates pseudo-assembly and final assembly code, and frees memory.
+ */
+void compile(Tree* syntaxTree){
+    buildSymbolTable(syntaxTree);
     checkMissingReturnError();
     if(hasSemanticError()) {
-       freeTree(tree);
+       freeTree(syntaxTree);
        exit(1);
     }
-    generateThreeAddressCode(tree);
+    generateThreeAddressCode(syntaxTree);
     printPseudoAssemblyInstructions();
     generateAssemblerOutput();
     freePseudoAssemblyInstructions();
-    freeTree(tree);
+    freeTree(syntaxTree);
 }
 
-Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){
-    TData* aux = createSymbol(name,token,0,yylineno);
-    return createTree(aux,l,r);
+/**
+ * Helper to create a tree node with a symbol.
+ * Allocates a symbol and attaches left/right children.
+ */
+Tree* createTreeWithSymbol(char *name, TOKENS token, int size, int line, Tree *left, Tree *right){
+    TData* symbol = createSymbol(name, token, 0, yylineno);
+    return createTree(symbol, left, right);
 }

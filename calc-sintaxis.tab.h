@@ -93,7 +93,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "calc-sintaxis.y"
+#line 20 "calc-sintaxis.y"
 
     TData* symbol;
     Tree *tree;

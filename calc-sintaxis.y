@@ -6,10 +6,15 @@
 #include <stdbool.h>
 #include "include/tree.h"
 #include "include/pseudo_assembly.h"
-void compilador(Tree *tree);
-Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r);
-extern int yylineno;
-int blockNum = 0;
+
+// Compiler entry point: builds symbol table, checks errors, generates code
+void compile(Tree *syntaxTree);
+
+// Helper to create a tree node with a symbol
+Tree* createTreeWithSymbol(char *name, TOKENS token, int size, int line, Tree *left, Tree *right);
+
+extern int yylineno; // Current line number from lexer
+int blockCounter = 0; // Tracks block nesting for unique IDs
 %}
 
 %union {
@@ -17,10 +22,10 @@ int blockNum = 0;
     Tree *tree;
 }
 
-/*declaraciones*/
+/* Token declarations for identifiers and literals */
 %token <symbol> ID
 
-/* tipos de datos */
+/* Data type tokens */
 %token <symbol> INT
 %token <symbol> TTRUE
 %token <symbol> TFALSE
@@ -28,7 +33,7 @@ int blockNum = 0;
 %token TYPE_BOOL
 %token TYPE_VOID
 
-/* simbolos */
+/* Operator and symbol tokens */
 %token TPLUS
 %token TTIMES
 %token TMINUS
@@ -46,7 +51,7 @@ int blockNum = 0;
 %token LESS_THAN
 %token EQ
 
-/* palabras reservadas */
+/* Reserved keywords */
 %token PROGRAM
 %token EXTERN
 %token THEN
@@ -56,154 +61,339 @@ int blockNum = 0;
 %token RETURN
 %token MAIN
 
-/* presedencias */
+/* Operator precedences */
 %left OR AND                // ||, &&
 %left EQ                    // ==
 %left GREATER_THAN LESS_THAN     // >,<
 %left TPLUS TMINUS           // +, -
 %left TTIMES TDIV TMOD // *, /, %
-%right NOT                  // La negación es asociativa a la derecha
+%right NOT                  // Negation is right-associative
 
-/*Types*/
-%type <tree> prog main retorno
-%type <tree> call_func expr
-%type <tree> asignacion valor argumento
-%type <tree> declaracion sentencia dec_parametro declare_funcion
-%type <tree> list_decls list_sents list_func parametros
-%type <tree> if_else while block
-
-%%
-
-prog: PROGRAM TBRACE_OP list_decls list_func main TBRACE_CL  { char * name = "PROGRAM_BLOCK"; Tree* aux= createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$4, $5);
-                                                              char * name1 = "PROGRAM"; compilador(createTreeWhitSymbol(name1,EPROGRAM,blockNum,yylineno,$3, aux));}
-    | PROGRAM TBRACE_OP  main TBRACE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,NULL, $3));}
-    | PROGRAM TBRACE_OP  list_func main TBRACE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
-    | PROGRAM TBRACE_OP list_decls  main TBRACE_CL  {char * name = "PROGRAM"; compilador(createTreeWhitSymbol(name,EPROGRAM,blockNum,yylineno,$3, $4));}
-    ;
-
-main: TYPE_BOOL MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTreeWhitSymbol(name,RETBOL,blockNum,yylineno,$5, NULL);}
-    | TYPE_INT MAIN TPAR_OP TPAR_CL block   { char * name = "main";$$ = createTreeWhitSymbol(name,RETINT,blockNum,yylineno,$5, NULL);}
-    | TYPE_VOID MAIN TPAR_OP TPAR_CL block  { char * name = "main";$$ = createTreeWhitSymbol(name,RETVOID,blockNum,yylineno,$5, NULL);}
-    ;
-
-list_decls: declaracion              {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,$1, NULL);}
-          | list_decls declaracion   {char * name = "DECLARACION"; $$ = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,$1, $2);}
-          ;
-
-list_sents:                                     {$$ = NULL;}
-          |list_sents sentencia                 {char * name = "SENTENCIA"; $$ = createTreeWhitSymbol(name,SENTEN,blockNum,yylineno,$1, $2);}
-          ;
-
-block: TBRACE_OP list_decls list_sents TBRACE_CL  { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
-                                                    char *name2 = "BLOCK_INTERNO"; Tree*aux2 = createTreeWhitSymbol(name2,OTHERS,blockNum,yylineno,$2, $3);
-                                                    char *name = "BLOCK"; $$ = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,aux2, aux); }
-     | TBRACE_OP list_sents TBRACE_CL             { char *name1 = "BLOCK_FIN"; Tree*aux = createTreeWhitSymbol(name1,BLOCK_FIN,blockNum,yylineno,NULL, NULL);
-                                                    char *name = "BLOCK"; $$ = createTreeWhitSymbol(name,BLOCK,blockNum,yylineno,$2, aux); }
-     ;
-
-sentencia: asignacion                               {$$ = $1;}
-         | retorno                                  {$$ = $1;}
-         | if_else                                  {$$ = $1;}
-         | while                                    {$$ = $1;}
-         | call_func ';'                            {$$ = $1;}
-         ;
-
-asignacion: ID TASIGN expr ';' {char * name = $1->varname;Tree* aux3 = createTreeWhitSymbol(name,EID,blockNum,yylineno,NULL, NULL);
-                                    char * nameAsig = "asignacion";$$ = createTreeWhitSymbol(nameAsig,ASIGN,1,yylineno,aux3, $3);}
-          ;
-
-call_func : ID TPAR_OP argumento TPAR_CL {char * name = $1->varname;Tree* aux3 = createTreeWhitSymbol(name,EFUNC,blockNum,yylineno,NULL, NULL);
-                                    char * nameCall = "LLAMADA_FUNC";$$ = createTreeWhitSymbol(nameCall,CALL_F,blockNum,yylineno,aux3, $3);}
-          ;
-
-declaracion: TYPE_INT ID ';'  {char * name = $2->varname; $$ = createTreeWhitSymbol(name,VARINT,blockNum,yylineno,NULL, NULL);}
-           | TYPE_BOOL ID ';' {char * name = $2->varname;$$ = createTreeWhitSymbol(name,VARBOOL,blockNum,yylineno,NULL, NULL);}
-           ;
-
-
-argumento:                         {$$ = NULL;}
-         | expr                    {$$ = $1;}
-         | argumento ',' expr      {char * name = "arguments"; $$ = createTreeWhitSymbol(name,ARGS, blockNum, yylineno, $1, $3);}
-         ;
-
-
-parametros:                                 {$$ = NULL;}
-          | dec_parametro                   {$$ = $1;}
-          | dec_parametro ',' parametros    {char * name = "PARAMETROS"; $$ = createTreeWhitSymbol(name,DECLARATION,blockNum,yylineno,$1, $3);}
-          ;
-
-dec_parametro : TYPE_INT ID  {char * name = $2->varname; $$ = createTreeWhitSymbol(name,PARAMINT,blockNum,yylineno,NULL, NULL);}
-              | TYPE_BOOL ID  {char * name = $2->varname;$$ = createTreeWhitSymbol(name,PARAMBOOL,blockNum,yylineno,NULL, NULL);}
-              ;
-
-list_func: declare_funcion                  {char * name = "LIS_FUNCION";$$ = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$1, NULL);}                //modificar esto
-         | list_func declare_funcion        {char * name = "LIS_FUNCION";$$ = createTreeWhitSymbol(name,OTHERS,blockNum,yylineno,$1, $2);}                //modificar esto
-         ;
-
-declare_funcion: TYPE_INT ID TPAR_OP parametros TPAR_CL block           { char * nameAux = $2->varname; $$ = createTreeWhitSymbol(nameAux, RETINT, blockNum, yylineno, $4, $6);}
-               | TYPE_BOOL ID TPAR_OP parametros TPAR_CL block          { char * nameAux = $2->varname; $$ = createTreeWhitSymbol(nameAux, RETBOL, blockNum, yylineno, $4, $6);}
-               | TYPE_VOID ID TPAR_OP parametros TPAR_CL block          { char * nameAux = $2->varname; $$ = createTreeWhitSymbol(nameAux, RETVOID, blockNum, yylineno, $4, $6);}
-               | TYPE_INT ID TPAR_OP parametros TPAR_CL EXTERN ';'      { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTINT,blockNum-1,yylineno,$4, NULL);}
-               | TYPE_BOOL ID TPAR_OP parametros TPAR_CL EXTERN ';'     { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTBOL,blockNum-1,yylineno,$4, NULL);}
-               | TYPE_VOID ID TPAR_OP parametros TPAR_CL EXTERN ';'     { char * name = $2->varname;$$ = createTreeWhitSymbol(name,EXTVOID,blockNum-1,yylineno,$4, NULL);}
-               ;
-
-expr: valor                     {$$ = $1;}
-    | call_func                 {$$ = $1;}
-    | expr TPLUS expr            {char * name = "+"; $$ = createTreeWhitSymbol(name,PLUS,blockNum,yylineno,$1, $3);}
-    | expr TMINUS expr          {char * name = "-"; $$ = createTreeWhitSymbol(name,MINUS,blockNum,yylineno,$1, $3);}
-    | expr TTIMES expr            {char * name = "*"; $$ = createTreeWhitSymbol(name,PROD,blockNum,yylineno,$1, $3);}
-    | expr TDIV expr       {char * name = "/"; $$ = createTreeWhitSymbol(name,EDIV,blockNum,yylineno,$1, $3);}
-    | expr TMOD expr          {char * name = "%"; $$ = createTreeWhitSymbol(name,EMOD,blockNum,yylineno,$1, $3);}
-    | expr GREATER_THAN expr        {char * name = ">"; $$ = createTreeWhitSymbol(name,GREATER_THAN,blockNum,yylineno,$1, $3);}
-    | expr LESS_THAN expr        {char * name = "<"; $$ = createTreeWhitSymbol(name,LESS_THAN,blockNum,yylineno,$1, $3);}
-    | expr EQ expr              {char * name = "=="; $$ = createTreeWhitSymbol(name,EEQ,blockNum,yylineno,$1, $3);}
-    | expr AND expr             {char * name = "&&"; $$ = createTreeWhitSymbol(name,EAND,blockNum,yylineno,$1, $3);}
-    | expr OR expr              {char * name = "||"; $$ = createTreeWhitSymbol(name,EOR,blockNum,yylineno,$1, $3);}
-    | NOT expr                  {char * name = "!"; $$ = createTreeWhitSymbol(name,ENOT,blockNum,yylineno,$2, NULL);}
-    | TPAR_OP expr TPAR_CL      {$$ = $2;}
-    ;
-
-valor: INT                      {$$ = createTree($1, NULL, NULL);}
-     | ID                       {$$ = createTree($1, NULL, NULL);}
-     | TMINUS INT               {int len = strlen($2->varname); char* newVarname = (char*)malloc(len + 2);
-                                 newVarname[0] = '-'; strcpy(newVarname + 1, $2->varname);
-                                 $2->varname = newVarname;
-                                 $2->value = $2->value * - 1; $$ = createTree($2, NULL, NULL);}
-     | TTRUE                    {$$ = createTree($1, NULL, NULL);}
-     | TFALSE                   {$$ = createTree($1, NULL, NULL);}
-     ;
-
-retorno: RETURN expr ';' {char * name = "return";$$ = createTreeWhitSymbol(name,ERETURN,blockNum,yylineno,$2, NULL);}
-       ;
-
-if_else: IF TPAR_OP expr TPAR_CL THEN block {char * name = "if_then"; $$ = createTreeWhitSymbol(name,EIF,blockNum,yylineno,$3, $6);}
-       | IF TPAR_OP expr TPAR_CL THEN block ELSE block { char * name = "then"; char * name2 = "else";
-                                                         Tree* aux_else = createTreeWhitSymbol(name2,EELSE,blockNum,yylineno,$8, NULL);
-                                                         Tree* aux_then = createTreeWhitSymbol(name,ETHEN,blockNum,yylineno,$6, aux_else);
-                                                         char * name3 = "if_else"; $$ = createTreeWhitSymbol(name3,EIF,blockNum,yylineno,$3, aux_then);}
-       ;
-
-while: WHILE TPAR_OP expr TPAR_CL block {char * name = "while"; $$ = createTreeWhitSymbol(name,EWHILE,blockNum,yylineno,$3, $5);}
-     ;
+/* Non-terminal types */
+%type <tree> program main return_stmt
+%type <tree> function_call expression
+%type <tree> assignment value argument
+%type <tree> declaration statement parameter_declaration function_declaration
+%type <tree> declaration_list statement_list function_list parameters
+%type <tree> if_else_stmt while_stmt block
 
 %%
 
-void compilador(Tree* tree){
-    buildSymbolTable(tree);
+/* Program structure: main, declarations, functions */
+program:
+      PROGRAM TBRACE_OP declaration_list function_list main TBRACE_CL {
+          char *blockName = "PROGRAM_BLOCK";
+          Tree* blockTree = createTreeWithSymbol(blockName, OTHERS, blockCounter, yylineno, $4, $5);
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, $3, blockTree));
+      }
+    | PROGRAM TBRACE_OP main TBRACE_CL {
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, NULL, $3));
+      }
+    | PROGRAM TBRACE_OP function_list main TBRACE_CL {
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, $3, $4));
+      }
+    | PROGRAM TBRACE_OP declaration_list main TBRACE_CL {
+          char *programName = "PROGRAM";
+          compile(createTreeWithSymbol(programName, EPROGRAM, blockCounter, yylineno, $3, $4));
+      }
+    ;
+
+/* Main function definition */
+main:
+      TYPE_BOOL MAIN TPAR_OP TPAR_CL block {
+          char *mainName = "main";
+          $$ = createTreeWithSymbol(mainName, RETBOL, blockCounter, yylineno, $5, NULL);
+      }
+    | TYPE_INT MAIN TPAR_OP TPAR_CL block {
+          char *mainName = "main";
+          $$ = createTreeWithSymbol(mainName, RETINT, blockCounter, yylineno, $5, NULL);
+      }
+    | TYPE_VOID MAIN TPAR_OP TPAR_CL block {
+          char *mainName = "main";
+          $$ = createTreeWithSymbol(mainName, RETVOID, blockCounter, yylineno, $5, NULL);
+      }
+    ;
+
+/* List of variable declarations */
+declaration_list:
+      declaration {
+          char *declName = "DECLARATION";
+          $$ = createTreeWithSymbol(declName, DECLARATION, blockCounter, yylineno, $1, NULL);
+      }
+    | declaration_list declaration {
+          char *declName = "DECLARATION";
+          $$ = createTreeWithSymbol(declName, DECLARATION, blockCounter, yylineno, $1, $2);
+      }
+    ;
+
+/* List of statements */
+statement_list:
+      /* empty */ { $$ = NULL; }
+    | statement_list statement {
+          char *stmtName = "STATEMENT";
+          $$ = createTreeWithSymbol(stmtName, SENTEN, blockCounter, yylineno, $1, $2);
+      }
+    ;
+
+/* Block of code (with or without declarations) */
+block:
+      TBRACE_OP declaration_list statement_list TBRACE_CL {
+          char *blockEndName = "BLOCK_END";
+          Tree* blockEnd = createTreeWithSymbol(blockEndName, BLOCK_FIN, blockCounter, yylineno, NULL, NULL);
+          char *internalBlockName = "BLOCK_INTERNAL";
+          Tree* internalBlock = createTreeWithSymbol(internalBlockName, OTHERS, blockCounter, yylineno, $2, $3);
+          char *blockName = "BLOCK";
+          $$ = createTreeWithSymbol(blockName, BLOCK, blockCounter, yylineno, internalBlock, blockEnd);
+      }
+    | TBRACE_OP statement_list TBRACE_CL {
+          char *blockEndName = "BLOCK_END";
+          Tree* blockEnd = createTreeWithSymbol(blockEndName, BLOCK_FIN, blockCounter, yylineno, NULL, NULL);
+          char *blockName = "BLOCK";
+          $$ = createTreeWithSymbol(blockName, BLOCK, blockCounter, yylineno, $2, blockEnd);
+      }
+    ;
+
+/* Statement types */
+statement:
+      assignment { $$ = $1; }
+    | return_stmt { $$ = $1; }
+    | if_else_stmt { $$ = $1; }
+    | while_stmt { $$ = $1; }
+    | function_call ';' { $$ = $1; }
+    ;
+
+/* Assignment statement */
+assignment:
+      ID TASIGN expression ';' {
+          char *varName = $1->varname;
+          Tree* idNode = createTreeWithSymbol(varName, EID, blockCounter, yylineno, NULL, NULL);
+          char *assignName = "ASSIGNMENT";
+          $$ = createTreeWithSymbol(assignName, ASIGN, 1, yylineno, idNode, $3);
+      }
+    ;
+
+/* Function call statement */
+function_call:
+      ID TPAR_OP argument TPAR_CL {
+          char *funcName = $1->varname;
+          Tree* funcNode = createTreeWithSymbol(funcName, EFUNC, blockCounter, yylineno, NULL, NULL);
+          char *callName = "FUNCTION_CALL";
+          $$ = createTreeWithSymbol(callName, CALL_F, blockCounter, yylineno, funcNode, $3);
+      }
+    ;
+
+/* Variable declaration */
+declaration:
+      TYPE_INT ID ';' {
+          char *varName = $2->varname;
+          $$ = createTreeWithSymbol(varName, VARINT, blockCounter, yylineno, NULL, NULL);
+      }
+    | TYPE_BOOL ID ';' {
+          char *varName = $2->varname;
+          $$ = createTreeWithSymbol(varName, VARBOOL, blockCounter, yylineno, NULL, NULL);
+      }
+    ;
+
+/* Argument list for function calls */
+argument:
+      /* empty */ { $$ = NULL; }
+    | expression { $$ = $1; }
+    | argument ',' expression {
+          char *argsName = "ARGUMENTS";
+          $$ = createTreeWithSymbol(argsName, ARGS, blockCounter, yylineno, $1, $3);
+      }
+    ;
+
+/* Parameter list for function definitions */
+parameters:
+      /* empty */ { $$ = NULL; }
+    | parameter_declaration { $$ = $1; }
+    | parameter_declaration ',' parameters {
+          char *paramsName = "PARAMETERS";
+          $$ = createTreeWithSymbol(paramsName, DECLARATION, blockCounter, yylineno, $1, $3);
+      }
+    ;
+
+/* Parameter declaration */
+parameter_declaration:
+      TYPE_INT ID {
+          char *paramName = $2->varname;
+          $$ = createTreeWithSymbol(paramName, PARAMINT, blockCounter, yylineno, NULL, NULL);
+      }
+    | TYPE_BOOL ID {
+          char *paramName = $2->varname;
+          $$ = createTreeWithSymbol(paramName, PARAMBOOL, blockCounter, yylineno, NULL, NULL);
+      }
+    ;
+
+/* List of function declarations */
+function_list:
+      function_declaration {
+          char *funcListName = "FUNCTION_LIST";
+          $$ = createTreeWithSymbol(funcListName, OTHERS, blockCounter, yylineno, $1, NULL);
+      }
+    | function_list function_declaration {
+          char *funcListName = "FUNCTION_LIST";
+          $$ = createTreeWithSymbol(funcListName, OTHERS, blockCounter, yylineno, $1, $2);
+      }
+    ;
+
+/* Function declaration (regular or extern) */
+function_declaration:
+      TYPE_INT ID TPAR_OP parameters TPAR_CL block {
+          char *funcName = $2->varname;
+          $$ = createTreeWithSymbol(funcName, RETINT, blockCounter, yylineno, $4, $6);
+      }
+    | TYPE_BOOL ID TPAR_OP parameters TPAR_CL block {
+          char *funcName = $2->varname;
+          $$ = createTreeWithSymbol(funcName, RETBOL, blockCounter, yylineno, $4, $6);
+      }
+    | TYPE_VOID ID TPAR_OP parameters TPAR_CL block {
+          char *funcName = $2->varname;
+          $$ = createTreeWithSymbol(funcName, RETVOID, blockCounter, yylineno, $4, $6);
+      }
+    | TYPE_INT ID TPAR_OP parameters TPAR_CL EXTERN ';' {
+          char *funcName = $2->varname;
+          $$ = createTreeWithSymbol(funcName, EXTINT, blockCounter-1, yylineno, $4, NULL);
+      }
+    | TYPE_BOOL ID TPAR_OP parameters TPAR_CL EXTERN ';' {
+          char *funcName = $2->varname;
+          $$ = createTreeWithSymbol(funcName, EXTBOL, blockCounter-1, yylineno, $4, NULL);
+      }
+    | TYPE_VOID ID TPAR_OP parameters TPAR_CL EXTERN ';' {
+          char *funcName = $2->varname;
+          $$ = createTreeWithSymbol(funcName, EXTVOID, blockCounter-1, yylineno, $4, NULL);
+      }
+    ;
+
+/* Expressions (arithmetic, boolean, function calls, etc.) */
+expression:
+      value { $$ = $1; }
+    | function_call { $$ = $1; }
+    | expression TPLUS expression {
+          char *plusName = "+";
+          $$ = createTreeWithSymbol(plusName, PLUS, blockCounter, yylineno, $1, $3);
+      }
+    | expression TMINUS expression {
+          char *minusName = "-";
+          $$ = createTreeWithSymbol(minusName, MINUS, blockCounter, yylineno, $1, $3);
+      }
+    | expression TTIMES expression {
+          char *timesName = "*";
+          $$ = createTreeWithSymbol(timesName, PROD, blockCounter, yylineno, $1, $3);
+      }
+    | expression TDIV expression {
+          char *divName = "/";
+          $$ = createTreeWithSymbol(divName, EDIV, blockCounter, yylineno, $1, $3);
+      }
+    | expression TMOD expression {
+          char *modName = "%";
+          $$ = createTreeWithSymbol(modName, EMOD, blockCounter, yylineno, $1, $3);
+      }
+    | expression GREATER_THAN expression {
+          char *gtName = ">";
+          $$ = createTreeWithSymbol(gtName, GREATER_THAN, blockCounter, yylineno, $1, $3);
+      }
+    | expression LESS_THAN expression {
+          char *ltName = "<";
+          $$ = createTreeWithSymbol(ltName, LESS_THAN, blockCounter, yylineno, $1, $3);
+      }
+    | expression EQ expression {
+          char *eqName = "==";
+          $$ = createTreeWithSymbol(eqName, EEQ, blockCounter, yylineno, $1, $3);
+      }
+    | expression AND expression {
+          char *andName = "&&";
+          $$ = createTreeWithSymbol(andName, EAND, blockCounter, yylineno, $1, $3);
+      }
+    | expression OR expression {
+          char *orName = "||";
+          $$ = createTreeWithSymbol(orName, EOR, blockCounter, yylineno, $1, $3);
+      }
+    | NOT expression {
+          char *notName = "!";
+          $$ = createTreeWithSymbol(notName, ENOT, blockCounter, yylineno, $2, NULL);
+      }
+    | TPAR_OP expression TPAR_CL { $$ = $2; }
+    ;
+
+/* Value nodes: literals, identifiers, unary minus */
+value:
+      INT { $$ = createTree($1, NULL, NULL); }
+    | ID { $$ = createTree($1, NULL, NULL); }
+    | TMINUS INT {
+          int len = strlen($2->varname);
+          char* newVarname = (char*)malloc(len + 2);
+          newVarname[0] = '-';
+          strcpy(newVarname + 1, $2->varname);
+          $2->varname = newVarname;
+          $2->value = $2->value * -1;
+          $$ = createTree($2, NULL, NULL);
+      }
+    | TTRUE { $$ = createTree($1, NULL, NULL); }
+    | TFALSE { $$ = createTree($1, NULL, NULL); }
+    ;
+
+/* Return statement */
+return_stmt:
+      RETURN expression ';' {
+          char *returnName = "return";
+          $$ = createTreeWithSymbol(returnName, ERETURN, blockCounter, yylineno, $2, NULL);
+      }
+    ;
+
+/* If-Else statement */
+if_else_stmt:
+      IF TPAR_OP expression TPAR_CL THEN block {
+          char *ifThenName = "if_then";
+          $$ = createTreeWithSymbol(ifThenName, EIF, blockCounter, yylineno, $3, $6);
+      }
+    | IF TPAR_OP expression TPAR_CL THEN block ELSE block {
+          char *thenName = "then";
+          char *elseName = "else";
+          Tree* elseNode = createTreeWithSymbol(elseName, EELSE, blockCounter, yylineno, $8, NULL);
+          Tree* thenNode = createTreeWithSymbol(thenName, ETHEN, blockCounter, yylineno, $6, elseNode);
+          char *ifElseName = "if_else";
+          $$ = createTreeWithSymbol(ifElseName, EIF, blockCounter, yylineno, $3, thenNode);
+      }
+    ;
+
+/* While statement */
+while_stmt:
+      WHILE TPAR_OP expression TPAR_CL block {
+          char *whileName = "while";
+          $$ = createTreeWithSymbol(whileName, EWHILE, blockCounter, yylineno, $3, $5);
+      }
+    ;
+
+%%
+
+/**
+ * Compiler entry point: builds symbol table, checks for semantic errors,
+ * generates pseudo-assembly and final assembly code, and frees memory.
+ */
+void compile(Tree* syntaxTree){
+    buildSymbolTable(syntaxTree);
     checkMissingReturnError();
     if(hasSemanticError()) {
-       freeTree(tree);
+       freeTree(syntaxTree);
        exit(1);
     }
-    generateThreeAddressCode(tree);
+    generateThreeAddressCode(syntaxTree);
     printPseudoAssemblyInstructions();
     generateAssemblerOutput();
     freePseudoAssemblyInstructions();
-    freeTree(tree);
+    freeTree(syntaxTree);
 }
 
-Tree* createTreeWhitSymbol(char * name,TOKENS token,int size, int line, Tree *l, Tree *r){
-    TData* aux = createSymbol(name,token,0,yylineno);
-    return createTree(aux,l,r);
+/**
+ * Helper to create a tree node with a symbol.
+ * Allocates a symbol and attaches left/right children.
+ */
+Tree* createTreeWithSymbol(char *name, TOKENS token, int size, int line, Tree *left, Tree *right){
+    TData* symbol = createSymbol(name, token, 0, yylineno);
+    return createTree(symbol, left, right);
 }
