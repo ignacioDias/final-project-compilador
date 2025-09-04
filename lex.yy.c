@@ -1,5 +1,5 @@
 
-#line 3 "lex.yy.c"
+#line 2 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -540,8 +540,8 @@ int yyparse();
 void yyerror();
 void current_token(TOKENS token_symbol);
 
+#line 543 "lex.yy.c"
 #line 544 "lex.yy.c"
-#line 545 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -761,7 +761,7 @@ YY_DECL
 #line 22 "cacl-lexico.l"
 
 
-#line 765 "lex.yy.c"
+#line 764 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1015,7 +1015,7 @@ YY_RULE_SETUP
 #line 78 "cacl-lexico.l"
 ECHO;
 	YY_BREAK
-#line 1019 "lex.yy.c"
+#line 1018 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

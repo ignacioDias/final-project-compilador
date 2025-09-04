@@ -1,0 +1,8 @@
+Program {
+    void main() {
+        int x; //No podemos hacer int x; x = ...; int a; a = ...; tampoco podemos hacer int x = ...; 
+        int a;
+        x = 2;
+        a = x + 2;
+    }
+}

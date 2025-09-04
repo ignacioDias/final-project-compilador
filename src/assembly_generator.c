@@ -24,7 +24,7 @@ int maxStackOffset = 0;
  * Create and open the output assembly file.
  */
 void createOutputFile() {
-    outputFile = fopen("output.s", "w");
+    outputFile = fopen("./outputs/output.s", "w");
     if (!outputFile) {
         printf("Error creating output.s\n");
         return;
@@ -36,7 +36,7 @@ void createOutputFile() {
  * Write a string to the output assembly file.
  */
 void writeToOutputFile(char* text) {
-    outputFile = fopen("output.s", "a");
+    outputFile = fopen("./outputs/output.s", "a");
     if (!outputFile) {
         printf("Error writing to output file");
         return;
@@ -132,7 +132,7 @@ void writeFunctionPrologue(PseudoAssembly* instruction) {
     sprintf(buffer, "%s:\n    pushq   %%rbp\n    movq    %%rsp, %%rbp\n", instruction->result->varname);
     writeToOutputFile(buffer);
     maxStackOffset = instruction->result->offset * -1;
-    sprintf(buffer, "    subq $%d, %%rsp \n", maxStackOffset);
+    sprintf(buffer, "\tsubq $%d, %%rsp \n", maxStackOffset);
     writeToOutputFile(buffer);
 }
 
@@ -141,10 +141,10 @@ void writeFunctionPrologue(PseudoAssembly* instruction) {
  */
 void writeFunctionEpilogue(PseudoAssembly* instruction) {
     char buffer[256];
-    sprintf(buffer, "    addq $%d, %%rsp \n", maxStackOffset);
+    sprintf(buffer, "\taddq $%d, %%rsp \n", maxStackOffset);
     writeToOutputFile(buffer);
-    writeToOutputFile("    popq    %rbp\n");
-    writeToOutputFile("    ret\n");
+    writeToOutputFile("\tpopq    %rbp\n");
+    writeToOutputFile("\tret\n");
 }
 
 /**
@@ -156,12 +156,12 @@ void writeFunctionParameterLoad(PseudoAssembly* instruction) {
     TData* param = instruction->result;
     functionParameterRegisterIndex += 1;
     if (functionParameterRegisterIndex > 5) {
-        sprintf(buffer, "    movl  %d(%%rbp), %%eax\n", ((functionParameterRegisterIndex - 5) * 16));
+        sprintf(buffer, "\tmovl  %d(%%rbp), %%eax\n", ((functionParameterRegisterIndex - 5) * 16));
         writeToOutputFile(buffer);
-        sprintf(buffer, "    movl %%eax, %d(%%rbp)\n", param->offset);
+        sprintf(buffer, "\tmovl %%eax, %d(%%rbp)\n", param->offset);
         writeToOutputFile(buffer);
     } else {
-        sprintf(buffer, "    movl %s%s, %d(%%rbp)\n", percent, parameterRegisters[functionParameterRegisterIndex], param->offset);
+        sprintf(buffer, "\tmovl %s%s, %d(%%rbp)\n", percent, parameterRegisters[functionParameterRegisterIndex], param->offset);
         writeToOutputFile(buffer);
     }
 }
@@ -174,14 +174,14 @@ void writeFunctionCallParameter(PseudoAssembly* instruction, int paramIndex) {
     char percent[3] = "%";
     TData *result = instruction->result;
     if (paramIndex >= 6) {
-        sprintf(buffer, "    subq $8, %srsp\n", percent);
+        sprintf(buffer, "\tsubq $8, %srsp\n", percent);
         writeToOutputFile(buffer);
         extraParameterCount++;
         if (result->token == CONSBOOL) {
-            sprintf(buffer, "    pushq $%d\n", strcmp("true", result->varname) == 0 ? 1 : 0);
+            sprintf(buffer, "\tpushq $%d\n", strcmp("true", result->varname) == 0 ? 1 : 0);
             writeToOutputFile(buffer);
         } else if (result->token == CONSINT) {
-            sprintf(buffer, "    pushq $%s\n", result->varname);
+            sprintf(buffer, "\tpushq $%s\n", result->varname);
             writeToOutputFile(buffer);
         }
         TOKENS tokenType = result->token;
@@ -190,18 +190,18 @@ void writeFunctionCallParameter(PseudoAssembly* instruction, int paramIndex) {
         bool isComparison = (tokenType == T_GREATER_THAN || tokenType == T_LESS_THAN || tokenType == EEQ);
         if (result->token == EID || result->token == CALL_F || isArithmetic || isBoolean || isComparison) {
             if (result->offset == 0) {
-                sprintf(buffer, "    pushq %s(%%rip)\n", result->varname);
+                sprintf(buffer, "\tpushq %s(%%rip)\n", result->varname);
             } else {
-                sprintf(buffer, "    pushq %d(%%rbp)\n", result->offset);
+                sprintf(buffer, "\tpushq %d(%%rbp)\n", result->offset);
             }
             writeToOutputFile(buffer);
         }
     } else {
         if (result->token == CONSBOOL) {
-            sprintf(buffer, "    movl $%d, %s%s\n", strcmp("true", result->varname) == 0 ? 1 : 0, percent, parameterRegisters[paramIndex]);
+            sprintf(buffer, "\tmovl $%d, %s%s\n", strcmp("true", result->varname) == 0 ? 1 : 0, percent, parameterRegisters[paramIndex]);
             writeToOutputFile(buffer);
         } else if (result->token == CONSINT) {
-            sprintf(buffer, "    movl $%s, %s%s\n", result->varname, percent, parameterRegisters[paramIndex]);
+            sprintf(buffer, "\tmovl $%s, %s%s\n", result->varname, percent, parameterRegisters[paramIndex]);
             writeToOutputFile(buffer);
         }
         TOKENS tokenType = result->token;
@@ -210,12 +210,12 @@ void writeFunctionCallParameter(PseudoAssembly* instruction, int paramIndex) {
         bool isComparison = (tokenType == T_GREATER_THAN || tokenType == T_LESS_THAN || tokenType == EEQ);
         if (result->token == EID || result->token == CALL_F || isArithmetic || isBoolean || isComparison) {
             if (result->offset == 0) {
-                sprintf(buffer, "    movl %s(%%rip), %seax\n", result->varname, percent);
+                sprintf(buffer, "\tmovl %s(%%rip), %seax\n", result->varname, percent);
             } else {
-                sprintf(buffer, "    movl %d(%%rbp), %seax\n", result->offset, percent);
+                sprintf(buffer, "\tmovl %d(%%rbp), %seax\n", result->offset, percent);
             }
             writeToOutputFile(buffer);
-            sprintf(buffer, "    movl %%eax, %s%s\n", percent, parameterRegisters[paramIndex]);
+            sprintf(buffer, "\tmovl %%eax, %s%s\n", percent, parameterRegisters[paramIndex]);
             writeToOutputFile(buffer);
         }
     }
@@ -238,25 +238,25 @@ void writeAssignment(PseudoAssembly* instruction) {
 
     if (sourceType == CONSINT) {
         if (destination->offset == 0)
-            sprintf(buffer, "    movl $%s, %s(%%rip)\n", source->varname, destination->varname);
+            sprintf(buffer, "\tmovl $%s, %s(%%rip)\n", source->varname, destination->varname);
         else
-            sprintf(buffer, "    movl $%s, %d(%%rbp)\n", source->varname, destination->offset);
+            sprintf(buffer, "\tmovl $%s, %d(%%rbp)\n", source->varname, destination->offset);
     } else if (sourceType == CONSBOOL) {
         int val = strcmp("true", source->varname) == 0 ? 1 : 0;
         if (destination->offset == 0)
-            sprintf(buffer, "    movl $%d, %s(%%rip)\n", val, destination->varname);
+            sprintf(buffer, "\tmovl $%d, %s(%%rip)\n", val, destination->varname);
         else
-            sprintf(buffer, "    movl $%d, %d(%%rbp)\n", val, destination->offset);
+            sprintf(buffer, "\tmovl $%d, %d(%%rbp)\n", val, destination->offset);
     } else {
         if (source->offset == 0)
-            sprintf(buffer, "    movl %s(%%rip), %%eax\n\n", source->varname);
+            sprintf(buffer, "\tmovl %s(%%rip), %%eax\n\n", source->varname);
         else
-            sprintf(buffer, "    movl %d(%%rbp), %%eax\n\n", source->offset);
+            sprintf(buffer, "\tmovl %d(%%rbp), %%eax\n\n", source->offset);
         writeToOutputFile(buffer);
         if (destination->offset == 0)
-            sprintf(buffer, "    movl %%eax, %s(%%rip)\n\n", destination->varname);
+            sprintf(buffer, "\tmovl %%eax, %s(%%rip)\n\n", destination->varname);
         else
-            sprintf(buffer, "    movl %%eax, %d(%%rbp)\n\n", destination->offset);
+            sprintf(buffer, "\tmovl %%eax, %d(%%rbp)\n\n", destination->offset);
     }
     writeToOutputFile(buffer);
 }
@@ -272,14 +272,14 @@ void writeReturnStatement(PseudoAssembly* instruction) {
 
     if (result->token == CONSBOOL) {
         int val = strcmp("true", result->varname) == 0 ? 1 : 0;
-        sprintf(buffer, "    movl $%d, %%eax\n", val);
+        sprintf(buffer, "\tmovl $%d, %%eax\n", val);
     } else if (result->token == CONSINT) {
-        sprintf(buffer, "    movl $%s,  %%eax\n", result->varname);
+        sprintf(buffer, "\tmovl $%s,  %%eax\n", result->varname);
     } else {
         if (result->offset == 0)
-            sprintf(buffer, "    movl %s(%%rip),  %%eax\n", result->varname);
+            sprintf(buffer, "\tmovl %s(%%rip),  %%eax\n", result->varname);
         else
-            sprintf(buffer, "    movl %d(%%rbp),  %%eax\n", result->offset);
+            sprintf(buffer, "\tmovl %d(%%rbp),  %%eax\n", result->offset);
     }
     writeToOutputFile(buffer);
 }
@@ -294,17 +294,17 @@ void writeConditionalJump(PseudoAssembly* instruction) {
 
     if (condition->token == CONSBOOL) {
         int val = strcmp("true", condition->varname) == 0 ? 1 : 0;
-        sprintf(buffer, "    movl $%d, %%eax\n", val);
+        sprintf(buffer, "\tmovl $%d, %%eax\n", val);
         writeToOutputFile(buffer);
-        sprintf(buffer, "    cmpl $1, %%eax\n");
+        sprintf(buffer, "\tcmpl $1, %%eax\n");
     } else {
         if (condition->offset == 0)
-            sprintf(buffer, "    cmpl  $1,  %s(%%rip)\n", condition->varname);
+            sprintf(buffer, "\tcmpl  $1,  %s(%%rip)\n", condition->varname);
         else
-            sprintf(buffer, "    cmpl  $1,  %d(%%rbp)\n", condition->offset);
+            sprintf(buffer, "\tcmpl  $1,  %d(%%rbp)\n", condition->offset);
     }
     writeToOutputFile(buffer);
-    sprintf(buffer, "    jne %s\n", label->varname);
+    sprintf(buffer, "\tjne %s\n", label->varname);
     writeToOutputFile(buffer);
 }
 
@@ -323,7 +323,7 @@ void writeLabel(PseudoAssembly* instruction) {
  */
 void writeJump(PseudoAssembly* instruction) {
     char buffer[256];
-    sprintf(buffer, "    jmp %s\n", instruction->result->varname);
+    sprintf(buffer, "\tjmp %s\n", instruction->result->varname);
     writeToOutputFile(buffer);
 }
 
@@ -332,15 +332,15 @@ void writeJump(PseudoAssembly* instruction) {
  */
 void writeFunctionCall(PseudoAssembly* instruction) {
     char buffer[256];
-    sprintf(buffer, "    call %s\n", instruction->op1->varname);
+    sprintf(buffer, "\tcall %s\n", instruction->op1->varname);
     writeToOutputFile(buffer);
     if (extraParameterCount > 0) {
         int stackAdjust = extraParameterCount * 16;
-        sprintf(buffer, "    addq $%d,  %%rsp\n", stackAdjust);
+        sprintf(buffer, "\taddq $%d,  %%rsp\n", stackAdjust);
         writeToOutputFile(buffer);
         extraParameterCount = 0;
     }
-    sprintf(buffer, "    movl %%eax, %d(%%rbp)\n", instruction->result->offset);
+    sprintf(buffer, "\tmovl %%eax, %d(%%rbp)\n", instruction->result->offset);
     writeToOutputFile(buffer);
 }
 
@@ -348,7 +348,7 @@ void writeFunctionCall(PseudoAssembly* instruction) {
  * Write arithmetic operation to assembly.
  */
 void writeArithmeticOperation(TData* op1, TData* op2, TData* result, ASM opcode) {
-    outputFile = fopen("output.s", "a");
+    outputFile = fopen("./  outputs/output.s", "a");
     if (!outputFile) {
         printf("Error writing to output file");
         return;
@@ -356,63 +356,63 @@ void writeArithmeticOperation(TData* op1, TData* op2, TData* result, ASM opcode)
     char buffer[100];
     if (opcode == T_PLUS || opcode == T_MOD || opcode == T_PROD) {
         if (op1->token == CONSINT)
-            sprintf(buffer, "    movl $%s, %%eax\n", op1->varname);
+            sprintf(buffer, "\tmovl $%s, %%eax\n", op1->varname);
         else if (op1->offset == 0)
-            sprintf(buffer, "    movl %s(%%rip), %%eax\n", op1->varname);
+            sprintf(buffer, "\tmovl %s(%%rip), %%eax\n", op1->varname);
         else
-            sprintf(buffer, "    movl %d(%%rbp), %%eax\n", op1->offset);
+            sprintf(buffer, "\tmovl %d(%%rbp), %%eax\n", op1->offset);
         writeToOutputFile(buffer);
 
         if (op2->token == CONSINT)
-            sprintf(buffer, "    movl $%s, %%edx\n", op2->varname);
+            sprintf(buffer, "\tmovl $%s, %%edx\n", op2->varname);
         else if (op2->offset == 0)
-            sprintf(buffer, "    movl %s(%%rip), %%edx\n", op2->varname);
+            sprintf(buffer, "\tmovl %s(%%rip), %%edx\n", op2->varname);
         else
-            sprintf(buffer, "    movl %d(%%rbp), %%edx\n", op2->offset);
+            sprintf(buffer, "\tmovl %d(%%rbp), %%edx\n", op2->offset);
         writeToOutputFile(buffer);
 
         if (opcode == T_PLUS)
-            sprintf(buffer, "    addl %%edx, %%eax\n");
+            sprintf(buffer, "\taddl %%edx, %%eax\n");
         else if (opcode == T_MOD)
-            sprintf(buffer, "    subl %%edx, %%eax\n");
+            sprintf(buffer, "\tsubl %%edx, %%eax\n");
         else
-            sprintf(buffer, "    imull %%edx, %%eax\n");
+            sprintf(buffer, "\timull %%edx, %%eax\n");
         writeToOutputFile(buffer);
 
-        sprintf(buffer, "    movl %%eax, %d(%%rbp)\n", result->offset);
+        sprintf(buffer, "\tmovl %%eax, %d(%%rbp)\n", result->offset);
         writeToOutputFile(buffer);
     } else if (opcode == T_DIV || opcode == T_MOD) {
         if (op1->token == CONSINT)
-            sprintf(buffer, "    movl $%s, %%eax\n", op1->varname);
+            sprintf(buffer, "\tmovl $%s, %%eax\n", op1->varname);
         else if (op1->offset == 0)
-            sprintf(buffer, "    movl %s(%%rip), %%eax\n", op1->varname);
+            sprintf(buffer, "\tmovl %s(%%rip), %%eax\n", op1->varname);
         else
-            sprintf(buffer, "    movl %d(%%rbp), %%eax\n", op1->offset);
+            sprintf(buffer, "\tmovl %d(%%rbp), %%eax\n", op1->offset);
         writeToOutputFile(buffer);
 
         if (op2->token == CONSINT) {
-            sprintf(buffer, "    movl $%s,  %%ecx\n", op2->varname);
+            sprintf(buffer, "\tmovl $%s,  %%ecx\n", op2->varname);
             writeToOutputFile(buffer);
-            sprintf(buffer, "    cltd\n");
+            sprintf(buffer, "\tcltd\n");
             writeToOutputFile(buffer);
-            sprintf(buffer, "    idivl %%ecx\n");
+            sprintf(buffer, "\tidivl %%ecx\n");
         } else if (op2->offset == 0) {
-            sprintf(buffer, "    movl %s(%%rip),  %%ecx\n", op2->varname);
+            sprintf(buffer, "\tmovl %s(%%rip),  %%ecx\n", op2->varname); //modularizar
             writeToOutputFile(buffer);
-            sprintf(buffer, "    cltd\n");
+            sprintf(buffer, "\tcltd\n");
             writeToOutputFile(buffer);
-            sprintf(buffer, "    idivl %%ecx\n");
+            sprintf(buffer, "\tidivl %%ecx\n");
         } else {
-            sprintf(buffer, "    cltd\n");
+            sprintf(buffer, "\tcltd\n");
             writeToOutputFile(buffer);
-            sprintf(buffer, "    idivl %d(%%rbp)\n", op2->offset);
+            sprintf(buffer, "\tidivl %d(%%rbp)\n", op2->offset);
         }
         writeToOutputFile(buffer);
 
         if (opcode == T_DIV)
-            sprintf(buffer, "    movl %%eax, %d(%%rbp)\n", result->offset);
+            sprintf(buffer, "\tmovl %%eax, %d(%%rbp)\n", result->offset);
         else
-            sprintf(buffer, "    movl %%edx, %d(%%rbp)\n", result->offset);
+            sprintf(buffer, "\tmovl %%edx, %d(%%rbp)\n", result->offset);
         writeToOutputFile(buffer);
     }
 }
@@ -424,41 +424,41 @@ void writeBooleanOperation(TData* op1, TData* op2, TData* result, ASM opcode) {
     char buffer[100];
     if (op1->token == CONSBOOL) {
         int val = strcmp("true", op1->varname) == 0 ? 1 : 0;
-        sprintf(buffer, "    movl $%d, %%eax\n", val);
+        sprintf(buffer, "\tmovl $%d, %%eax\n", val);
         writeToOutputFile(buffer);
-        sprintf(buffer, "    cmpl $0, %%eax\n");
+        sprintf(buffer, "\tcmpl $0, %%eax\n");
     } else if (op1->offset == 0) {
-        sprintf(buffer, "    cmpl $0, %s(%%rip)\n", op1->varname);
+        sprintf(buffer, "\tcmpl $0, %s(%%rip)\n", op1->varname);
     } else {
-        sprintf(buffer, "    cmpl $0, %d(%%rbp)\n", op1->offset);
+        sprintf(buffer, "\tcmpl $0, %d(%%rbp)\n", op1->offset);
     }
     writeToOutputFile(buffer);
 
     if (opcode == T_AND || opcode == T_OR) {
         if (opcode == T_AND)
-            sprintf(buffer, "    je .LA%d \n", booleanLabelCounter + 1);
+            sprintf(buffer, "\tje .LA%d \n", booleanLabelCounter + 1);
         else
-            sprintf(buffer, "    jne .LO%d \n", booleanLabelCounter + 1);
+            sprintf(buffer, "\tjne .LO%d \n", booleanLabelCounter + 1);
         writeToOutputFile(buffer);
 
         if (op2->token == CONSBOOL) {
             int val = strcmp("true", op2->varname) == 0 ? 1 : 0;
-            sprintf(buffer, "    movl $%d, %%eax\n", val);
+            sprintf(buffer, "\tmovl $%d, %%eax\n", val);
             writeToOutputFile(buffer);
-            sprintf(buffer, "    cmpl $0, %%eax\n");
+            sprintf(buffer, "\tcmpl $0, %%eax\n");
         } else if (op2->offset == 0) {
-            sprintf(buffer, "    cmpl $0, %s(%%rip)\n", op2->varname);
+            sprintf(buffer, "\tcmpl $0, %s(%%rip)\n", op2->varname);
         } else {
-            sprintf(buffer, "    cmpl $0, %d(%%rbp)\n", op2->offset);
+            sprintf(buffer, "\tcmpl $0, %d(%%rbp)\n", op2->offset);
         }
         writeToOutputFile(buffer);
 
         if (opcode == T_AND) {
             booleanLabelCounter++;
-            sprintf(buffer, "    je .LA%d \n", booleanLabelCounter);
+            sprintf(buffer, "\tje .LA%d \n", booleanLabelCounter);
         } else {
             booleanLabelCounter++;
-            sprintf(buffer, "    je .LO%d \n", booleanLabelCounter + 1);
+            sprintf(buffer, "\tje .LO%d \n", booleanLabelCounter + 1);
         }
         writeToOutputFile(buffer);
 
@@ -466,24 +466,24 @@ void writeBooleanOperation(TData* op1, TData* op2, TData* result, ASM opcode) {
             sprintf(buffer, ".LO%d: \n", booleanLabelCounter);
             writeToOutputFile(buffer);
         }
-        sprintf(buffer, "    movl $1, %%eax\n");
+        sprintf(buffer, "\tmovl $1, %%eax\n");
         writeToOutputFile(buffer);
 
         if (opcode == T_AND) {
             booleanLabelCounter++;
-            sprintf(buffer, "    jmp .LA%d \n", booleanLabelCounter);
+            sprintf(buffer, "\tjmp .LA%d \n", booleanLabelCounter);
             writeToOutputFile(buffer);
             booleanLabelCounter--;
             sprintf(buffer, ".LA%d: \n", booleanLabelCounter);
         } else {
             booleanLabelCounter++;
-            sprintf(buffer, "    jmp .LO%d \n", booleanLabelCounter + 1);
+            sprintf(buffer, "\tjmp .LO%d \n", booleanLabelCounter + 1);
             writeToOutputFile(buffer);
             sprintf(buffer, ".LO%d: \n", booleanLabelCounter);
         }
         writeToOutputFile(buffer);
 
-        sprintf(buffer, "    movl $0, %%eax\n");
+        sprintf(buffer, "\tmovl $0, %%eax\n");
         writeToOutputFile(buffer);
         booleanLabelCounter++;
         if (opcode == T_AND)
@@ -492,26 +492,27 @@ void writeBooleanOperation(TData* op1, TData* op2, TData* result, ASM opcode) {
             sprintf(buffer, ".LO%d: \n", booleanLabelCounter);
         writeToOutputFile(buffer);
     } else {
-        sprintf(buffer, "    sete  %%al\n");
+        sprintf(buffer, "\tsete  %%al\n");
         writeToOutputFile(buffer);
-        sprintf(buffer, "    movzbl  %%al, %%eax\n");
+        sprintf(buffer, "\tmovzbl  %%al, %%eax\n");
         writeToOutputFile(buffer);
     }
-    sprintf(buffer, "    movl %%eax, %d(%%rbp)\n", result->offset);
+    sprintf(buffer, "\tmovl %%eax, %d(%%rbp)\n", result->offset);
     writeToOutputFile(buffer);
 }
 
 /**
  * Write comparison operation to assembly.
  */
+
 void writeComparisonOperation(TData* op1, TData* op2, TData* result, ASM opcode) {
     char buffer[30];
     if (op1->token == CONSINT)
-        sprintf(buffer, "    movl $%s , %%eax \n", op1->varname);
+        sprintf(buffer, "\tmovl $%s , %%eax \n", op1->varname);
     else if (op1->offset == 0)
-        sprintf(buffer, "    movl %s(%%rip) , %%eax\n ", op1->varname);
+        sprintf(buffer, "\tmovl %s(%%rip) , %%eax\n ", op1->varname);
     else
-        sprintf(buffer, "    movl %d(%%rbp) , %%eax\n ", op1->offset);
+        sprintf(buffer, "\tmovl %d(%%rbp) , %%eax\n ", op1->offset);
     writeToOutputFile(buffer);
 
     if (op2->token == CONSINT)
@@ -523,15 +524,15 @@ void writeComparisonOperation(TData* op1, TData* op2, TData* result, ASM opcode)
     writeToOutputFile(buffer);
 
     if (opcode == T_ASIGN)
-        sprintf(buffer, "    sete %%al\n");
+        sprintf(buffer, "\tsete %%al\n");
     else if (opcode == T_GREATER)
-        sprintf(buffer, "    setg %%al\n");
+        sprintf(buffer, "\tsetg %%al\n");
     else if (opcode == T_LESS)
-        sprintf(buffer, "    setl %%al\n");
+        sprintf(buffer, "\tsetl %%al\n");
     writeToOutputFile(buffer);
 
-    sprintf(buffer, "    movzbl %%al, %%eax\n");
+    sprintf(buffer, "\tmovzbl %%al, %%eax\n");
     writeToOutputFile(buffer);
-    sprintf(buffer, "    movl  %%eax, %d(%%rbp)\n", result->offset);
+    sprintf(buffer, "\tmovl  %%eax, %d(%%rbp)\n", result->offset);
     writeToOutputFile(buffer);
 }
